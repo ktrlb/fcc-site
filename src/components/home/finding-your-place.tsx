@@ -64,7 +64,7 @@ export function FindingYourPlace() {
       title: "Generosity",
       description: "Share your resources to support our mission",
       icon: DollarSign,
-      href: "/generosity",
+      href: "/give",
       color: "bg-yellow-50 text-yellow-600",
       features: [
         "Online Giving",
@@ -132,41 +132,6 @@ export function FindingYourPlace() {
           </div>
         </div>
 
-        {/* Stewardship Information */}
-        <div className="bg-gray-50 p-8 rounded-lg">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Our View on Stewardship
-          </h3>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">Annual Pledge Campaign</h4>
-              <p className="text-gray-600 mb-4">
-                Each year we have a stewardship campaign where we challenge each person to assess 
-                where they are in the 5 areas of discipleship. If you missed submitting your pledge 
-                in October, it&apos;s never too late.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• Physical cards available in the Narthex</li>
-                <li>• Online pledge submission available</li>
-                <li>• Pledge anytime throughout the year</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">Community Outreach</h4>
-              <p className="text-gray-600 mb-4">
-                11% of monies received by the congregation are distributed through our outreach 
-                partnerships and community. We have many opportunities for sharing of time and talent.
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• Local community partnerships</li>
-                <li>• Time and talent sharing</li>
-                <li>• Financial resource distribution</li>
-              </ul>
-            </div>
-          </div>
-        </div>
 
         <div className="text-center mt-8">
           <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">

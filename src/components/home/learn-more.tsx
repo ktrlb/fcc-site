@@ -6,23 +6,23 @@ import Link from "next/link";
 export function LearnMore() {
   const coreValues = [
     {
-      title: "Faith",
-      description: "We believe in the power of faith to transform lives and communities.",
+      title: "Relationship",
+      description: "All are welcome as we seek genuine connection with God and one another. We care for and respect each other more than we worry about our differences.",
       icon: Heart
     },
     {
-      title: "Community",
-      description: "Building meaningful relationships and supporting one another in our journey.",
-      icon: Users
-    },
-    {
-      title: "Service",
-      description: "Serving others with love, compassion, and dedication to making a difference.",
+      title: "Discipleship",
+      description: "We seek to be remade in the image of Jesus as revealed through Holy Scripture and prayer, and to lead by example as we dedicate ourselves to his work of bringing wholeness to a fragmented world.",
       icon: BookOpen
     },
     {
-      title: "Growth",
-      description: "Continuous spiritual growth through study, prayer, and fellowship.",
+      title: "Humility",
+      description: "Only God is God. We are imperfect people motivated by the sacrificial love of Jesus. It's not about us, but about working together to lift up hungry and hurting people.",
+      icon: Users
+    },
+    {
+      title: "Dignity",
+      description: "Everyone is made in God's image, loved unconditionally by their Creator. Everyone. We seek to serve our community and world in ways that reveal the infinite value of each person.",
       icon: Clock
     }
   ];
@@ -49,16 +49,14 @@ export function LearnMore() {
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Mission Statement</h4>
                   <p className="text-gray-600">
-                    To be a welcoming community of faith that nurtures spiritual growth, 
-                    builds meaningful relationships, and serves our neighbors with love and compassion.
+                    To share with ALL people the unconditional love of God that we experience in Jesus Christ our Lord.
                   </p>
                 </div>
                 
                 <div>
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Vision Statement</h4>
                   <p className="text-gray-600">
-                    To be a beacon of hope and transformation in Granbury, inspiring all to 
-                    live lives of purpose, service, and faith.
+                    Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us.
                   </p>
                 </div>
               </div>

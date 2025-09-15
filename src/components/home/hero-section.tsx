@@ -3,38 +3,35 @@
 export function HeroSection() {
   return (
     <section className="relative w-full overflow-hidden pt-20" style={{ height: '450px' }}>
-      {/* YouTube Video Background */}
-      <iframe
-        className="absolute top-0 left-0 w-full h-full z-0"
-        src="https://www.youtube.com/embed/cmSpf6ZiO4I?autoplay=1&mute=1&loop=1&playlist=cmSpf6ZiO4I&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&start=0&end=0&enablejsapi=1"
-        title="FCC Hero Video"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-        frameBorder="0"
-        style={{
-          width: '100%',
-          height: '100%',
-          border: 'none',
-          pointerEvents: 'none'
-        }}
-      />
+      {/* YouTube Video Background - autoplay on load */}
+        <iframe
+          className="absolute z-0"
+          src="https://www.youtube.com/embed/cmSpf6ZiO4I?autoplay=1&mute=1&loop=1&playlist=cmSpf6ZiO4I&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&start=0&end=0&enablejsapi=1"
+          title="FCC Hero Video"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          frameBorder="0"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: '100vw',
+            height: '56.25vw',
+            minHeight: '100%',
+            minWidth: '177.77vh',
+            transform: 'translate(-50%, -50%)',
+            border: 'none',
+            pointerEvents: 'none'
+          }}
+        />
       
-      {/* Fallback image background */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: "url('/images/fistpump.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat"
-        }}
-      />
 
       {/* Very light overlay for better text readability */}
       <div 
         className="absolute inset-0 z-10" 
         style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
       />
+
 
       {/* Content */}
       <div className="relative z-20 flex items-center justify-center h-full">
