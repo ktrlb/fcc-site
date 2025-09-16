@@ -87,14 +87,18 @@ export function WhatToExpect() {
               We&apos;d love to answer any other questions you might have. 
               Feel free to reach out to us or just come visit - we&apos;re here to help!
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-center">
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-1">Call Us</h4>
                 <p className="text-sm text-gray-600">(817) 573-5433</p>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-1">Email Us</h4>
-                <p className="text-sm text-gray-600">info@fccgranbury.org</p>
+                <p className="text-sm text-gray-600">office@fccgranbury.org</p>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <h4 className="font-semibold text-gray-900 mb-1">Office Hours</h4>
+                <p className="text-sm text-gray-600">Monday-Thursday<br />9am-5pm</p>
               </div>
             </div>
           </div>

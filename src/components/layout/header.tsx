@@ -3,15 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 
 const navigation = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
-  { name: "Calendar", href: "/calendar" },
+  { name: "Ministry Database", href: "/ministry-database" },
   { name: "Visit", href: "/visit" },
-  { name: "Resources", href: "/resources" },
   { name: "Give", href: "/give" },
 ];
 
@@ -42,12 +41,13 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-64">
-              <div className="flex flex-col space-y-4 mt-8">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <div className="flex flex-col space-y-4 px-6 py-8">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="text-lg font-medium text-gray-900 hover:text-blue-600"
+                    className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.name}
