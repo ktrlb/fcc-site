@@ -15,6 +15,20 @@
       "when": 1758048980209,
       "tag": "0001_worthless_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758132171400,
+      "tag": "0002_rare_lady_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758136754332,
+      "tag": "0003_nebulous_the_renegades",
+      "breakpoints": true
     }
   ]
 }

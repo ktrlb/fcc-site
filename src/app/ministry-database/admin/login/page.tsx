@@ -1,6 +1,15 @@
+"use client";
+
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
+import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
+  const router = useRouter();
+
+  const handleLoginSuccess = () => {
+    router.push('/ministry-database/admin');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -12,7 +21,7 @@ export default function AdminLoginPage() {
             Ministry Database Administration
           </p>
         </div>
-        <AdminLoginForm />
+        <AdminLoginForm onLoginSuccess={handleLoginSuccess} />
       </div>
     </div>
   );

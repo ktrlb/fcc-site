@@ -40,65 +40,39 @@ export function LearnMore() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Mission, Vision, Values */}
+          {/* Mission */}
           <Card className="p-8">
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Foundation</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Mission</h3>
               
               <div className="space-y-6">
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Mission Statement</h4>
-                  <p className="text-gray-600">
-                    To share with ALL people the unconditional love of God that we experience in Jesus Christ our Lord.
-                  </p>
-                </div>
-                
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Vision Statement</h4>
-                  <p className="text-gray-600">
-                    Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="mt-8">
-                <Button asChild className="w-full">
-                  <Link href="/about">Learn More About Our Mission</Link>
-                </Button>
+                <p className="text-gray-600 text-lg">
+                  To share with ALL people the unconditional love of God that we experience in Jesus Christ our Lord.
+                </p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Staff & History */}
+          {/* Vision */}
           <Card className="p-8">
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Community</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Vision</h3>
               
               <div className="space-y-6">
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Meet Our Staff</h4>
-                  <p className="text-gray-600">
-                    Get to know our dedicated pastoral team and staff who serve our community 
-                    with passion and commitment.
+                <p className="text-gray-600 text-lg">
+                  Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
+                </p>
+                <div className="text-gray-600 space-y-4">
+                  <p>
+                    <span className="font-semibold text-gray-800">Not pride and judgment,</span> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.
+                  </p>
+                  <p>
+                    <span className="font-semibold text-gray-800">Not easy answers,</span> but growing together through shared engagement with the scriptures and the hard questions of life and faith.
+                  </p>
+                  <p>
+                    <span className="font-semibold text-gray-800">Not a self-serving institution,</span> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.
                   </p>
                 </div>
-                
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Our History</h4>
-                  <p className="text-gray-600">
-                    Discover our rich heritage and the journey that has brought us to where 
-                    we are today in the Granbury community.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="mt-8 space-y-3">
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/about#staff">Meet Our Staff</Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/about#history">Our History</Link>
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -127,8 +101,8 @@ export function LearnMore() {
         </div>
 
         <div className="text-center">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
-            Learn More About FCC
+          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+            <Link href="/about">Learn More About Our Staff, History & Leadership</Link>
           </Button>
         </div>
       </div>

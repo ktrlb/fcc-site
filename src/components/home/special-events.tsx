@@ -1,8 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Users, Calendar, Download } from "lucide-react";
+import { getFeaturedSeasonalGuide } from "@/lib/content-queries";
+import Image from "next/image";
 
-export function SpecialEvents() {
+export async function SpecialEvents() {
+  // Get featured seasonal guide from database
+  const seasonalGuide = await getFeaturedSeasonalGuide();
   // This would typically come from your database
   const specialEvents = [
     {
@@ -66,19 +70,46 @@ export function SpecialEvents() {
                 </p>
                 
                 <div className="bg-blue-50 p-6 rounded-lg">
-                  <h4 className="font-semibold text-lg mb-2">What&apos;s Inside:</h4>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>• Special service schedules</li>
-                    <li>• Community outreach opportunities</li>
-                    <li>• Fellowship events</li>
-                    <li>• Study group schedules</li>
-                    <li>• Volunteer opportunities</li>
-                  </ul>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg mb-2">What&apos;s Inside:</h4>
+                      <ul className="space-y-2 text-gray-700">
+                        <li>• Special service schedules</li>
+                        <li>• Community outreach opportunities</li>
+                        <li>• Fellowship events</li>
+                        <li>• Study group schedules</li>
+                        <li>• Volunteer opportunities</li>
+                      </ul>
+                    </div>
+                    {seasonalGuide?.coverImageUrl && (
+                      <div className="flex-shrink-0">
+                        <div className="relative w-48 h-64 rounded-lg overflow-hidden shadow-md">
+                          <Image
+                            src={seasonalGuide.coverImageUrl}
+                            alt={seasonalGuide.title}
+                            fill
+                            className="object-cover"
+                            style={{ aspectRatio: '8.5/11' }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Seasonal Guide (PDF)
+                <Button 
+                  asChild
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <a 
+                    href={seasonalGuide?.pdfUrl || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Seasonal Guide (PDF)
+                  </a>
                 </Button>
               </div>
             </CardContent>

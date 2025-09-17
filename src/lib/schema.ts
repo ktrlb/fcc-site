@@ -60,6 +60,48 @@ export const ministryTeamSkills = pgTable('ministry_team_skills', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Content tables for structured data
+export const sermonSeries = pgTable('sermon_series', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  imageUrl: varchar('image_url', { length: 500 }), // Vercel Blob URL
+  isActive: boolean('is_active').default(true).notNull(),
+  isFeatured: boolean('is_featured').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const seasonalGuides = pgTable('seasonal_guides', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  pdfUrl: varchar('pdf_url', { length: 500 }), // Vercel Blob URL for PDF
+  coverImageUrl: varchar('cover_image_url', { length: 500 }), // Vercel Blob URL for cover
+  isActive: boolean('is_active').default(true).notNull(),
+  isFeatured: boolean('is_featured').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Keep the assets table for general file storage
+export const assets = pgTable('assets', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  type: varchar('type', { length: 50 }).notNull(), // 'image', 'document', 'video', etc.
+  fileUrl: varchar('file_url', { length: 500 }).notNull(),
+  fileName: varchar('file_name', { length: 255 }).notNull(),
+  fileSize: varchar('file_size', { length: 20 }),
+  mimeType: varchar('mime_type', { length: 100 }),
+  isActive: boolean('is_active').default(true).notNull(),
+  isFeatured: boolean('is_featured').default(false).notNull(),
+  sortOrder: varchar('sort_order', { length: 10 }).default('0'),
+  metadata: text('metadata'), // JSON string for additional data
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Export types for TypeScript
 export type MinistryCategory = typeof ministryCategories.$inferSelect;
 export type NewMinistryCategory = typeof ministryCategories.$inferInsert;
@@ -75,3 +117,12 @@ export type NewMinistryApplication = typeof ministryApplications.$inferInsert;
 
 export type MinistryTeamSkill = typeof ministryTeamSkills.$inferSelect;
 export type NewMinistryTeamSkill = typeof ministryTeamSkills.$inferInsert;
+
+export type SermonSeries = typeof sermonSeries.$inferSelect;
+export type NewSermonSeries = typeof sermonSeries.$inferInsert;
+
+export type SeasonalGuide = typeof seasonalGuides.$inferSelect;
+export type NewSeasonalGuide = typeof seasonalGuides.$inferInsert;
+
+export type Asset = typeof assets.$inferSelect;
+export type NewAsset = typeof assets.$inferInsert;

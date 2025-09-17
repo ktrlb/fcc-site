@@ -5,7 +5,7 @@ import { LearnMore } from "@/components/home/learn-more";
 import { FindingYourPlace } from "@/components/home/finding-your-place";
 import { EmailSignup } from "@/components/home/email-signup";
 
-export default function Home() {
+export default async function Home() {
   return (
     <div className="min-h-screen">
       <HeroSection />

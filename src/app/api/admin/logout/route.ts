@@ -1,17 +1,12 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { clearAdminSession } from '@/lib/admin-auth';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    // Clear admin session cookie
-    const cookieStore = await cookies();
-    cookieStore.delete('admin-session');
-
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    await clearAdminSession();
+    return NextResponse.json({ message: 'Logout successful' });
+  } catch (error) {
+    console.error('Error during admin logout:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,8 +1,11 @@
+import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 
-const ADMIN_SESSION_COOKIE = 'admin-session';
 const ADMIN_PASSWORD = process.env.SITE_ADMIN_PASSWORD;
+
+if (!ADMIN_PASSWORD) {
+  throw new Error('SITE_ADMIN_PASSWORD environment variable is required');
+}
 
 export function verifyAdminPassword(password: string): boolean {
   return password === ADMIN_PASSWORD;
@@ -10,31 +13,26 @@ export function verifyAdminPassword(password: string): boolean {
 
 export async function setAdminSession() {
   const cookieStore = await cookies();
-  cookieStore.set(ADMIN_SESSION_COOKIE, 'authenticated', {
+  cookieStore.set('admin-session', 'authenticated', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: 60 * 60 * 24, // 24 hours
   });
 }
 
 export async function clearAdminSession() {
   const cookieStore = await cookies();
-  cookieStore.delete(ADMIN_SESSION_COOKIE);
+  cookieStore.delete('admin-session');
 }
 
 export async function isAdminAuthenticated(): Promise<boolean> {
   const cookieStore = await cookies();
-  const session = cookieStore.get(ADMIN_SESSION_COOKIE);
+  const session = cookieStore.get('admin-session');
   return session?.value === 'authenticated';
 }
 
-export async function requireAdmin() {
-  if (!(await isAdminAuthenticated())) {
-    redirect('/ministry-database/admin/login');
-  }
-}
-
-export function getAdminRedirectUrl() {
-  return '/ministry-database/admin';
+export function requireAdminAuth(request: NextRequest): boolean {
+  const sessionCookie = request.cookies.get('admin-session');
+  return sessionCookie?.value === 'authenticated';
 }

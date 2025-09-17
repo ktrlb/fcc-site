@@ -87,7 +87,7 @@ export function Footer() {
             </div>
             <div className="text-sm text-gray-300">
               <p>Sunday Services:</p>
-              <p>9:00 AM & 11:00 AM</p>
+              <p>9:00 AM Modern / 11:00 AM Traditional</p>
             </div>
           </div>
         </div>

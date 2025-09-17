@@ -98,9 +98,9 @@ export function FindingYourPlace() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
             {fiveThings.map((item, index) => (
-              <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
+              <Card key={index} className="p-6 hover:shadow-lg transition-shadow w-full max-w-sm">
                 <CardContent className="p-0">
                   <div className="flex items-center mb-4">
                     <div className={`p-3 rounded-full ${item.color} mr-4`}>

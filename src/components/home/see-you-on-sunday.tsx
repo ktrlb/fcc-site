@@ -2,20 +2,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import Image from "next/image";
+import { getFeaturedSermonSeries } from "@/lib/content-queries";
 
-export function SeeYouOnSunday() {
+export async function SeeYouOnSunday() {
   // This would typically come from your database
   const upcomingSunday = new Date();
   const nextSunday = new Date(upcomingSunday);
   nextSunday.setDate(upcomingSunday.getDate() + (7 - upcomingSunday.getDay()));
 
-  const sermonSeries = {
-    title: "Walking in Faith",
-    description: "Join us as we explore what it means to walk in faith through life's challenges and triumphs.",
-    image: "/images/sermon-series.svg",
-    startDate: "January 2024",
-    endDate: "March 2024"
-  };
+  // Get featured sermon series from database
+  const sermonSeries = await getFeaturedSermonSeries();
 
   return (
     <section className="py-16 bg-gray-50">
@@ -42,16 +38,24 @@ export function SeeYouOnSunday() {
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 text-gray-500 mr-3" />
                   <div>
-                    <p className="font-semibold text-lg">9:00 AM Service</p>
-                    <p className="text-gray-600">Traditional Worship</p>
+                    <p className="font-semibold text-lg">9:00 AM</p>
+                    <p className="text-gray-600">Modern Worship</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <Users className="h-5 w-5 text-gray-500 mr-3" />
+                  <div>
+                    <p className="font-semibold text-lg">10:00 AM</p>
+                    <p className="text-gray-600">Sunday School for All Ages</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 text-gray-500 mr-3" />
                   <div>
-                    <p className="font-semibold text-lg">11:00 AM Service</p>
-                    <p className="text-gray-600">Contemporary Worship</p>
+                    <p className="font-semibold text-lg">11:00 AM</p>
+                    <p className="text-gray-600">Traditional Worship</p>
                   </div>
                 </div>
                 
@@ -64,8 +68,8 @@ export function SeeYouOnSunday() {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
+              <div className="mt-6">
+                <p className="text-sm text-gray-600">
                   <strong>Next Service:</strong> {nextSunday.toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     year: 'numeric', 
@@ -86,30 +90,40 @@ export function SeeYouOnSunday() {
               </div>
               
               <div className="space-y-4">
-                <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">
-                  <Image
-                    src={sermonSeries.image}
-                    alt={sermonSeries.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                
-                <h4 className="text-xl font-bold text-gray-900">{sermonSeries.title}</h4>
-                <p className="text-gray-600">{sermonSeries.description}</p>
-                
-                <div className="text-sm text-gray-500">
-                  <p>{sermonSeries.startDate} - {sermonSeries.endDate}</p>
-                </div>
+                {sermonSeries ? (
+                  <>
+                    {sermonSeries.imageUrl && (
+                      <div className="relative w-full mb-4 rounded-lg overflow-hidden" style={{ aspectRatio: '3/2' }}>
+                        <Image
+                          src={sermonSeries.imageUrl}
+                          alt={sermonSeries.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    <h4 className="text-xl font-bold text-gray-900">
+                      {sermonSeries.title}
+                    </h4>
+                    
+                    {sermonSeries.description && (
+                      <p className="text-gray-600">
+                        {sermonSeries.description}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No current sermon series available</p>
+                    <p className="text-sm text-gray-400 mt-2">
+                      Create a sermon series in the admin panel to display it here.
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="text-center">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
-            View Full Calendar
-          </Button>
         </div>
       </div>
     </section>

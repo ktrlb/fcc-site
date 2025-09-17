@@ -5,13 +5,18 @@ export function WorshipServices() {
   const regularServices = [
     {
       time: "9:00 AM",
-      name: "Traditional Service",
-      description: "A more traditional worship experience with hymns and liturgy"
+      name: "Modern Worship",
+      description: "A contemporary worship experience with modern music and casual atmosphere"
+    },
+    {
+      time: "10:00 AM", 
+      name: "Sunday School",
+      description: "Sunday School for all ages - children, youth, and adults"
     },
     {
       time: "11:00 AM", 
-      name: "Contemporary Service",
-      description: "A contemporary worship experience with modern music and casual atmosphere"
+      name: "Traditional Worship",
+      description: "A more traditional worship experience with hymns and liturgy"
     }
   ];
 
@@ -102,7 +107,7 @@ export function WorshipServices() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-1">This Sunday</h4>
-                <p className="text-sm text-gray-600">9:00 AM & 11:00 AM</p>
+                <p className="text-sm text-gray-600">9:00 AM Modern / 11:00 AM Traditional</p>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
