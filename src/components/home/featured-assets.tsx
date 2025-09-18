@@ -1,0 +1,120 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Download, FileText, Image as ImageIcon, Video, Music, File } from "lucide-react";
+import { getFeaturedAssets } from "@/lib/asset-queries";
+import Image from "next/image";
+
+function getFileIcon(type: string) {
+  switch (type) {
+    case 'image':
+      return ImageIcon;
+    case 'video':
+      return Video;
+    case 'audio':
+    case 'music':
+      return Music;
+    case 'document':
+    case 'pdf':
+      return FileText;
+    default:
+      return File;
+  }
+}
+
+function formatFileSize(size: string | null) {
+  if (!size) return '';
+  const bytes = parseInt(size);
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export async function FeaturedAssets() {
+  const featuredAssets = await getFeaturedAssets();
+
+  if (featuredAssets.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 font-serif">
+            Featured Resources
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Download our latest resources, documents, and media to support your faith journey.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {featuredAssets.map((asset) => {
+            const IconComponent = getFileIcon(asset.type);
+            const isImage = asset.type === 'image' && asset.mimeType?.startsWith('image/');
+            
+            return (
+              <Card key={asset.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      {isImage ? (
+                        <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                          <Image
+                            src={asset.fileUrl}
+                            alt={asset.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <IconComponent className="h-8 w-8 text-blue-600" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                        {asset.name}
+                      </h3>
+                      
+                      {asset.description && (
+                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                          {asset.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <span className="capitalize">{asset.type}</span>
+                        {asset.fileSize && (
+                          <span>{formatFileSize(asset.fileSize)}</span>
+                        )}
+                      </div>
+                      
+                      <Button 
+                        asChild
+                        size="sm" 
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <a 
+                          href={asset.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
