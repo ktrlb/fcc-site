@@ -36,6 +36,11 @@ export async function FeaturedAssets() {
     return null;
   }
 
+  // Debug: Log asset URLs in production
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Featured assets URLs:', featuredAssets.map(a => ({ name: a.name, url: a.fileUrl, type: a.type })));
+  }
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -65,6 +70,11 @@ export async function FeaturedAssets() {
                             alt={asset.name}
                             fill
                             className="object-cover"
+                            onError={(e) => {
+                              console.error('Image failed to load:', asset.fileUrl);
+                              // Fallback to icon if image fails
+                              e.currentTarget.style.display = 'none';
+                            }}
                           />
                         </div>
                       ) : (
