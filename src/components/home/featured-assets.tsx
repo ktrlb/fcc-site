@@ -65,11 +65,10 @@ export async function FeaturedAssets() {
                     <div className="flex-shrink-0">
                       {isImage ? (
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                          <Image
+                          <img
                             src={asset.fileUrl}
                             alt={asset.name}
-                            fill
-                            className="object-cover"
+                            className="w-full h-full object-cover"
                             onError={(e) => {
                               console.error('Image failed to load:', asset.fileUrl);
                               // Fallback to icon if image fails
