@@ -1,0 +1,1 @@
+ALTER TABLE "ministry_teams" ADD COLUMN "categories" text[];

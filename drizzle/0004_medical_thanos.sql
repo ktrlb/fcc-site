@@ -1,0 +1,1 @@
+ALTER TABLE "ministry_teams" ADD COLUMN "image_url" varchar(500);

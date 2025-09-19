@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, Clock, MapPin, Phone, Mail } from "lucide-react";
+import { Search, Users, Clock, MapPin, Phone } from "lucide-react";
+import { MinistryPlaceholder } from "./ministry-placeholder";
 import type { MinistryTeam } from "@/lib/schema";
 
 interface MinistryCategory {
@@ -20,6 +21,7 @@ interface Props {
   initialMinistries: MinistryTeam[];
   initialCategories: MinistryCategory[];
 }
+
 
 export function MinistryDatabase({ initialMinistries, initialCategories }: Props) {
   const [ministries] = useState<MinistryTeam[]>(initialMinistries);
@@ -38,7 +40,26 @@ export function MinistryDatabase({ initialMinistries, initialCategories }: Props
   useEffect(() => {
     let results = ministries;
     if (selectedCategory !== "all") {
-      results = results.filter((m) => m.category === selectedCategory);
+      results = results.filter((m) => {
+        // Handle URL encoding issues with ampersands
+        const selectedCategoryNormalized = selectedCategory.replace(/\u0026/g, '&');
+        
+        // Check legacy category field
+        const ministryCategory = m.category?.replace(/\u0026/g, '&') || '';
+        if (ministryCategory === selectedCategoryNormalized) {
+          return true;
+        }
+        
+        // Check new categories array field
+        if (m.categories && m.categories.length > 0) {
+          return m.categories.some(cat => {
+            const normalizedCat = cat?.replace(/\u0026/g, '&') || '';
+            return normalizedCat === selectedCategoryNormalized;
+          });
+        }
+        
+        return false;
+      });
     }
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -104,38 +125,54 @@ export function MinistryDatabase({ initialMinistries, initialCategories }: Props
 
       {/* Search and Filter Section */}
       <div className="py-8 bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Search Bar */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          {/* Full Width Search Bar */}
+          <div className="relative">
+            <div className="flex items-center gap-3">
+              <Search className="text-gray-400 h-5 w-5" />
               <Input
-                placeholder="Search ministries, skills, or keywords..."
+                placeholder="Search ministries by name, description, skills, or keywords..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="flex-1"
               />
-            </div>
-
-            {/* Category Filter */}
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant={selectedCategory === "all" ? "default" : "outline"}
-                onClick={() => setSelectedCategory("all")}
-              >
-                All Categories
-              </Button>
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.name ? "default" : "outline"}
-                  onClick={() => setSelectedCategory(category.name)}
-                  className="capitalize"
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Clear search"
                 >
-                  {category.name}
-                </Button>
-              ))}
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
+            {searchTerm && (
+              <div className="mt-2 text-sm text-gray-600">
+                Showing {filteredMinistries.length} of {ministries.length} ministries
+              </div>
+            )}
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={selectedCategory === "all" ? "default" : "outline"}
+              onClick={() => setSelectedCategory("all")}
+            >
+              All Categories
+            </Button>
+            {categories.map((category) => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.name ? "default" : "outline"}
+                onClick={() => setSelectedCategory(category.name)}
+                className="capitalize"
+              >
+                {category.name}
+              </Button>
+            ))}
           </div>
         </div>
       </div>
@@ -160,51 +197,74 @@ export function MinistryDatabase({ initialMinistries, initialCategories }: Props
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredMinistries.map((ministry) => (
-                <Card key={ministry.id} className="hover:shadow-lg transition-shadow">
+                <Card key={ministry.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                  <div className="relative h-48 w-full">
+                    {ministry.imageUrl ? (
+                      <img
+                        src={ministry.imageUrl}
+                        alt={ministry.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <MinistryPlaceholder 
+                        ministryName={ministry.name} 
+                        category={ministry.category} 
+                      />
+                    )}
+                  </div>
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-lg">{ministry.name}</CardTitle>
-                      <Badge variant="secondary">{ministry.category}</Badge>
+                      <div className="flex flex-wrap gap-1">
+                        {/* Show legacy category */}
+                        <Badge variant="secondary">{ministry.category}</Badge>
+                        {/* Show additional categories */}
+                        {ministry.categories && ministry.categories.map((cat, index) => (
+                          <Badge key={index} variant="outline">{cat}</Badge>
+                        ))}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-gray-600 text-sm">{ministry.description}</p>
                     
                     <div className="space-y-2">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Clock className="h-4 w-4 mr-2" />
-                        {ministry.timeCommitment}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        {ministry.location}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Users className="h-4 w-4 mr-2" />
-                        {ministry.meetingSchedule}
-                      </div>
+                      {ministry.timeCommitment && (
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Clock className="h-4 w-4 mr-2" />
+                          {ministry.timeCommitment}
+                        </div>
+                      )}
+                      {ministry.location && (
+                        <div className="flex items-center text-sm text-gray-500">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          {ministry.location}
+                        </div>
+                      )}
+                      {ministry.meetingSchedule && (
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Users className="h-4 w-4 mr-2" />
+                          {ministry.meetingSchedule}
+                        </div>
+                      )}
                     </div>
 
-                    <div>
-                      <h4 className="font-medium text-sm text-gray-900 mb-2">Skills Needed:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {ministry.skillsNeeded?.map((skill, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
+                    {ministry.skillsNeeded && ministry.skillsNeeded.length > 0 && (
+                      <div>
+                        <h4 className="font-medium text-sm text-gray-900 mb-2">Skills Needed:</h4>
+                        <div className="flex flex-wrap gap-1">
+                          {ministry.skillsNeeded.map((skill, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="pt-4 border-t">
                       <h4 className="font-medium text-sm text-gray-900 mb-2">Contact:</h4>
                       <p className="text-sm text-gray-600">{ministry.contactPerson}</p>
-                      <div className="flex items-center text-sm text-blue-600 mt-1">
-                        <Mail className="h-4 w-4 mr-1" />
-                        <a href={`mailto:${ministry.contactEmail}`} className="hover:underline">
-                          {ministry.contactEmail}
-                        </a>
-                      </div>
                       {ministry.contactPhone && (
                         <div className="flex items-center text-sm text-blue-600 mt-1">
                           <Phone className="h-4 w-4 mr-1" />
@@ -214,10 +274,6 @@ export function MinistryDatabase({ initialMinistries, initialCategories }: Props
                         </div>
                       )}
                     </div>
-
-                    <Button className="w-full mt-4">
-                      Get Involved
-                    </Button>
                   </CardContent>
                 </Card>
               ))}

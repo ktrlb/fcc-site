@@ -25,10 +25,12 @@ export const ministryTeams = pgTable('ministry_teams', {
   regularMeetingType: varchar('regular_meeting_type', { length: 100 }),
   regularMeetingTime: varchar('regular_meeting_time', { length: 100 }),
   description: text('description').notNull(),
-  graphicImage: varchar('graphic_image', { length: 500 }), // URL to image
+  graphicImage: varchar('graphic_image', { length: 500 }), // URL to image (legacy)
+  imageUrl: varchar('image_url', { length: 500 }), // Vercel Blob URL for ministry image
   recurringType: varchar('recurring_type', { length: 50 }).notNull(), // regular, one-off, as-needed
   // Legacy fields for backward compatibility
   category: varchar('category', { length: 100 }).notNull(),
+  categories: text('categories').array(), // Array of category names for multiple categorization
   contactPerson: varchar('contact_person', { length: 255 }).notNull(),
   contactEmail: varchar('contact_email', { length: 255 }).notNull(),
   contactPhone: varchar('contact_phone', { length: 20 }),

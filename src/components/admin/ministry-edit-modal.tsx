@@ -43,6 +43,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
     graphicImage: "",
     recurringType: "regular",
     category: "Children & Youth",
+    categories: [] as string[],
     contactPerson: "",
     contactEmail: "",
     contactPhone: "",
@@ -56,6 +57,9 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
   const [newType, setNewType] = useState("");
   const [newSkill, setNewSkill] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (ministry) {
@@ -71,6 +75,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         graphicImage: ministry.graphicImage || "",
         recurringType: ministry.recurringType || "regular",
         category: ministry.category || "Children & Youth",
+        categories: ministry.categories || [],
         contactPerson: ministry.contactPerson || "",
         contactEmail: ministry.contactEmail || "",
         contactPhone: ministry.contactPhone || "",
@@ -80,8 +85,78 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         timeCommitment: ministry.timeCommitment || "",
         isActive: ministry.isActive ?? true,
       });
+      
+      // Set image preview if ministry has an image
+      if (ministry.imageUrl) {
+        setImagePreview(ministry.imageUrl);
+      }
     }
   }, [ministry]);
+
+  const handleImageUpload = async (file: File) => {
+    if (!ministry?.id) return;
+    
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch(`/api/admin/ministries/${ministry.id}/upload-image`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      const result = await response.json();
+      setImagePreview(result.imageUrl);
+      alert('Image uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleImageDelete = async () => {
+    if (!ministry?.id) return;
+    
+    if (!confirm('Are you sure you want to delete this image?')) return;
+    
+    setUploadingImage(true);
+    try {
+      const response = await fetch(`/api/admin/ministries/${ministry.id}/upload-image`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete image');
+      }
+      
+      setImagePreview(null);
+      alert('Image deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      alert('Failed to delete image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +171,11 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         });
         if (!response.ok) {
           throw new Error('Failed to update ministry');
+        }
+        
+        // Upload image if a new one was selected
+        if (imageFile) {
+          await handleImageUpload(imageFile);
         }
       } else {
         const response = await fetch('/api/admin/ministries', {
@@ -177,7 +257,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category *
+                  Primary Category *
                 </label>
                 <select
                   value={formData.category}
@@ -189,6 +269,53 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Additional Categories
+                </label>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    {formData.categories.map((cat, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                      >
+                        {cat}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              categories: prev.categories.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          className="ml-2 text-blue-600 hover:text-blue-800"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <select
+                    onChange={(e) => {
+                      const newCat = e.target.value;
+                      if (newCat && !formData.categories.includes(newCat) && newCat !== formData.category) {
+                        setFormData(prev => ({
+                          ...prev,
+                          categories: [...prev.categories, newCat]
+                        }));
+                      }
+                      e.target.value = '';
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Add additional category...</option>
+                    {CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -243,13 +370,38 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Graphic Image URL
+                  Ministry Image
                 </label>
-                <Input
-                  value={formData.graphicImage}
-                  onChange={(e) => setFormData(prev => ({ ...prev, graphicImage: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
-                />
+                <div className="space-y-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {imagePreview && (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Ministry preview"
+                        className="w-full h-32 object-cover rounded-md border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleImageDelete}
+                        disabled={uploadingImage}
+                        className="absolute top-2 right-2"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Recommended size: 1200x630px. Images will be automatically resized for display.
+                  </p>
+                </div>
               </div>
             </div>
 

@@ -4,13 +4,16 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, LogOut, Eye } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, Edit, Trash2, LogOut, Eye, Search } from "lucide-react";
 // Removed direct database imports - using API routes instead
 import type { MinistryTeam } from "@/lib/schema";
 import { MinistryEditModal } from "./ministry-edit-modal";
 
 export function AdminMinistryDashboard() {
   const [ministries, setMinistries] = useState<MinistryTeam[]>([]);
+  const [filteredMinistries, setFilteredMinistries] = useState<MinistryTeam[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [editingMinistry, setEditingMinistry] = useState<MinistryTeam | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -24,6 +27,7 @@ export function AdminMinistryDashboard() {
       }
       const data = await response.json();
       setMinistries(data);
+      setFilteredMinistries(data);
     } catch (error) {
       console.error('Error loading ministries:', error);
     } finally {
@@ -34,6 +38,25 @@ export function AdminMinistryDashboard() {
   useEffect(() => {
     loadMinistries();
   }, []);
+
+  // Filter ministries based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredMinistries(ministries);
+      return;
+    }
+
+    const filtered = ministries.filter((ministry) =>
+      ministry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ministry.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ministry.leader.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ministry.leaderContact.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ministry.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ministry.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ministry.contactEmail?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredMinistries(filtered);
+  }, [searchTerm, ministries]);
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this ministry?')) {
@@ -106,14 +129,21 @@ export function AdminMinistryDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
-              <div className="text-2xl font-bold text-blue-600">{ministries.length}</div>
-              <div className="text-gray-600">Total Ministries</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {searchTerm ? filteredMinistries.length : ministries.length}
+              </div>
+              <div className="text-gray-600">
+                {searchTerm ? 'Matching Ministries' : 'Total Ministries'}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-6">
               <div className="text-2xl font-bold text-green-600">
-                {ministries.filter(m => m.isActive).length}
+                {searchTerm 
+                  ? filteredMinistries.filter(m => m.isActive).length
+                  : ministries.filter(m => m.isActive).length
+                }
               </div>
               <div className="text-gray-600">Active Ministries</div>
             </CardContent>
@@ -121,12 +151,49 @@ export function AdminMinistryDashboard() {
           <Card>
             <CardContent className="p-6">
               <div className="text-2xl font-bold text-orange-600">
-                {ministries.filter(m => !m.isActive).length}
+                {searchTerm 
+                  ? filteredMinistries.filter(m => !m.isActive).length
+                  : ministries.filter(m => !m.isActive).length
+                }
               </div>
               <div className="text-gray-600">Inactive Ministries</div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Search Bar */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="relative">
+              <div className="flex items-center gap-3">
+                <Search className="text-gray-400 h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search ministries by name, description, leader, contact, or category..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+            {searchTerm && (
+              <div className="mt-2 text-sm text-gray-600">
+                Showing {filteredMinistries.length} of {ministries.length} ministries
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Ministries List */}
         <Card>
@@ -134,13 +201,27 @@ export function AdminMinistryDashboard() {
             <CardTitle>Ministry Teams</CardTitle>
           </CardHeader>
           <CardContent>
-            {ministries.length === 0 ? (
+            {filteredMinistries.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No ministries found. Create your first ministry team.
+                {searchTerm ? (
+                  <>
+                    No ministries found matching &quot;{searchTerm}&quot;.
+                    <br />
+                    <Button
+                      variant="outline"
+                      onClick={() => setSearchTerm("")}
+                      className="mt-2"
+                    >
+                      Clear Search
+                    </Button>
+                  </>
+                ) : (
+                  "No ministries found. Create your first ministry team."
+                )}
               </div>
             ) : (
               <div className="space-y-4">
-                {ministries.map((ministry) => (
+                {filteredMinistries.map((ministry) => (
                   <div
                     key={ministry.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"

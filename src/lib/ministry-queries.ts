@@ -4,7 +4,34 @@ import { eq } from 'drizzle-orm';
 import type { NewMinistryTeam } from './schema';
 
 export async function getMinistryTeams() {
-  return await db.select().from(ministryTeams).where(eq(ministryTeams.isActive, true));
+  try {
+    return await db.select().from(ministryTeams).where(eq(ministryTeams.isActive, true));
+  } catch (error) {
+    console.log('Database query error:', error instanceof Error ? error.message : 'Unknown error');
+    
+    // Check if we need to apply migrations
+    if (error instanceof Error && (error.message.includes('image_url') || error.message.includes('categories'))) {
+      console.log('Missing columns detected, applying migrations...');
+
+      // Apply both migrations in case either or both are missing
+      await db.execute(`
+        ALTER TABLE "ministry_teams"
+        ADD COLUMN IF NOT EXISTS "image_url" varchar(500);
+      `);
+      
+      await db.execute(`
+        ALTER TABLE "ministry_teams"
+        ADD COLUMN IF NOT EXISTS "categories" text[];
+      `);
+
+      console.log('Migrations applied, retrying query...');
+
+      // Retry the query
+      return await db.select().from(ministryTeams).where(eq(ministryTeams.isActive, true));
+    }
+    
+    throw error;
+  }
 }
 
 export async function getMinistryCategories() {
