@@ -1,0 +1,190 @@
+import { NextResponse } from 'next/server';
+import { getGoogleCalendarEvents } from '@/lib/google-calendar-api';
+
+export async function GET() {
+  try {
+    // Get environment variables
+    const calendarId = process.env.GOOGLE_CALENDAR_ID;
+    const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+
+    console.log('Environment variables check:');
+    console.log('GOOGLE_CALENDAR_ID exists:', !!calendarId);
+    console.log('GOOGLE_SERVICE_ACCOUNT_KEY exists:', !!serviceAccountKey);
+    console.log('Calendar ID value:', calendarId);
+
+    if (!calendarId || !serviceAccountKey) {
+      console.log('Google Calendar credentials not found, using sample data');
+      
+      // Return sample events if credentials not configured
+      const sampleEvents = [
+        {
+          id: 'sample-1',
+          title: 'Sunday Service',
+          start: new Date(2025, 8, 15, 9, 0), // September 15, 2025, 9:00 AM
+          end: new Date(2025, 8, 15, 10, 0),
+          description: 'Weekly Sunday service',
+          location: 'Main Sanctuary',
+          allDay: false,
+          recurring: true
+        },
+        {
+          id: 'sample-2',
+          title: 'Bible Study',
+          start: new Date(2025, 8, 18, 19, 0), // September 18, 2025, 7:00 PM
+          end: new Date(2025, 8, 18, 20, 0),
+          description: 'Weekly Bible study group',
+          location: 'Fellowship Hall',
+          allDay: false,
+          recurring: true
+        },
+        {
+          id: 'sample-3',
+          title: 'Church Board Meeting',
+          start: new Date(2025, 8, 25, 18, 0), // September 25, 2025, 6:00 PM
+          end: new Date(2025, 8, 25, 19, 30),
+          description: 'Monthly board meeting',
+          location: 'Conference Room',
+          allDay: false,
+          recurring: false
+        }
+      ];
+
+      return NextResponse.json({ 
+        events: sampleEvents.map(event => ({
+          ...event,
+          start: event.start.toISOString(),
+          end: event.end.toISOString()
+        }))
+      });
+    }
+
+    // Fetch events from Google Calendar API
+    console.log('Attempting to fetch events from Google Calendar...');
+    console.log('Calendar ID:', calendarId);
+    console.log('Service Account Key exists:', !!serviceAccountKey);
+    
+    // Try with the specific calendar ID first
+    let events;
+    try {
+      console.log('Trying with specific calendar ID:', calendarId);
+      events = await getGoogleCalendarEvents(calendarId, serviceAccountKey);
+    } catch (error) {
+      console.log('Failed with specific calendar ID, trying with "primary"...');
+      try {
+        events = await getGoogleCalendarEvents('primary', serviceAccountKey);
+      } catch (error2) {
+        console.log('Both calendar attempts failed, falling back to sample data');
+        throw error2; // This will trigger the fallback to sample data
+      }
+    }
+    
+    console.log(`Fetched ${events.length} events from Google Calendar`);
+
+    // If no events found, return sample data
+    if (events.length === 0) {
+      console.log('No events found in Google Calendar, using sample data');
+      const sampleEvents = [
+        {
+          id: 'sample-1',
+          title: 'Sunday Service',
+          start: new Date(2025, 8, 15, 9, 0), // September 15, 2025, 9:00 AM
+          end: new Date(2025, 8, 15, 10, 0),
+          description: 'Weekly Sunday service',
+          location: 'Main Sanctuary',
+          allDay: false,
+          recurring: true
+        },
+        {
+          id: 'sample-2',
+          title: 'Bible Study',
+          start: new Date(2025, 8, 18, 19, 0), // September 18, 2025, 7:00 PM
+          end: new Date(2025, 8, 18, 20, 0),
+          description: 'Weekly Bible study group',
+          location: 'Fellowship Hall',
+          allDay: false,
+          recurring: true
+        },
+        {
+          id: 'sample-3',
+          title: 'Church Board Meeting',
+          start: new Date(2025, 8, 25, 18, 0), // September 25, 2025, 6:00 PM
+          end: new Date(2025, 8, 25, 19, 30),
+          description: 'Monthly board meeting',
+          location: 'Conference Room',
+          allDay: false,
+          recurring: false
+        }
+      ];
+
+      return NextResponse.json({ 
+        events: sampleEvents.map(event => ({
+          ...event,
+          start: event.start.toISOString(),
+          end: event.end.toISOString()
+        }))
+      });
+    }
+
+    // Convert dates to ISO strings for JSON serialization
+    const serializedEvents = events.map(event => ({
+      ...event,
+      start: event.start.toISOString(),
+      end: event.end.toISOString()
+    }));
+
+    return NextResponse.json({ events: serializedEvents });
+  } catch (error) {
+    console.error('Error fetching calendar events:', error);
+    
+    // If it's a Google Calendar API error, return sample data as fallback
+    if (error instanceof Error && error.message.includes('unregistered callers')) {
+      console.log('Google Calendar API not enabled, using sample data as fallback');
+      
+      const sampleEvents = [
+        {
+          id: 'sample-1',
+          title: 'Sunday Service',
+          start: new Date(2025, 8, 15, 9, 0), // September 15, 2025, 9:00 AM
+          end: new Date(2025, 8, 15, 10, 0),
+          description: 'Weekly Sunday service',
+          location: 'Main Sanctuary',
+          allDay: false,
+          recurring: true
+        },
+        {
+          id: 'sample-2',
+          title: 'Bible Study',
+          start: new Date(2025, 8, 18, 19, 0), // September 18, 2025, 7:00 PM
+          end: new Date(2025, 8, 18, 20, 0),
+          description: 'Weekly Bible study group',
+          location: 'Fellowship Hall',
+          allDay: false,
+          recurring: true
+        },
+        {
+          id: 'sample-3',
+          title: 'Church Board Meeting',
+          start: new Date(2025, 8, 25, 18, 0), // September 25, 2025, 6:00 PM
+          end: new Date(2025, 8, 25, 19, 30),
+          description: 'Monthly board meeting',
+          location: 'Conference Room',
+          allDay: false,
+          recurring: false
+        }
+      ];
+
+      return NextResponse.json({ 
+        events: sampleEvents.map(event => ({
+          ...event,
+          start: event.start.toISOString(),
+          end: event.end.toISOString()
+        }))
+      });
+    }
+    
+    return NextResponse.json(
+      { error: 'Failed to fetch calendar events' },
+      { status: 500 }
+    );
+  }
+}
