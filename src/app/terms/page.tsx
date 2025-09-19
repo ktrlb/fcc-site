@@ -17,13 +17,13 @@ export default function TermsPage() {
 
           <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">Use License</h2>
           <p className="text-gray-700 mb-4">
-            Permission is granted to temporarily download one copy of the materials on First Christian Church's 
+            Permission is granted to temporarily download one copy of the materials on First Christian Church&apos;s 
             website for personal, non-commercial transitory viewing only.
           </p>
 
           <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">Disclaimer</h2>
           <p className="text-gray-700 mb-4">
-            The materials on First Christian Church's website are provided on an 'as is' basis. 
+            The materials on First Christian Church&apos;s website are provided on an &apos;as is&apos; basis. 
             First Christian Church makes no warranties, expressed or implied, and hereby disclaims 
             and negates all other warranties.
           </p>

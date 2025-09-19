@@ -12,7 +12,7 @@ export default function SermonSeriesPage() {
             <div className="bg-blue-50 rounded-lg p-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Coming Soon</h2>
               <p className="text-gray-600">
-                We're working on bringing you our sermon series archive. 
+                We&apos;re working on bringing you our sermon series archive. 
                 Check back soon for access to our past teachings and current series.
               </p>
             </div>

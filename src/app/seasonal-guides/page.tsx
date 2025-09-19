@@ -12,7 +12,7 @@ export default function SeasonalGuidesPage() {
             <div className="bg-blue-50 rounded-lg p-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Coming Soon</h2>
               <p className="text-gray-600">
-                We're preparing seasonal guides and resources for holidays and special times of year. 
+                We&apos;re preparing seasonal guides and resources for holidays and special times of year. 
                 Check back soon for helpful guides and materials.
               </p>
             </div>
