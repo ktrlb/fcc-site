@@ -135,6 +135,13 @@ export async function GET() {
     return NextResponse.json({ events: serializedEvents });
   } catch (error) {
     console.error('Error fetching calendar events:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      calendarId: process.env.GOOGLE_CALENDAR_ID,
+      hasServiceKey: !!process.env.GOOGLE_SERVICE_ACCOUNT_KEY,
+      serviceKeyLength: process.env.GOOGLE_SERVICE_ACCOUNT_KEY?.length
+    });
     
     // If it's a Google Calendar API error, return sample data as fallback
     if (error instanceof Error && error.message.includes('unregistered callers')) {
@@ -183,7 +190,11 @@ export async function GET() {
     }
     
     return NextResponse.json(
-      { error: 'Failed to fetch calendar events' },
+      { 
+        error: 'Failed to fetch calendar events',
+        message: 'Calendar service is temporarily unavailable. Please try again later.',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
