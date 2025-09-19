@@ -35,7 +35,7 @@ export default function PrivacyPage() {
             First Christian Church Granbury<br />
             2101 W US Hwy 377<br />
             Granbury, TX 76048<br />
-            Phone: (817) 573-7211
+            Phone: (817) 573-5431
           </p>
         </div>
       </div>
