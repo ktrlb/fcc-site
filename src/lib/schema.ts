@@ -86,6 +86,21 @@ export const seasonalGuides = pgTable('seasonal_guides', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Staff table for church staff members
+export const staff = pgTable('staff', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  bio: text('bio').notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  imageUrl: varchar('image_url', { length: 500 }), // Vercel Blob URL for staff photo
+  focalPoint: text('focal_point'), // JSON string for focal point coordinates {x: number, y: number}
+  isActive: boolean('is_active').default(true).notNull(),
+  sortOrder: varchar('sort_order', { length: 10 }).default('0'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Keep the assets table for general file storage
 export const assets = pgTable('assets', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -125,6 +140,9 @@ export type NewSermonSeries = typeof sermonSeries.$inferInsert;
 
 export type SeasonalGuide = typeof seasonalGuides.$inferSelect;
 export type NewSeasonalGuide = typeof seasonalGuides.$inferInsert;
+
+export type Staff = typeof staff.$inferSelect;
+export type NewStaff = typeof staff.$inferInsert;
 
 export type Asset = typeof assets.$inferSelect;
 export type NewAsset = typeof assets.$inferInsert;

@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
-import { AssetDashboard } from "@/components/admin/asset-dashboard";
-import { StaffDashboard } from "@/components/admin/staff-dashboard";
+import { AdminMinistryDashboard } from "@/components/admin/admin-ministry-dashboard";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
-export default function AdminPage() {
+export default function MinistriesAdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,15 +63,14 @@ export default function AdminPage() {
         <AdminSidebar onLogout={handleLogout} />
         <div className="flex-1 flex flex-col">
           <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600">Manage your church content and staff</p>
+            <h1 className="text-2xl font-bold text-gray-900">Ministry Management</h1>
+            <p className="text-gray-600">Manage ministry teams and opportunities</p>
           </div>
           <div className="flex-1 p-6 overflow-auto">
-            <AssetDashboard onLogout={handleLogout} />
+            <AdminMinistryDashboard />
           </div>
         </div>
       </div>
     </div>
   );
 }
-

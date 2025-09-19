@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
-import { AssetDashboard } from "@/components/admin/asset-dashboard";
-import { StaffDashboard } from "@/components/admin/staff-dashboard";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
-export default function AdminPage() {
+export default function SermonSeriesAdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,15 +65,31 @@ export default function AdminPage() {
         <AdminSidebar onLogout={handleLogout} />
         <div className="flex-1 flex flex-col">
           <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600">Manage your church content and staff</p>
+            <h1 className="text-2xl font-bold text-gray-900">Sermon Series Management</h1>
+            <p className="text-gray-600">Manage sermon series and content</p>
           </div>
           <div className="flex-1 p-6 overflow-auto">
-            <AssetDashboard onLogout={handleLogout} />
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Sermon Series</h2>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add New Series
+                </Button>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sermon Series Dashboard</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">Sermon series management interface coming soon...</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

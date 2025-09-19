@@ -43,6 +43,13 @@
       "when": 1758299158587,
       "tag": "0005_glamorous_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1758308431721,
+      "tag": "0006_complete_electro",
+      "breakpoints": true
     }
   ]
 }
