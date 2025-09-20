@@ -143,7 +143,7 @@ export async function GET() {
         id: ministry.id,
         name: ministry.name,
         description: ministry.description,
-        imageUrl: ministry.graphicImage || undefined,
+        imageUrl: ministry.imageUrl || ministry.graphicImage || undefined,
         contactPerson: ministry.contactPerson,
         contactEmail: ministry.contactEmail || undefined,
         contactPhone: ministry.contactPhone || undefined,
@@ -176,6 +176,7 @@ export async function GET() {
         name: string;
         description?: string;
         imageUrl?: string;
+        graphicImage?: string;
         contactPerson?: string;
         contactEmail?: string;
         contactPhone?: string;
@@ -215,7 +216,10 @@ export async function GET() {
       if (existingConnection) {
         // Use only explicit database connections
         if (existingConnection.ministryTeam) {
-          matchedMinistry = existingConnection.ministryTeam;
+          matchedMinistry = {
+            ...existingConnection.ministryTeam,
+            imageUrl: existingConnection.ministryTeam.imageUrl || existingConnection.ministryTeam.graphicImage
+          };
           ministryConnection = 'ministry';
         }
         if (existingConnection.isSpecialEvent && (existingConnection.specialEventImage || existingConnection.specialEventNote || existingConnection.contactPerson)) {

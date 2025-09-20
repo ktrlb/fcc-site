@@ -196,9 +196,9 @@ export function MinistryDatabase({ initialMinistries }: Props) {
               {filteredMinistries.map((ministry) => (
                 <Card key={ministry.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                   <div className="relative h-48 w-full">
-                    {ministry.imageUrl ? (
+                    {ministry.imageUrl || ministry.graphicImage ? (
                       <img
-                        src={ministry.imageUrl}
+                        src={ministry.imageUrl || ministry.graphicImage || undefined}
                         alt={ministry.name}
                         className="w-full h-full object-cover"
                       />

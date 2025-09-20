@@ -102,6 +102,12 @@ export function Calendar({ events = [] }: CalendarProps) {
         // Use the analysis from the API response if available, otherwise analyze locally
         const analysis = data.analysis || analyzeEvents(events);
         
+        console.log('Analysis results:', {
+          totalEvents: events.length,
+          recurringEvents: analysis.recurringEvents.length,
+          recurringEventTitles: analysis.recurringEvents.map(r => r.title)
+        });
+        
         // Filter out recurring events for the main calendar
          const nonRecurringEvents = events.filter((event: CalendarEvent) => {
           const eventDate = new Date(event.start);
@@ -118,6 +124,12 @@ export function Calendar({ events = [] }: CalendarProps) {
           );
           
           return !isRecurring;
+        });
+        
+        console.log('Filtering results:', {
+          totalEvents: events.length,
+          nonRecurringEvents: nonRecurringEvents.length,
+          filteredOut: events.length - nonRecurringEvents.length
         });
         
         setCalendarEvents(nonRecurringEvents);

@@ -20,6 +20,7 @@ export async function GET() {
           name: ministryTeams.name,
           description: ministryTeams.description,
           imageUrl: ministryTeams.imageUrl,
+          graphicImage: ministryTeams.graphicImage,
           contactPerson: ministryTeams.contactPerson,
           contactEmail: ministryTeams.contactEmail,
           contactPhone: ministryTeams.contactPhone,

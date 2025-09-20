@@ -25,7 +25,7 @@ export async function SpecialEvents() {
   }> = [];
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/featured-special-events`, {
-      cache: 'no-store' // Ensure fresh data
+      next: { revalidate: 60 } // Cache for 1 minute
     });
     if (response.ok) {
       const data = await response.json();
