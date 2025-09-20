@@ -108,12 +108,19 @@ export function Calendar({ events = [] }: CalendarProps) {
           recurringEventTitles: analysis.recurringEvents.map((r: RecurringEvent) => r.title)
         });
         
+        console.log('Starting detailed event filtering...');
+        
         // Filter out recurring events for the main calendar
          const nonRecurringEvents = events.filter((event: CalendarEvent) => {
           const eventDate = new Date(event.start);
           const dayOfWeek = eventDate.getDay();
           const time = eventDate.toTimeString().slice(0, 5);
           const location = event.location || '';
+          
+          // Debug: log first few events being filtered
+          if (event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
+            console.log(`Filtering event "${event.title}":`, { dayOfWeek, time, location });
+          }
           
           // Check if this event matches any recurring pattern
           const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => {
@@ -122,9 +129,10 @@ export function Calendar({ events = [] }: CalendarProps) {
             const timeMatch = recurring.time === time;
             const locationMatch = (recurring.location || '') === location;
             
-            // Debug log for first few events
-            if (event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
-              console.log(`Checking event "${event.title}":`, {
+            // Debug log for first few events and specific recurring events
+            if (event.title === "Tai Chi" || event.title === "Open Pickleball Time" || 
+                recurring.title === "Tai Chi" || recurring.title === "Open Pickleball Time") {
+              console.log(`Checking event "${event.title}" against recurring "${recurring.title}":`, {
                 event: { title: event.title, dayOfWeek, time, location },
                 recurring: { title: recurring.title, dayOfWeek: recurring.dayOfWeek, time: recurring.time, location: recurring.location },
                 matches: { titleMatch, dayMatch, timeMatch, locationMatch }
@@ -134,7 +142,14 @@ export function Calendar({ events = [] }: CalendarProps) {
             return titleMatch && dayMatch && timeMatch && locationMatch;
           });
           
-          return !isRecurring;
+          const result = !isRecurring;
+          
+          // Debug: log result for specific events
+          if (event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
+            console.log(`Event "${event.title}" isRecurring: ${isRecurring}, will be ${result ? 'kept' : 'filtered out'}`);
+          }
+          
+          return result;
         });
         
         console.log('Filtering results:', {
