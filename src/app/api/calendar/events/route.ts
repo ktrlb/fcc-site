@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getGoogleCalendarEvents } from '@/lib/google-calendar-api';
+import { getMinistryTeams } from '@/lib/ministry-queries';
+import { analyzeEvents } from '@/lib/event-analyzer';
 
 export async function GET() {
   try {
@@ -125,14 +127,71 @@ export async function GET() {
       });
     }
 
-    // Convert dates to ISO strings for JSON serialization
-    const serializedEvents = events.map(event => ({
-      ...event,
-      start: event.start.toISOString(),
-      end: event.end.toISOString()
-    }));
+    // Get ministries for potential linking
+    let ministries: Array<{ id: string; name: string; description?: string }> = [];
+    try {
+      const ministryData = await getMinistryTeams();
+      ministries = ministryData || [];
+    } catch (error) {
+      console.log('Could not fetch ministries:', error);
+    }
 
-    return NextResponse.json({ events: serializedEvents });
+    // Analyze events for ministry connections
+    const analysis = analyzeEvents(events);
+    
+    console.log('Ministry analysis results:', {
+      totalEvents: events.length,
+      recurringEvents: analysis.recurringEvents.length,
+      ministryBreakdown: analysis.ministryBreakdown
+    });
+    
+    // Enhance events with ministry information
+    const enhancedEvents = events.map(event => {
+      const eventDate = new Date(event.start);
+      const dayOfWeek = eventDate.getDay();
+      const time = eventDate.toTimeString().slice(0, 5);
+      const location = event.location || '';
+      
+      // Find ministry connection from analysis
+      const ministryConnection = analysis.recurringEvents.find(recurring => 
+        recurring.title === event.title && 
+        recurring.dayOfWeek === dayOfWeek &&
+        recurring.time === time &&
+        (recurring.location || '') === location
+      )?.ministryConnection;
+      
+      // Try to find matching ministry from database
+      let matchedMinistry = null;
+      if (ministryConnection) {
+        matchedMinistry = ministries.find(ministry => 
+          ministry.name.toLowerCase().includes(ministryConnection.toLowerCase()) ||
+          ministryConnection.toLowerCase().includes(ministry.name.toLowerCase())
+        );
+      }
+      
+      const enhancedEvent = {
+        ...event,
+        start: event.start.toISOString(),
+        end: event.end.toISOString(),
+        ministryConnection,
+        ministryInfo: matchedMinistry
+      };
+      
+      // Log events with ministry connections
+      if (ministryConnection) {
+        console.log(`Event "${event.title}" connected to ministry:`, ministryConnection, matchedMinistry ? `(${matchedMinistry.name})` : '(no database match)');
+      }
+      
+      return enhancedEvent;
+    });
+
+    return NextResponse.json({ 
+      events: enhancedEvents,
+      analysis: {
+        recurringEvents: analysis.recurringEvents,
+        ministryBreakdown: analysis.ministryBreakdown
+      }
+    });
   } catch (error) {
     console.error('Error fetching calendar events:', error);
     console.error('Error details:', {

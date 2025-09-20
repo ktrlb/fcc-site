@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalendarIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { MiniCalendar } from "./mini-calendar";
+import { analyzeEvents, RecurringEvent } from "@/lib/event-analyzer";
 
 interface CalendarEvent {
   id: string;
@@ -15,6 +18,12 @@ interface CalendarEvent {
   location?: string;
   allDay: boolean;
   recurring?: boolean;
+  ministryConnection?: string;
+  ministryInfo?: {
+    id: string;
+    name: string;
+    description?: string;
+  };
 }
 
 interface CalendarProps {
@@ -31,8 +40,11 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export function Calendar({ events = [] }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [allEvents, setAllEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchEvents();
@@ -44,13 +56,55 @@ export function Calendar({ events = [] }: CalendarProps) {
       const response = await fetch('/api/calendar/events');
       if (response.ok) {
         const data = await response.json();
-        // Convert ISO strings back to Date objects
-        const events = (data.events || []).map((event: CalendarEvent & { start: string; end: string }) => ({
+        // Convert ISO strings back to Date objects and preserve ministry info
+        const events = (data.events || []).map((event: {
+          id: string;
+          title: string;
+          start: string;
+          end: string;
+          description?: string;
+          location?: string;
+          allDay: boolean;
+          recurring?: boolean;
+          ministryConnection?: string;
+          ministryInfo?: {
+            id: string;
+            name: string;
+            description?: string;
+          };
+        }) => ({
           ...event,
           start: new Date(event.start),
           end: new Date(event.end)
         }));
-        setCalendarEvents(events);
+        
+        console.log('Enhanced events with ministry data:', events.slice(0, 3)); // Debug log
+        
+        // Store all events for the mini-calendar
+        setAllEvents(events);
+        
+        // Use the analysis from the API response if available, otherwise analyze locally
+        const analysis = data.analysis || analyzeEvents(events);
+        
+        // Filter out recurring events for the main calendar
+         const nonRecurringEvents = events.filter((event: CalendarEvent) => {
+          const eventDate = new Date(event.start);
+          const dayOfWeek = eventDate.getDay();
+          const time = eventDate.toTimeString().slice(0, 5);
+          const location = event.location || '';
+          
+          // Check if this event matches any recurring pattern
+          const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => 
+            recurring.title === event.title && 
+            recurring.dayOfWeek === dayOfWeek &&
+            recurring.time === time &&
+            (recurring.location || '') === location
+          );
+          
+          return !isRecurring;
+        });
+        
+        setCalendarEvents(nonRecurringEvents);
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Failed to load calendar events');
@@ -117,6 +171,11 @@ export function Calendar({ events = [] }: CalendarProps) {
     return date.toDateString() === today.toDateString();
   };
 
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
+
   const days = getDaysInMonth(currentDate);
 
   if (loading) {
@@ -157,6 +216,9 @@ export function Calendar({ events = [] }: CalendarProps) {
 
   return (
     <div className="max-w-6xl mx-auto">
+          {/* Mini Calendar with Weekly Patterns */}
+          <MiniCalendar events={allEvents} />
+      
       <Card className="p-6">
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-6">
@@ -206,10 +268,14 @@ export function Calendar({ events = [] }: CalendarProps) {
               <div
                 key={index}
                 className={`
-                  min-h-[120px] p-2 border border-gray-200 rounded-lg
+                  p-2 border border-gray-200 rounded-lg
                   ${date ? 'bg-white hover:bg-gray-50' : 'bg-gray-100'}
                   ${isCurrentDay ? 'ring-2 ring-blue-500 bg-blue-50' : ''}
+                  ${eventsForDate.length > 0 ? 'min-h-[120px]' : 'min-h-[60px]'}
                 `}
+                style={{
+                  minHeight: eventsForDate.length > 0 ? `${Math.max(120, 60 + (eventsForDate.length * 24))}px` : '60px'
+                }}
               >
                 {date && (
                   <>
@@ -220,19 +286,26 @@ export function Calendar({ events = [] }: CalendarProps) {
                       {date.getDate()}
                     </div>
                     <div className="space-y-1">
-                      {eventsForDate.slice(0, 3).map(event => (
+                      {eventsForDate.map(event => (
                         <div
                           key={event.id}
-                          className="text-xs p-1 bg-blue-100 text-blue-800 rounded truncate"
+                          className="text-xs p-1 bg-blue-100 text-blue-800 rounded break-words cursor-pointer hover:bg-blue-200 transition-colors"
+                          title={event.title}
+                          onClick={() => handleEventClick(event)}
                         >
-                          {event.title}
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="flex-1">{event.title}</span>
+                            {event.ministryConnection && (
+                              <Badge 
+                                variant="secondary" 
+                                className="text-[10px] px-1 py-0 h-4 bg-green-100 text-green-700 border-green-300"
+                              >
+                                {event.ministryConnection}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       ))}
-                      {eventsForDate.length > 3 && (
-                        <div className="text-xs text-gray-500">
-                          +{eventsForDate.length - 3} more
-                        </div>
-                      )}
                     </div>
                   </>
                 )}
@@ -251,7 +324,11 @@ export function Calendar({ events = [] }: CalendarProps) {
                 .sort((a, b) => a.start.getTime() - b.start.getTime())
                 .slice(0, 10)
                 .map(event => (
-                  <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div 
+                    key={event.id} 
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleEventClick(event)}
+                  >
                     <div>
                       <h4 className="font-medium text-gray-900">{event.title}</h4>
                       <p className="text-sm text-gray-600">
@@ -270,6 +347,99 @@ export function Calendar({ events = [] }: CalendarProps) {
           </div>
         )}
       </Card>
+      
+      {/* Event Details Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5" />
+              Event Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedEvent && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg text-gray-900">{selectedEvent.title}</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Clock className="h-4 w-4" />
+                  <span className="text-sm">
+                    {selectedEvent.start.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Clock className="h-4 w-4" />
+                  <span className="text-sm">
+                    {selectedEvent.start.toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })} - {selectedEvent.end.toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}
+                  </span>
+                </div>
+                
+                {selectedEvent.location && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    <span className="text-sm">{selectedEvent.location}</span>
+                  </div>
+                )}
+              </div>
+              
+              {selectedEvent.description && (
+                <div className="pt-2 border-t border-gray-200">
+                  <h4 className="font-medium text-gray-900 mb-2">Description</h4>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{selectedEvent.description}</p>
+                </div>
+              )}
+              
+              {selectedEvent.ministryConnection && (
+                <div className="pt-2 border-t border-gray-200">
+                  <h4 className="font-medium text-gray-900 mb-2">Ministry Connection</h4>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
+                      {selectedEvent.ministryConnection}
+                    </Badge>
+                    {selectedEvent.ministryInfo && (
+                      <span className="text-sm text-gray-600">
+                        • {selectedEvent.ministryInfo.name}
+                      </span>
+                    )}
+                  </div>
+                  {selectedEvent.ministryInfo && selectedEvent.ministryInfo.description && (
+                    <p className="text-sm text-gray-600 mt-2">{selectedEvent.ministryInfo.description}</p>
+                  )}
+                </div>
+              )}
+              
+              <div className="flex justify-end pt-4 border-t border-gray-200">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex items-center gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

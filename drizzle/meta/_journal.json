@@ -50,6 +50,13 @@
       "when": 1758308431721,
       "tag": "0006_complete_electro",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1758316974813,
+      "tag": "0007_handy_nicolaos",
+      "breakpoints": true
     }
   ]
 }

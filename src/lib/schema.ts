@@ -101,6 +101,26 @@ export const staff = pgTable('staff', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Calendar events table for managing Google Calendar events and their custom properties
+export const calendarEvents = pgTable('calendar_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  googleEventId: varchar('google_event_id', { length: 255 }).unique(), // Google Calendar event ID
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  location: varchar('location', { length: 500 }),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  allDay: boolean('all_day').default(false).notNull(),
+  recurring: boolean('recurring').default(false).notNull(),
+  ministryConnection: varchar('ministry_connection', { length: 100 }), // e.g., 'worship', 'youth', 'children'
+  ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id), // Link to specific ministry team
+  isSpecialEvent: boolean('is_special_event').default(false).notNull(),
+  specialEventNote: text('special_event_note'), // Additional details for special events
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Keep the assets table for general file storage
 export const assets = pgTable('assets', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -143,6 +163,9 @@ export type NewSeasonalGuide = typeof seasonalGuides.$inferInsert;
 
 export type Staff = typeof staff.$inferSelect;
 export type NewStaff = typeof staff.$inferInsert;
+
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type NewCalendarEvent = typeof calendarEvents.$inferInsert;
 
 export type Asset = typeof assets.$inferSelect;
 export type NewAsset = typeof assets.$inferInsert;

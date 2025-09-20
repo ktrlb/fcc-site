@@ -66,6 +66,12 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
       href: '/calendar',
       icon: Calendar,
       description: 'View church calendar'
+    },
+    {
+      name: 'Calendar Admin',
+      href: '/admin/calendar',
+      icon: Calendar,
+      description: 'Manage calendar events'
     }
   ];
 
