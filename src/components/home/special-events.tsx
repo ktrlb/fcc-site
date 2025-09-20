@@ -24,7 +24,7 @@ export async function SpecialEvents() {
     ministryTeamName?: string;
   }> = [];
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/featured-special-events`, {
+    const response = await fetch('/api/featured-special-events', {
       next: { revalidate: 60 } // Cache for 1 minute
     });
     if (response.ok) {
