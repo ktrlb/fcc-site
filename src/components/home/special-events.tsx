@@ -30,6 +30,9 @@ export async function SpecialEvents() {
     if (response.ok) {
       const data = await response.json();
       featuredEvents = data.events || [];
+      console.log('Homepage: Fetched featured events:', featuredEvents.length, featuredEvents);
+    } else {
+      console.error('Homepage: Failed to fetch featured events, status:', response.status);
     }
   } catch (error) {
     console.error('Failed to fetch featured special events:', error);

@@ -40,11 +40,22 @@ export async function GET() {
       )
       .orderBy(desc(calendarEvents.startTime));
 
+    // Debug: Log all events before filtering
+    console.log(`Found ${events.length} events marked as featuredOnHomePage`);
+    events.forEach(event => {
+      console.log(`Event: ${event.title}, startTime: ${event.startTime}, recurring: ${event.recurring}`);
+    });
+
     // Filter out past events (only show upcoming events)
     const now = new Date();
     const upcomingEvents = events.filter(event => 
       new Date(event.startTime) >= now
     );
+
+    console.log(`After filtering for upcoming events: ${upcomingEvents.length} events remaining`);
+    upcomingEvents.forEach(event => {
+      console.log(`Upcoming event: ${event.title}`);
+    });
 
     return NextResponse.json({ events: upcomingEvents });
   } catch (error) {
