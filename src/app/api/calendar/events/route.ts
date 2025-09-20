@@ -174,11 +174,16 @@ export async function GET() {
     
     try {
       const connectionsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/calendar/connections`);
+      console.log('Connections API response status:', connectionsResponse.status);
       if (connectionsResponse.ok) {
         const connectionsData = await connectionsResponse.json();
         calendarEventConnections = connectionsData.connections || [];
+        console.log('Loaded calendar connections:', calendarEventConnections.length);
+      } else {
+        console.log('Connections API failed:', connectionsResponse.status, connectionsResponse.statusText);
       }
     } catch (error) {
+      console.log('Error fetching connections:', error);
     }
     
     // Enhance events with only explicit database connections
@@ -193,6 +198,11 @@ export async function GET() {
       let specialEventInfo = null;
       
       if (existingConnection) {
+        console.log(`Found connection for event "${event.title}":`, {
+          ministryTeamId: existingConnection.ministryTeamId,
+          specialEventId: existingConnection.specialEventId,
+          isSpecialEvent: existingConnection.isSpecialEvent
+        });
         // Use only explicit database connections
         if (existingConnection.ministryTeam) {
           matchedMinistry = {

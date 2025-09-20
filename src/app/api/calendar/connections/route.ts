@@ -51,6 +51,9 @@ export async function GET() {
       .leftJoin(specialEvents, eq(calendarEvents.specialEventId, specialEvents.id))
       .where(eq(calendarEvents.isActive, true));
 
+    console.log(`Found ${connections.length} calendar event connections in database`);
+    console.log('Sample connections:', connections.slice(0, 3));
+
     return NextResponse.json({ connections });
   } catch (error) {
     console.error('Error fetching calendar connections:', error);
