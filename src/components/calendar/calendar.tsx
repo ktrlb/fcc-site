@@ -94,7 +94,6 @@ export function Calendar({ events = [] }: CalendarProps) {
           end: new Date(event.end)
         }));
         
-        console.log('Enhanced events with ministry data:', events.slice(0, 3)); // Debug log
         
         // Store all events for the mini-calendar
         setAllEvents(events);
@@ -102,14 +101,7 @@ export function Calendar({ events = [] }: CalendarProps) {
         // Use the analysis from the API response if available, otherwise analyze locally
         const analysis = data.analysis || analyzeEvents(events);
         
-        console.log('Analysis results:', {
-          totalEvents: events.length,
-          recurringEvents: analysis.recurringEvents.length,
-          recurringEventTitles: analysis.recurringEvents.map((r: RecurringEvent) => r.title)
-        });
         
-        console.log('Starting detailed event filtering...');
-        console.log('First 5 events being filtered:', events.slice(0, 5).map((e: CalendarEvent) => e.title));
         
         // Filter out recurring events for the main calendar
          const nonRecurringEvents = events.filter((event: CalendarEvent, index: number) => {
@@ -136,10 +128,6 @@ export function Calendar({ events = [] }: CalendarProps) {
           const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
           const location = event.location || '';
           
-          // Debug: log first few events and specific events being filtered
-          if (index < 5 || event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
-            console.log(`Filtering event "${event.title}" (index ${index}):`, { dayOfWeek, time, location });
-          }
           
           // Check if this event matches any recurring pattern
           const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => {
@@ -148,34 +136,16 @@ export function Calendar({ events = [] }: CalendarProps) {
             const timeMatch = recurring.time === time;
             const locationMatch = (recurring.location || '') === location;
             
-            // Debug log for first few events and specific recurring events
-            if (event.title === "Tai Chi" || event.title === "Open Pickleball Time" || 
-                recurring.title === "Tai Chi" || recurring.title === "Open Pickleball Time") {
-              console.log(`Checking event "${event.title}" against recurring "${recurring.title}":`, {
-                event: { title: event.title, dayOfWeek, time, location },
-                recurring: { title: recurring.title, dayOfWeek: recurring.dayOfWeek, time: recurring.time, location: recurring.location },
-                matches: { titleMatch, dayMatch, timeMatch, locationMatch }
-              });
-            }
             
             return titleMatch && dayMatch && timeMatch && locationMatch;
           });
           
           const result = !isRecurring;
           
-          // Debug: log result for first few events and specific events
-          if (index < 5 || event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
-            console.log(`Event "${event.title}" (index ${index}) isRecurring: ${isRecurring}, will be ${result ? 'kept' : 'filtered out'}`);
-          }
           
           return result;
         });
         
-        console.log('Filtering results:', {
-          totalEvents: events.length,
-          nonRecurringEvents: nonRecurringEvents.length,
-          filteredOut: events.length - nonRecurringEvents.length
-        });
         
         setCalendarEvents(nonRecurringEvents);
       } else {
@@ -245,9 +215,6 @@ export function Calendar({ events = [] }: CalendarProps) {
   };
 
   const handleEventClick = (event: CalendarEvent) => {
-    console.log('Event clicked:', event);
-    console.log('Ministry connection:', event.ministryConnection);
-    console.log('Ministry info:', event.ministryInfo);
     setSelectedEvent(event);
     setIsModalOpen(true);
   };

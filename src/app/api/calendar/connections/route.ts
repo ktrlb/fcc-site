@@ -5,13 +5,10 @@ import { eq } from 'drizzle-orm';
 
 export async function GET() {
   try {
-    console.log('Fetching calendar connections from database...');
-    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
     
     // Test basic database connection first
     try {
       const testQuery = await db.select().from(calendarEvents).limit(1);
-      console.log('Basic database connection test passed');
     } catch (dbError) {
       console.error('Database connection test failed:', dbError);
       return NextResponse.json(
@@ -54,7 +51,6 @@ export async function GET() {
       .leftJoin(specialEvents, eq(calendarEvents.specialEventId, specialEvents.id))
       .where(eq(calendarEvents.isActive, true));
 
-    console.log(`Successfully fetched ${connections.length} calendar connections`);
     return NextResponse.json({ connections });
   } catch (error) {
     console.error('Error fetching calendar connections:', error);

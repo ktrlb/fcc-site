@@ -183,7 +183,6 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     if (!selectedEvent) return;
 
     try {
-      console.log('Saving event data:', eventData);
       
       // Make API call to save the event data
       const createResponse = await fetch('/api/admin/calendar-events', {
@@ -217,7 +216,6 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
       }
 
       const savedEvent = await createResponse.json();
-      console.log('Event saved successfully:', savedEvent);
       
       // Close the modal and refresh
       setIsModalOpen(false);

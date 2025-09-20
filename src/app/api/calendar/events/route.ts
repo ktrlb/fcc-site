@@ -9,13 +9,8 @@ export async function GET() {
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
 
-    console.log('Environment variables check:');
-    console.log('GOOGLE_CALENDAR_ID exists:', !!calendarId);
-    console.log('GOOGLE_SERVICE_ACCOUNT_KEY exists:', !!serviceAccountKey);
-    console.log('Calendar ID value:', calendarId);
 
     if (!calendarId || !serviceAccountKey) {
-      console.log('Google Calendar credentials not found, using sample data');
       
       // Return sample events if credentials not configured
       const sampleEvents = [
@@ -61,30 +56,22 @@ export async function GET() {
     }
 
     // Fetch events from Google Calendar API
-    console.log('Attempting to fetch events from Google Calendar...');
-    console.log('Calendar ID:', calendarId);
-    console.log('Service Account Key exists:', !!serviceAccountKey);
     
     // Try with the specific calendar ID first
     let events;
     try {
-      console.log('Trying with specific calendar ID:', calendarId);
       events = await getGoogleCalendarEvents(calendarId, serviceAccountKey);
     } catch (error) {
-      console.log('Failed with specific calendar ID, trying with "primary"...');
       try {
         events = await getGoogleCalendarEvents('primary', serviceAccountKey);
       } catch (error2) {
-        console.log('Both calendar attempts failed, falling back to sample data');
         throw error2; // This will trigger the fallback to sample data
       }
     }
     
-    console.log(`Fetched ${events.length} events from Google Calendar`);
 
     // If no events found, return sample data
     if (events.length === 0) {
-      console.log('No events found in Google Calendar, using sample data');
       const sampleEvents = [
         {
           id: 'sample-1',
@@ -150,17 +137,11 @@ export async function GET() {
         categories: ministry.categories || undefined
       }));
     } catch (error) {
-      console.log('Could not fetch ministries:', error);
     }
 
     // Analyze events for ministry connections
     const analysis = analyzeEvents(events);
     
-    console.log('Ministry analysis results:', {
-      totalEvents: events.length,
-      recurringEvents: analysis.recurringEvents.length,
-      ministryBreakdown: analysis.ministryBreakdown
-    });
     
     // Get existing calendar event connections from database
     let calendarEventConnections: Array<{
@@ -196,10 +177,8 @@ export async function GET() {
       if (connectionsResponse.ok) {
         const connectionsData = await connectionsResponse.json();
         calendarEventConnections = connectionsData.connections || [];
-        console.log(`Loaded ${calendarEventConnections.length} calendar event connections from database`);
       }
     } catch (error) {
-      console.log('Could not fetch calendar event connections:', error);
     }
     
     // Enhance events with only explicit database connections
@@ -248,12 +227,6 @@ export async function GET() {
         specialEventInfo
       };
       
-      // Log events with explicit connections
-      if (ministryConnection) {
-        console.log(`Event "${event.title}" has explicit connection:`, ministryConnection, 
-          matchedMinistry ? `(Ministry: ${matchedMinistry.name})` : 
-          specialEventInfo ? `(Special Event: ${specialEventInfo.name})` : '');
-      }
       
       return enhancedEvent;
     });
@@ -277,7 +250,6 @@ export async function GET() {
     
     // If it's a Google Calendar API error, return sample data as fallback
     if (error instanceof Error && error.message.includes('unregistered callers')) {
-      console.log('Google Calendar API not enabled, using sample data as fallback');
       
       const sampleEvents = [
         {
