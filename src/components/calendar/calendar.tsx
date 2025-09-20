@@ -105,7 +105,7 @@ export function Calendar({ events = [] }: CalendarProps) {
         console.log('Analysis results:', {
           totalEvents: events.length,
           recurringEvents: analysis.recurringEvents.length,
-          recurringEventTitles: analysis.recurringEvents.map(r => r.title)
+          recurringEventTitles: analysis.recurringEvents.map((r: RecurringEvent) => r.title)
         });
         
         // Filter out recurring events for the main calendar
