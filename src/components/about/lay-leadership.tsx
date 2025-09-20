@@ -37,7 +37,7 @@ export function LayLeadership() {
             <p className="text-gray-700 leading-relaxed text-lg mb-6">
               First Christian Church is a congregationally led church, meaning our members play a vital role 
               in the governance and direction of our community. We believe that the Holy Spirit works through 
-              all members of our congregation to guide our church's mission and ministry.
+              all members of our congregation to guide our church&apos;s mission and ministry.
             </p>
             <p className="text-gray-700 leading-relaxed">
               Our leadership structure includes dedicated members who serve on our General Board, as Elders 
@@ -68,7 +68,7 @@ export function LayLeadership() {
           <h3 className="text-2xl font-bold text-gray-900 font-serif mb-4">Leadership Nominations</h3>
           <p className="text-gray-700 leading-relaxed max-w-3xl mx-auto">
             Each September, we invite our congregation to nominate members for leadership positions for the 
-            coming year. We seek individuals who are committed to our church's mission, demonstrate spiritual 
+            coming year. We seek individuals who are committed to our church&apos;s mission, demonstrate spiritual 
             maturity, and have a heart for serving others. If you feel called to leadership or know someone 
             who would be a good fit, we encourage you to participate in our nomination process.
           </p>
