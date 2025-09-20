@@ -64,7 +64,14 @@ export class CalendarCacheService {
   static async refreshCache(): Promise<CachedCalendarEvent[]> {
     try {
       console.log('Fetching fresh calendar data from Google...');
-      const googleEvents = await getGoogleCalendarEvents();
+      const calendarId = process.env.GOOGLE_CALENDAR_ID;
+      const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+      
+      if (!calendarId || !serviceAccountKey) {
+        throw new Error('Google Calendar credentials not configured');
+      }
+      
+      const googleEvents = await getGoogleCalendarEvents(calendarId, serviceAccountKey);
       
       console.log(`Received ${googleEvents.length} events from Google Calendar`);
 

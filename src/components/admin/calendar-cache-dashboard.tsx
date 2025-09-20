@@ -217,7 +217,7 @@ export function CalendarCacheDashboard() {
               <div>
                 <h4 className="font-medium text-blue-900">Automatic Refresh</h4>
                 <p className="text-sm text-blue-700 mt-1">
-                  The cache will automatically refresh from Google Calendar when it's older than 1 hour. 
+                  The cache will automatically refresh from Google Calendar when it&apos;s older than 1 hour. 
                   You can also manually refresh it using the button above.
                 </p>
               </div>

@@ -5,8 +5,8 @@ import { requireAdminAuth } from '@/lib/admin-auth';
 export async function POST(request: NextRequest) {
   try {
     // Require admin authentication
-    const authResult = await requireAdminAuth(request);
-    if (!authResult.success) {
+    const isAuthenticated = requireAdminAuth(request);
+    if (!isAuthenticated) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Require admin authentication
-    const authResult = await requireAdminAuth(request);
-    if (!authResult.success) {
+    const isAuthenticated = requireAdminAuth(request);
+    if (!isAuthenticated) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
