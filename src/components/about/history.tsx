@@ -1,34 +1,64 @@
 export function History() {
   const timeline = [
     {
-      year: "1895",
-      title: "Church Founded",
-      description: "First Christian Church was established in Granbury by a small group of dedicated believers who wanted to create a welcoming community of faith."
+      year: "1836",
+      title: "Pioneers Arrive",
+      description: "Rachel DeSpain and her family arrive in Texas at Pecan Point, bringing their faith on horseback from Alabama to establish a foundation for Christian community in the region."
     },
     {
-      year: "1920s",
-      title: "Growth & Expansion",
-      description: "The church grew significantly during the 1920s, adding new programs and ministries to serve the expanding Granbury community."
+      year: "1842-1844",
+      title: "Clark Family Begins",
+      description: "JA Clark and Hetty DeSpain marry, and their sons Addison and Randolph Clark are born. This family would become instrumental in establishing Christian education and ministry in the area."
     },
     {
-      year: "1950s",
-      title: "New Sanctuary",
-      description: "Our current sanctuary was built, providing a beautiful space for worship and community gatherings that continues to serve us today."
+      year: "1850s",
+      title: "Settlement Grows",
+      description: "Pioneers are attracted to the fertile land near the Brazos River, establishing the foundation for what would become the Granbury community."
     },
     {
-      year: "1980s",
-      title: "Community Outreach",
-      description: "The church established several community outreach programs, including food banks and support services for families in need."
+      year: "1850s",
+      title: "Spiritual Education",
+      description: "The Clark brothers study under Campbellite Charles Carlton, deepening their understanding of Christian faith and preparing them for future ministry work."
     },
     {
-      year: "2000s",
-      title: "Modern Ministry",
-      description: "We embraced new technologies and contemporary worship while maintaining our traditional values and community focus."
+      year: "1861-1865",
+      title: "Civil War Years",
+      description: "The Civil War largely affects the area, bringing challenges and changes that would shape the community's character and resilience."
     },
     {
-      year: "Today",
-      title: "Continuing Mission",
-      description: "We continue to serve Granbury with the same dedication and love that has guided us for over 125 years, welcoming all who seek spiritual growth and community."
+      year: "1866",
+      title: "Granbury Established",
+      description: "The City of Granbury and Hood County are established and named for Confederate Generals Hiram B. Granbury and John Bell Hood, marking the official founding of our community."
+    },
+    {
+      year: "1873",
+      title: "First Christian Church Founded",
+      description: "JA Clark & Sons start First Christian Church and AddRan male and female college in Thorp Spring, establishing our church's rich educational and spiritual heritage."
+    },
+    {
+      year: "1889",
+      title: "Original Chapel Built",
+      description: "The original small chapel is built at the southeast corner of Houston & Bluff Streets, providing our first dedicated worship space in Granbury."
+    },
+    {
+      year: "1978",
+      title: "Historical Recognition",
+      description: "A historical marker is dedicated for the original chapel, recognizing its significance in the community's religious heritage."
+    },
+    {
+      year: "1986",
+      title: "Present Building Completed",
+      description: "Our present day church building is completed, providing a modern worship space while honoring our historical roots and community mission."
+    },
+    {
+      year: "1992",
+      title: "Chapel Preserved",
+      description: "The original chapel is moved to its current location as the Langdon Center, preserving this important piece of our church's history for future generations."
+    },
+    {
+      year: "2023",
+      title: "150th Anniversary",
+      description: "First Christian Church celebrates its 150th anniversary, marking a century and a half of faithful service, spiritual growth, and community impact in Granbury."
     }
   ];
 
@@ -37,7 +67,7 @@ export function History() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 font-serif">Our History</h2>
-          <p className="mt-4 text-lg text-gray-600">Over 125 years of faith, fellowship, and service in Granbury</p>
+          <p className="mt-4 text-lg text-gray-600">Over 150 years of faith, fellowship, and service in Granbury</p>
         </div>
 
         <div className="relative">
@@ -65,12 +95,15 @@ export function History() {
 
         {/* Heritage Statement */}
         <div className="mt-16 bg-white rounded-lg shadow-sm p-8">
-          <h3 className="text-2xl font-bold text-gray-900 font-serif text-center mb-6">Our Heritage</h3>
+          <h3 className="text-2xl font-bold text-gray-900 font-serif text-center mb-6">Our Legacy</h3>
           <p className="text-gray-700 leading-relaxed text-center max-w-4xl mx-auto">
-            For over 125 years, First Christian Church has been a cornerstone of faith and community in Granbury. 
-            We&apos;ve weathered storms, celebrated joys, and grown together as a family of believers. Our rich history 
-            is not just about the past—it&apos;s the foundation that continues to inspire our mission today. We honor 
-            those who came before us by carrying forward their legacy of love, service, and unwavering faith in God.
+            For over 150 years, First Christian Church has been a cornerstone of faith and community in Granbury. 
+            From the pioneering DeSpain family who brought their faith on horseback from Alabama in 1836, to the Clark 
+            family who founded our church and AddRan College in 1873, our rich history is woven into the very fabric 
+            of this community. AddRan College, established by our founding family, eventually became Texas Christian University (TCU), 
+            one of the nation&apos;s leading universities. We&apos;ve weathered storms, celebrated joys, and grown together as a 
+            diverse family of believers. Our legacy is not just about the past—it&apos;s the foundation that continues to inspire 
+            our mission today as we welcome all people and work for justice, peace, and community in Granbury and beyond.
           </p>
         </div>
       </div>
