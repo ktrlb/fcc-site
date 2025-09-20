@@ -51,6 +51,8 @@ export async function POST(request: Request) {
         specialEventNote: data.specialEventNote,
         specialEventImage: data.specialEventImage,
         contactPerson: data.contactPerson,
+        recurringDescription: data.recurringDescription,
+        endsBy: data.endsBy ? new Date(data.endsBy) : null,
         featuredOnHomePage: data.featuredOnHomePage || false,
         updatedAt: new Date(),
       };
@@ -79,6 +81,8 @@ export async function POST(request: Request) {
         specialEventNote: data.specialEventNote,
         specialEventImage: data.specialEventImage,
         contactPerson: data.contactPerson,
+        recurringDescription: data.recurringDescription,
+        endsBy: data.endsBy ? new Date(data.endsBy) : null,
         featuredOnHomePage: data.featuredOnHomePage || false,
         isActive: true,
       };

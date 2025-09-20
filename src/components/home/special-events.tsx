@@ -24,7 +24,9 @@ export async function SpecialEvents() {
     ministryTeamName?: string;
   }> = [];
   try {
-    const response = await fetch('/api/featured-special-events', {
+    // For server-side rendering, we need to construct the full URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/featured-special-events`, {
       next: { revalidate: 60 } // Cache for 1 minute
     });
     if (response.ok) {
@@ -187,7 +189,9 @@ export async function SpecialEvents() {
                       </span>
                     </div>
                     
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h4>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">
+                      {(event as { displayTitle?: string }).displayTitle || event.title}
+                    </h4>
                     <p className="text-gray-600 mb-3">
                       {event.specialEventNote || 'Join us for this special event.'}
                     </p>
@@ -248,7 +252,7 @@ export async function SpecialEvents() {
             <a href="/calendar">View Full Calendar</a>
           </Button>
           <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white" asChild>
-            <a href="/ministry-database">Join a Group</a>
+            <a href="/ministry-database">Explore Ministries at FCC</a>
           </Button>
         </div>
       </div>

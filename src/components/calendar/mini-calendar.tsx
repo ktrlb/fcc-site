@@ -45,6 +45,8 @@ interface CalendarEvent {
   specialEventNote?: string;
   specialEventImage?: string;
   contactPerson?: string;
+  recurringDescription?: string;
+  endsBy?: string;
   featuredOnHomePage?: boolean;
 }
 
@@ -176,6 +178,8 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
               specialEventNote: data.event.specialEventNote,
               specialEventImage: data.event.specialEventImage,
               contactPerson: data.event.contactPerson,
+              recurringDescription: data.event.recurringDescription,
+              endsBy: data.event.endsBy,
               featuredOnHomePage: data.event.featuredOnHomePage,
             });
           }
@@ -212,6 +216,8 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
           specialEventNote: eventData.specialEventNote,
           specialEventImage: eventData.specialEventImage,
           contactPerson: eventData.contactPerson,
+          recurringDescription: eventData.recurringDescription,
+          endsBy: eventData.endsBy,
           featuredOnHomePage: eventData.featuredOnHomePage,
         }),
       });
@@ -432,7 +438,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
       
       {/* Event Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className={isAdminMode ? "max-w-2xl" : "max-w-md"}>
+        <DialogContent className={isAdminMode ? "max-w-2xl max-h-[90vh] overflow-y-auto" : "max-w-md"}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {isAdminMode ? (
@@ -651,6 +657,8 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
     featuredOnHomePage: event.featuredOnHomePage || false,
     specialEventImage: event.specialEventImage || '',
     contactPerson: event.contactPerson || '',
+    recurringDescription: event.recurringDescription || '',
+    endsBy: event.endsBy || '',
   });
 
   // Update form data when event changes (when saved connections are loaded)
@@ -663,6 +671,8 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       featuredOnHomePage: event.featuredOnHomePage || false,
       specialEventImage: event.specialEventImage || '',
       contactPerson: event.contactPerson || '',
+      recurringDescription: event.recurringDescription || '',
+      endsBy: event.endsBy || '',
     });
   }, [event]);
 
@@ -806,6 +816,38 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
               Feature on Home Page
             </Label>
           </div>
+
+          {formData.featuredOnHomePage && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="recurringDescription">Recurring Pattern Description</Label>
+                <Input
+                  id="recurringDescription"
+                  value={formData.recurringDescription || ''}
+                  onChange={(e) => setFormData({ ...formData, recurringDescription: e.target.value })}
+                  placeholder="e.g., 'Tuesdays in January', 'Every Sunday', 'First Friday of each month'"
+                  className="mt-1"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Describe how often this event occurs (only needed for recurring events)
+                </p>
+              </div>
+              
+              <div>
+                <Label htmlFor="endsBy">Ends By (Optional)</Label>
+                <Input
+                  id="endsBy"
+                  type="date"
+                  value={formData.endsBy ? new Date(formData.endsBy).toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, endsBy: e.target.value ? new Date(e.target.value).toISOString() : '' })}
+                  className="mt-1"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  When to stop featuring this recurring event on the homepage (leave blank for no end date)
+                </p>
+              </div>
+            </div>
+          )}
 
           {formData.isSpecialEvent && (
             <div className="space-y-4 border-t pt-4">

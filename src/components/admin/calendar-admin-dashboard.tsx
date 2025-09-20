@@ -34,6 +34,8 @@ interface CalendarEvent {
   specialEventNote?: string;
   specialEventImage?: string;
   contactPerson?: string;
+  recurringDescription?: string;
+  endsBy?: string;
   featuredOnHomePage?: boolean;
 }
 
@@ -177,6 +179,14 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
       if (response.ok) {
         const data = await response.json();
         if (data.event) {
+          console.log('CalendarAdminDashboard: Loaded event data from database:', {
+            title: event.title,
+            isSpecialEvent: data.event.isSpecialEvent,
+            specialEventImage: data.event.specialEventImage,
+            specialEventNote: data.event.specialEventNote,
+            contactPerson: data.event.contactPerson
+          });
+          
           // Merge the saved connections with the Google Calendar event data
           setSelectedEvent({
             ...event,
@@ -184,6 +194,10 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
             ministryTeamId: data.event.ministryTeamId,
             isSpecialEvent: data.event.isSpecialEvent,
             specialEventNote: data.event.specialEventNote,
+            specialEventImage: data.event.specialEventImage,
+            contactPerson: data.event.contactPerson,
+            recurringDescription: data.event.recurringDescription,
+            endsBy: data.event.endsBy,
             featuredOnHomePage: data.event.featuredOnHomePage,
           });
         }
@@ -221,6 +235,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
           specialEventNote: eventData.specialEventNote,
           specialEventImage: eventData.specialEventImage,
           contactPerson: eventData.contactPerson,
+          recurringDescription: eventData.recurringDescription,
           featuredOnHomePage: eventData.featuredOnHomePage,
         }),
       });
@@ -492,7 +507,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
       
       {/* Admin Event Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
@@ -532,10 +547,20 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
     featuredOnHomePage: event.featuredOnHomePage || false,
     specialEventImage: event.specialEventImage || '',
     contactPerson: event.contactPerson || '',
+    recurringDescription: event.recurringDescription || '',
+    endsBy: event.endsBy || '',
   });
 
   // Update form data when event changes (when saved connections are loaded)
   useEffect(() => {
+    console.log('AdminEventEditForm: Event data received:', {
+      title: event.title,
+      isSpecialEvent: event.isSpecialEvent,
+      specialEventImage: event.specialEventImage,
+      specialEventNote: event.specialEventNote,
+      contactPerson: event.contactPerson
+    });
+    
     setFormData({
       specialEventId: event.specialEventId || 'none',
       ministryTeamId: event.ministryTeamId || 'none',
@@ -544,6 +569,8 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       featuredOnHomePage: event.featuredOnHomePage || false,
       specialEventImage: event.specialEventImage || '',
       contactPerson: event.contactPerson || '',
+      recurringDescription: event.recurringDescription || '',
+      endsBy: event.endsBy || '',
     });
   }, [event]);
 
@@ -607,36 +634,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="ministryConnection">Special Event Type</Label>
-            <Select 
-              value={formData.specialEventId} 
-              onValueChange={(value) => setFormData({ ...formData, specialEventId: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select special event type" />
-              </SelectTrigger>
-              <SelectContent>
-                {specialEvents
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map(specialEvent => (
-                    <SelectItem key={specialEvent.id} value={specialEvent.id}>
-                      <div className="flex items-center gap-2">
-                        {specialEvent.color && (
-                          <div 
-                            className="w-3 h-3 rounded-full" 
-                            style={{ backgroundColor: specialEvent.color }}
-                          />
-                        )}
-                        {specialEvent.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="ministryTeam">Specific Ministry Team</Label>
+            <Label htmlFor="ministryTeam">Ministry Connection</Label>
             <Select 
               value={formData.ministryTeamId} 
               onValueChange={(value) => setFormData({ ...formData, ministryTeamId: value })}
@@ -651,6 +649,36 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
                   .map(ministry => (
                     <SelectItem key={ministry.id} value={ministry.id}>
                       {ministry.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="specialEventType">Special Event Type (Optional)</Label>
+            <Select 
+              value={formData.specialEventId} 
+              onValueChange={(value) => setFormData({ ...formData, specialEventId: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select special event type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {specialEvents
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(specialEvent => (
+                    <SelectItem key={specialEvent.id} value={specialEvent.id}>
+                      <div className="flex items-center gap-2">
+                        {specialEvent.color && (
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: specialEvent.color }}
+                          />
+                        )}
+                        {specialEvent.name}
+                      </div>
                     </SelectItem>
                   ))}
               </SelectContent>
@@ -686,6 +714,38 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
               Feature on Home Page
             </Label>
           </div>
+
+          {formData.featuredOnHomePage && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="recurringDescription">Recurring Pattern Description</Label>
+                <Input
+                  id="recurringDescription"
+                  value={formData.recurringDescription || ''}
+                  onChange={(e) => setFormData({ ...formData, recurringDescription: e.target.value })}
+                  placeholder="e.g., 'Tuesdays in January', 'Every Sunday', 'First Friday of each month'"
+                  className="mt-1"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Describe how often this event occurs (only needed for recurring events)
+                </p>
+              </div>
+              
+              <div>
+                <Label htmlFor="endsBy">Ends By (Optional)</Label>
+                <Input
+                  id="endsBy"
+                  type="date"
+                  value={formData.endsBy ? new Date(formData.endsBy).toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, endsBy: e.target.value ? new Date(e.target.value).toISOString() : '' })}
+                  className="mt-1"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  When to stop featuring this recurring event on the homepage (leave blank for no end date)
+                </p>
+              </div>
+            </div>
+          )}
 
           {formData.isSpecialEvent && (
             <div className="space-y-4 border-t pt-4">

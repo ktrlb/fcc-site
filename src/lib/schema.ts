@@ -130,6 +130,8 @@ export const calendarEvents = pgTable('calendar_events', {
   specialEventNote: text('special_event_note'), // Additional details for special events
   specialEventImage: varchar('special_event_image', { length: 500 }), // URL for special event image
   contactPerson: varchar('contact_person', { length: 255 }), // Contact person for special events
+  recurringDescription: varchar('recurring_description', { length: 255 }), // Custom description for recurring pattern (e.g., "Tuesdays in January")
+  endsBy: timestamp('ends_by'), // When to stop featuring recurring events on homepage
   featuredOnHomePage: boolean('featured_on_home_page').default(false).notNull(), // Whether to feature on home page
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
