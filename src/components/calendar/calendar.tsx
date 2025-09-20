@@ -477,7 +477,7 @@ export function Calendar({ events = [] }: CalendarProps) {
               </div>
               
               
-       {selectedEvent.ministryConnection && (selectedEvent.ministryInfo || selectedEvent.specialEventInfo) && (
+       {(selectedEvent.ministryInfo || selectedEvent.specialEventInfo) && (
          <div className="pt-4 border-t border-gray-200">
            
            {selectedEvent.ministryInfo && (
