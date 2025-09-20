@@ -136,6 +136,22 @@ export const calendarEvents = pgTable('calendar_events', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Calendar cache table for storing raw Google Calendar data to reduce API calls
+export const calendarCache = pgTable('calendar_cache', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  googleEventId: varchar('google_event_id', { length: 255 }).notNull().unique(),
+  title: varchar('title', { length: 500 }).notNull(),
+  description: text('description'),
+  location: varchar('location', { length: 500 }),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  allDay: boolean('all_day').default(false),
+  recurring: boolean('recurring').default(false),
+  rawData: text('raw_data'), // Store the full Google Calendar event data as JSON
+  lastUpdated: timestamp('last_updated').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Keep the assets table for general file storage
 export const assets = pgTable('assets', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -184,6 +200,9 @@ export type NewSpecialEvent = typeof specialEvents.$inferInsert;
 
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type NewCalendarEvent = typeof calendarEvents.$inferInsert;
+
+export type CalendarCache = typeof calendarCache.$inferSelect;
+export type NewCalendarCache = typeof calendarCache.$inferInsert;
 
 export type Asset = typeof assets.$inferSelect;
 export type NewAsset = typeof assets.$inferInsert;

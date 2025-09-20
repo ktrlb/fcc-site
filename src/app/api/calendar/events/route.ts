@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getGoogleCalendarEvents } from '@/lib/google-calendar-api';
+import { CalendarCacheService } from '@/lib/calendar-cache';
 import { getMinistryTeams } from '@/lib/ministry-queries';
 import { analyzeEvents } from '@/lib/event-analyzer';
 import { db } from '@/lib/db';
@@ -58,18 +58,27 @@ export async function GET() {
       });
     }
 
-    // Fetch events from Google Calendar API
-    
-    // Try with the specific calendar ID first
+    // Fetch events from cache (which will refresh from Google Calendar if needed)
     let events;
     try {
-      events = await getGoogleCalendarEvents(calendarId, serviceAccountKey);
+      const cachedEvents = await CalendarCacheService.getCalendarEvents();
+      
+      // Convert cached events to the format expected by the rest of the code
+      events = cachedEvents.map(event => ({
+        id: event.googleEventId,
+        title: event.title,
+        start: event.startTime,
+        end: event.endTime,
+        description: event.description,
+        location: event.location,
+        allDay: event.allDay,
+        recurring: event.recurring,
+      }));
+      
+      console.log(`Loaded ${events.length} events from calendar cache`);
     } catch (error) {
-      try {
-        events = await getGoogleCalendarEvents('primary', serviceAccountKey);
-      } catch (error2) {
-        throw error2; // This will trigger the fallback to sample data
-      }
+      console.error('Error loading events from cache:', error);
+      throw error; // This will trigger the fallback to sample data
     }
     
 
