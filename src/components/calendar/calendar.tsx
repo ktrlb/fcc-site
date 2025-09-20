@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalendarIcon, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalendarIcon, X, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,18 @@ interface CalendarEvent {
     id: string;
     name: string;
     description?: string;
+    imageUrl?: string;
+    contactPerson?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+  };
+  specialEventInfo?: {
+    id: string;
+    name: string;
+    description?: string;
+    imageUrl?: string;
+    color?: string;
+    contactPerson?: string;
   };
 }
 
@@ -71,6 +83,10 @@ export function Calendar({ events = [] }: CalendarProps) {
             id: string;
             name: string;
             description?: string;
+            imageUrl?: string;
+            contactPerson?: string;
+            contactEmail?: string;
+            contactPhone?: string;
           };
         }) => ({
           ...event,
@@ -172,6 +188,9 @@ export function Calendar({ events = [] }: CalendarProps) {
   };
 
   const handleEventClick = (event: CalendarEvent) => {
+    console.log('Event clicked:', event);
+    console.log('Ministry connection:', event.ministryConnection);
+    console.log('Ministry info:', event.ministryInfo);
     setSelectedEvent(event);
     setIsModalOpen(true);
   };
@@ -400,31 +419,69 @@ export function Calendar({ events = [] }: CalendarProps) {
                 )}
               </div>
               
-              {selectedEvent.description && (
-                <div className="pt-2 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{selectedEvent.description}</p>
-                </div>
-              )}
               
-              {selectedEvent.ministryConnection && (
-                <div className="pt-2 border-t border-gray-200">
-                  <h4 className="font-medium text-gray-900 mb-2">Ministry Connection</h4>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
-                      {selectedEvent.ministryConnection}
-                    </Badge>
-                    {selectedEvent.ministryInfo && (
-                      <span className="text-sm text-gray-600">
-                        • {selectedEvent.ministryInfo.name}
-                      </span>
-                    )}
-                  </div>
-                  {selectedEvent.ministryInfo && selectedEvent.ministryInfo.description && (
-                    <p className="text-sm text-gray-600 mt-2">{selectedEvent.ministryInfo.description}</p>
-                  )}
-                </div>
-              )}
+       {selectedEvent.ministryConnection && (selectedEvent.ministryInfo || selectedEvent.specialEventInfo) && (
+         <div className="pt-4 border-t border-gray-200">
+           
+           {selectedEvent.ministryInfo && (
+             <div className="bg-green-50 p-4 rounded-lg">
+               {selectedEvent.ministryInfo.imageUrl && (
+                 <div className="mb-3">
+                   <img
+                     src={selectedEvent.ministryInfo.imageUrl}
+                     alt={selectedEvent.ministryInfo.name}
+                     className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                   />
+                 </div>
+               )}
+               {selectedEvent.ministryInfo.description && (
+                 <p className="text-sm text-gray-600 mb-3">{selectedEvent.ministryInfo.description}</p>
+               )}
+               {selectedEvent.ministryInfo.contactPerson && (
+                 <div className="flex items-center gap-2 text-sm text-gray-600">
+                   <Users className="h-4 w-4" />
+                   <span>Contact: {selectedEvent.ministryInfo.contactPerson}</span>
+                 </div>
+               )}
+               {selectedEvent.ministryInfo.contactEmail && (
+                 <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                   <span className="text-xs">📧</span>
+                   <span>{selectedEvent.ministryInfo.contactEmail}</span>
+                 </div>
+               )}
+               {selectedEvent.ministryInfo.contactPhone && (
+                 <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                   <span className="text-xs">📞</span>
+                   <span>{selectedEvent.ministryInfo.contactPhone}</span>
+                 </div>
+               )}
+             </div>
+           )}
+           
+           {selectedEvent.specialEventInfo && (
+             <div className="bg-blue-50 p-4 rounded-lg">
+               {selectedEvent.specialEventInfo.imageUrl && (
+                 <div className="mb-3">
+                   <img
+                     src={selectedEvent.specialEventInfo.imageUrl}
+                     alt={selectedEvent.specialEventInfo.name}
+                     className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                   />
+                 </div>
+               )}
+               {selectedEvent.specialEventInfo.description && (
+                 <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventInfo.description}</p>
+               )}
+               {selectedEvent.specialEventInfo.contactPerson && (
+                 <div className="flex items-center gap-2 text-sm text-gray-600">
+                   <Users className="h-4 w-4" />
+                   <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
+                 </div>
+               )}
+             </div>
+           )}
+         </div>
+       )}
               
               <div className="flex justify-end pt-4 border-t border-gray-200">
                 <Button 

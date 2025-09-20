@@ -22,13 +22,29 @@ interface CalendarEvent {
   allDay: boolean;
   recurring?: boolean;
   ministryConnection?: string;
+  specialEventId?: string;
+  ministryTeamId?: string;
   ministryInfo?: {
     id: string;
     name: string;
     description?: string;
+    imageUrl?: string;
+    contactPerson?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+  };
+  specialEventInfo?: {
+    id: string;
+    name: string;
+    description?: string;
+    imageUrl?: string;
+    color?: string;
+    contactPerson?: string;
   };
   isSpecialEvent?: boolean;
   specialEventNote?: string;
+  specialEventImage?: string;
+  contactPerson?: string;
   featuredOnHomePage?: boolean;
 }
 
@@ -55,6 +71,12 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     name: string;
     description?: string;
   }[]>([]);
+  const [specialEvents, setSpecialEvents] = useState<{
+    id: string;
+    name: string;
+    description?: string;
+    color?: string;
+  }[]>([]);
 
   useEffect(() => {
     if (events.length > 0) {
@@ -66,6 +88,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
   useEffect(() => {
     if (isAdminMode) {
       fetchMinistries();
+      fetchSpecialEvents();
     }
   }, [isAdminMode]);
 
@@ -81,7 +104,19 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     }
   };
 
-  const handleEventClick = (recurringEvent: RecurringEvent) => {
+  const fetchSpecialEvents = async () => {
+    try {
+      const response = await fetch('/api/admin/special-events');
+      if (response.ok) {
+        const data = await response.json();
+        setSpecialEvents(data.events || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch special events:', error);
+    }
+  };
+
+  const handleEventClick = async (recurringEvent: RecurringEvent) => {
     // Find the original event from the events array that matches this recurring event
     const originalEvent = events.find(event => {
       const eventDate = new Date(event.start);
@@ -96,8 +131,32 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     });
 
     if (originalEvent) {
+      // First set the basic event data
       setSelectedEvent(originalEvent);
       setIsModalOpen(true);
+      
+      // Then fetch any saved connections from the database
+      try {
+        const response = await fetch(`/api/admin/calendar-events/by-google-id/${originalEvent.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.event) {
+            // Merge the saved connections with the Google Calendar event data
+            setSelectedEvent({
+              ...originalEvent,
+              specialEventId: data.event.specialEventId,
+              ministryTeamId: data.event.ministryTeamId,
+              isSpecialEvent: data.event.isSpecialEvent,
+              specialEventNote: data.event.specialEventNote,
+              specialEventImage: data.event.specialEventImage,
+              contactPerson: data.event.contactPerson,
+              featuredOnHomePage: data.event.featuredOnHomePage,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch saved connections:', error);
+      }
     }
   };
 
@@ -105,17 +164,48 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     if (!selectedEvent) return;
 
     try {
-      // For now, we'll just update the local state since the database table doesn't exist yet
-      // TODO: Implement actual API call when calendar_events table is created
-      console.log('Would save event data:', eventData);
+      console.log('Saving event data:', eventData);
       
-      // Update local state - this would need to be passed up to parent component
-      // For now, just close the modal
+      // Make API call to save the event data
+      const createResponse = await fetch('/api/admin/calendar-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          googleEventId: selectedEvent.id, // Use Google Calendar ID as the identifier
+          title: selectedEvent.title,
+          description: selectedEvent.description,
+          location: selectedEvent.location,
+          startTime: selectedEvent.start,
+          endTime: selectedEvent.end,
+          allDay: selectedEvent.allDay,
+          recurring: selectedEvent.recurring,
+          specialEventId: eventData.specialEventId,
+          ministryTeamId: eventData.ministryTeamId,
+          isSpecialEvent: eventData.isSpecialEvent,
+          specialEventNote: eventData.specialEventNote,
+          specialEventImage: eventData.specialEventImage,
+          contactPerson: eventData.contactPerson,
+          featuredOnHomePage: eventData.featuredOnHomePage,
+        }),
+      });
+
+      if (!createResponse.ok) {
+        const errorData = await createResponse.json();
+        console.error('Failed to save event:', errorData);
+        return;
+      }
+
+      const savedEvent = await createResponse.json();
+      console.log('Event saved successfully:', savedEvent);
+      
+      // Close the modal and refresh
       setIsModalOpen(false);
       setSelectedEvent(null);
       onEventUpdated?.();
     } catch (error) {
-      console.error('Failed to update event:', error);
+      console.error('Failed to save event:', error);
     }
   };
 
@@ -340,6 +430,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
               <AdminEventEditForm
                 event={selectedEvent}
                 ministries={ministries}
+                specialEvents={specialEvents}
                 onSave={handleSaveEvent}
                 onCancel={() => setIsModalOpen(false)}
               />
@@ -418,10 +509,67 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                   )}
                 </div>
                 
-                {selectedEvent.description && (
-                  <div className="pt-2 border-t border-gray-200">
-                    <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                    <p className="text-sm text-gray-600 whitespace-pre-wrap">{selectedEvent.description}</p>
+                
+                {selectedEvent.ministryConnection && (selectedEvent.ministryInfo || selectedEvent.specialEventInfo) && (
+                  <div className="pt-4 border-t border-gray-200">
+                    
+                    {selectedEvent.ministryInfo && (
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        {selectedEvent.ministryInfo.imageUrl && (
+                          <div className="mb-3">
+                            <img
+                              src={selectedEvent.ministryInfo.imageUrl}
+                              alt={selectedEvent.ministryInfo.name}
+                              className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                            />
+                          </div>
+                        )}
+                        {selectedEvent.ministryInfo.description && (
+                          <p className="text-sm text-gray-600 mb-3">{selectedEvent.ministryInfo.description}</p>
+                        )}
+                        {selectedEvent.ministryInfo.contactPerson && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Users className="h-4 w-4" />
+                            <span>Contact: {selectedEvent.ministryInfo.contactPerson}</span>
+                          </div>
+                        )}
+                        {selectedEvent.ministryInfo.contactEmail && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                            <span className="text-xs">📧</span>
+                            <span>{selectedEvent.ministryInfo.contactEmail}</span>
+                          </div>
+                        )}
+                        {selectedEvent.ministryInfo.contactPhone && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                            <span className="text-xs">📞</span>
+                            <span>{selectedEvent.ministryInfo.contactPhone}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {selectedEvent.specialEventInfo && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        {selectedEvent.specialEventInfo.imageUrl && (
+                          <div className="mb-3">
+                            <img
+                              src={selectedEvent.specialEventInfo.imageUrl}
+                              alt={selectedEvent.specialEventInfo.name}
+                              className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                            />
+                          </div>
+                        )}
+                        {selectedEvent.specialEventInfo.description && (
+                          <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventInfo.description}</p>
+                        )}
+                        {selectedEvent.specialEventInfo.contactPerson && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Users className="h-4 w-4" />
+                            <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -447,26 +595,42 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
 interface AdminEventEditFormProps {
   event: CalendarEvent;
   ministries: Array<{ id: string; name: string; description?: string }>;
+  specialEvents: Array<{ id: string; name: string; description?: string; color?: string }>;
   onSave: (data: Partial<CalendarEvent>) => void;
   onCancel: () => void;
 }
 
-function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventEditFormProps) {
+function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel }: AdminEventEditFormProps) {
   const [formData, setFormData] = useState({
-    ministryConnection: event.ministryConnection || 'none',
-    ministryTeamId: event.ministryInfo?.id || 'none',
+    specialEventId: event.specialEventId || 'none',
+    ministryTeamId: event.ministryTeamId || 'none',
     isSpecialEvent: event.isSpecialEvent || false,
     specialEventNote: event.specialEventNote || '',
     featuredOnHomePage: event.featuredOnHomePage || false,
+    specialEventImage: event.specialEventImage || '',
+    contactPerson: event.contactPerson || '',
   });
+
+  // Update form data when event changes (when saved connections are loaded)
+  useEffect(() => {
+    setFormData({
+      specialEventId: event.specialEventId || 'none',
+      ministryTeamId: event.ministryTeamId || 'none',
+      isSpecialEvent: event.isSpecialEvent || false,
+      specialEventNote: event.specialEventNote || '',
+      featuredOnHomePage: event.featuredOnHomePage || false,
+      specialEventImage: event.specialEventImage || '',
+      contactPerson: event.contactPerson || '',
+    });
+  }, [event]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Convert "none" values back to empty strings for saving
     const saveData = {
       ...formData,
-      ministryConnection: formData.ministryConnection === 'none' ? '' : formData.ministryConnection,
-      ministryTeamId: formData.ministryTeamId === 'none' ? '' : formData.ministryTeamId,
+      specialEventId: formData.specialEventId === 'none' ? undefined : formData.specialEventId,
+      ministryTeamId: formData.ministryTeamId === 'none' ? undefined : formData.ministryTeamId,
     };
     onSave(saveData);
   };
@@ -520,31 +684,31 @@ function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventE
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="ministryConnection">Ministry Connection</Label>
+            <Label htmlFor="specialEventId">Special Event Type</Label>
             <Select 
-              value={formData.ministryConnection} 
-              onValueChange={(value) => setFormData({ ...formData, ministryConnection: value })}
+              value={formData.specialEventId} 
+              onValueChange={(value) => setFormData({ ...formData, specialEventId: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select ministry type" />
+                <SelectValue placeholder="Select special event type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                <SelectItem value="worship">Worship</SelectItem>
-                <SelectItem value="children">Children</SelectItem>
-                <SelectItem value="youth">Youth</SelectItem>
-                <SelectItem value="bible study">Bible Study</SelectItem>
-                <SelectItem value="prayer">Prayer</SelectItem>
-                <SelectItem value="fellowship">Fellowship</SelectItem>
-                <SelectItem value="missions">Missions</SelectItem>
-                <SelectItem value="seniors">Seniors</SelectItem>
-                <SelectItem value="men">Men</SelectItem>
-                <SelectItem value="women">Women</SelectItem>
-                <SelectItem value="young adults">Young Adults</SelectItem>
-                <SelectItem value="family">Family</SelectItem>
-                <SelectItem value="discipleship">Discipleship</SelectItem>
-                <SelectItem value="evangelism">Evangelism</SelectItem>
-                <SelectItem value="pastoral care">Pastoral Care</SelectItem>
+                {specialEvents
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(specialEvent => (
+                    <SelectItem key={specialEvent.id} value={specialEvent.id}>
+                      <div className="flex items-center gap-2">
+                        {specialEvent.color && (
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: specialEvent.color }}
+                          />
+                        )}
+                        {specialEvent.name}
+                      </div>
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -560,11 +724,13 @@ function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventE
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {ministries.map(ministry => (
-                  <SelectItem key={ministry.id} value={ministry.id}>
-                    {ministry.name}
-                  </SelectItem>
-                ))}
+                {ministries
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(ministry => (
+                    <SelectItem key={ministry.id} value={ministry.id}>
+                      {ministry.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -600,15 +766,71 @@ function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventE
           </div>
 
           {formData.isSpecialEvent && (
-            <div>
-              <Label htmlFor="specialEventNote">Special Event Note</Label>
-              <Textarea
-                id="specialEventNote"
-                value={formData.specialEventNote}
-                onChange={(e) => setFormData({ ...formData, specialEventNote: e.target.value })}
-                placeholder="Additional details about this special event..."
-                rows={2}
-              />
+            <div className="space-y-4 border-t pt-4">
+              <div>
+                <Label htmlFor="specialEventNote">Special Event Description</Label>
+                <Textarea
+                  id="specialEventNote"
+                  value={formData.specialEventNote}
+                  onChange={(e) => setFormData({ ...formData, specialEventNote: e.target.value })}
+                  placeholder="Detailed description of this special event..."
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="specialEventImage">Event Image</Label>
+                <Input
+                  type="file"
+                  id="specialEventImage"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      try {
+                        // Upload to blob storage
+                        const uploadFormData = new FormData();
+                        uploadFormData.append('file', file);
+                        
+                        const response = await fetch('/api/admin/special-event-image/upload', {
+                          method: 'POST',
+                          body: uploadFormData,
+                        });
+                        
+                        if (response.ok) {
+                          const result = await response.json();
+                          setFormData({ ...formData, specialEventImage: result.url });
+                        } else {
+                          console.error('Failed to upload image');
+                        }
+                      } catch (error) {
+                        console.error('Error uploading image:', error);
+                      }
+                    }
+                  }}
+                  className="mt-1"
+                />
+                {formData.specialEventImage && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500 mb-2">Uploaded image:</p>
+                    <img 
+                      src={formData.specialEventImage} 
+                      alt="Event preview" 
+                      className="w-32 h-32 object-cover rounded-lg border"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="contactPerson">Contact Person</Label>
+                <Input
+                  id="contactPerson"
+                  value={formData.contactPerson}
+                  onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                  placeholder="Name of person to contact for this event"
+                />
+              </div>
             </div>
           )}
         </div>

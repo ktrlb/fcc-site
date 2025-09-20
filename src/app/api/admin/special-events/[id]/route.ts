@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { calendarEvents } from '@/lib/schema';
+import { specialEvents } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
-import type { NewCalendarEvent } from '@/lib/schema';
+import type { NewSpecialEvent } from '@/lib/schema';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
 export async function GET(
@@ -17,22 +17,22 @@ export async function GET(
     const { id } = await params;
     const event = await db
       .select()
-      .from(calendarEvents)
-      .where(eq(calendarEvents.id, id))
+      .from(specialEvents)
+      .where(eq(specialEvents.id, id))
       .limit(1);
     
     if (!event[0]) {
       return NextResponse.json(
-        { error: 'Calendar event not found' },
+        { error: 'Special event not found' },
         { status: 404 }
       );
     }
     
     return NextResponse.json({ event: event[0] });
   } catch (error) {
-    console.error('Error fetching calendar event:', error);
+    console.error('Error fetching special event:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch calendar event' },
+      { error: 'Failed to fetch special event' },
       { status: 500 }
     );
   }
@@ -50,42 +50,34 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
     
-    const updateData: Partial<NewCalendarEvent> = {
-      title: data.title,
+    const updateData: Partial<NewSpecialEvent> = {
+      name: data.name,
       description: data.description,
-      location: data.location,
-      startTime: data.startTime ? new Date(data.startTime) : undefined,
-      endTime: data.endTime ? new Date(data.endTime) : undefined,
-      allDay: data.allDay,
-      recurring: data.recurring,
-      ministryTeamId: data.ministryTeamId,
-      isSpecialEvent: data.isSpecialEvent,
-      specialEventNote: data.specialEventNote,
-      specialEventImage: data.specialEventImage,
-      contactPerson: data.contactPerson,
-      featuredOnHomePage: data.featuredOnHomePage,
-      specialEventId: data.specialEventId,
+      imageUrl: data.imageUrl,
+      color: data.color,
+      isDefault: data.isDefault,
+      sortOrder: data.sortOrder,
       updatedAt: new Date(),
     };
     
     const result = await db
-      .update(calendarEvents)
+      .update(specialEvents)
       .set(updateData)
-      .where(eq(calendarEvents.id, id))
+      .where(eq(specialEvents.id, id))
       .returning();
     
     if (!result[0]) {
       return NextResponse.json(
-        { error: 'Calendar event not found' },
+        { error: 'Special event not found' },
         { status: 404 }
       );
     }
     
     return NextResponse.json({ event: result[0] });
   } catch (error) {
-    console.error('Error updating calendar event:', error);
+    console.error('Error updating special event:', error);
     return NextResponse.json(
-      { error: 'Failed to update calendar event' },
+      { error: 'Failed to update special event' },
       { status: 500 }
     );
   }
@@ -101,26 +93,42 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    // Soft delete by setting isActive to false
-    const result = await db
-      .update(calendarEvents)
-      .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(calendarEvents.id, id))
-      .returning();
     
-    if (!result[0]) {
+    // Check if this is a default event that shouldn't be deleted
+    const event = await db
+      .select()
+      .from(specialEvents)
+      .where(eq(specialEvents.id, id))
+      .limit(1);
+    
+    if (!event[0]) {
       return NextResponse.json(
-        { error: 'Calendar event not found' },
+        { error: 'Special event not found' },
         { status: 404 }
       );
     }
     
-    return NextResponse.json({ message: 'Calendar event deleted successfully' });
+    if (event[0].isDefault) {
+      return NextResponse.json(
+        { error: 'Cannot delete default special events' },
+        { status: 400 }
+      );
+    }
+    
+    // Soft delete by setting isActive to false
+    const result = await db
+      .update(specialEvents)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(specialEvents.id, id))
+      .returning();
+    
+    return NextResponse.json({ message: 'Special event deleted successfully' });
   } catch (error) {
-    console.error('Error deleting calendar event:', error);
+    console.error('Error deleting special event:', error);
     return NextResponse.json(
-      { error: 'Failed to delete calendar event' },
+      { error: 'Failed to delete special event' },
       { status: 500 }
     );
   }
 }
+

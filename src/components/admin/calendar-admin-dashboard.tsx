@@ -23,6 +23,8 @@ interface CalendarEvent {
   allDay: boolean;
   recurring?: boolean;
   ministryConnection?: string;
+  specialEventId?: string;
+  ministryTeamId?: string;
   ministryInfo?: {
     id: string;
     name: string;
@@ -30,6 +32,8 @@ interface CalendarEvent {
   };
   isSpecialEvent?: boolean;
   specialEventNote?: string;
+  specialEventImage?: string;
+  contactPerson?: string;
   featuredOnHomePage?: boolean;
 }
 
@@ -57,10 +61,17 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     name: string;
     description?: string;
   }[]>([]);
+  const [specialEvents, setSpecialEvents] = useState<Array<{ 
+    id: string; 
+    name: string; 
+    description?: string; 
+    color?: string 
+  }>>([]);
 
   useEffect(() => {
     fetchEvents();
     fetchMinistries();
+    fetchSpecialEvents();
   }, []);
 
   const fetchEvents = async () => {
@@ -143,35 +154,105 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     }
   };
 
-  const handleEventClick = (event: CalendarEvent) => {
+  const fetchSpecialEvents = async () => {
+    try {
+      const response = await fetch('/api/admin/special-events');
+      if (response.ok) {
+        const data = await response.json();
+        setSpecialEvents(data.events || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch special events:', error);
+    }
+  };
+
+  const handleEventClick = async (event: CalendarEvent) => {
+    // First set the basic event data
     setSelectedEvent(event);
     setIsModalOpen(true);
+    
+    // Then fetch any saved connections from the database
+    try {
+      const response = await fetch(`/api/admin/calendar-events/by-google-id/${event.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.event) {
+          // Merge the saved connections with the Google Calendar event data
+          setSelectedEvent({
+            ...event,
+            specialEventId: data.event.specialEventId,
+            ministryTeamId: data.event.ministryTeamId,
+            isSpecialEvent: data.event.isSpecialEvent,
+            specialEventNote: data.event.specialEventNote,
+            featuredOnHomePage: data.event.featuredOnHomePage,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch saved connections:', error);
+    }
   };
 
   const handleSaveEvent = async (eventData: Partial<CalendarEvent>) => {
     if (!selectedEvent) return;
 
     try {
-      // For now, we'll just update the local state since the database table doesn't exist yet
-      // TODO: Implement actual API call when calendar_events table is created
-      console.log('Would save event data:', eventData);
+      console.log('Saving event data:', eventData);
       
-      // Update local state
+      // For now, we'll always create a new database entry since we don't have a lookup by googleEventId
+      // In the future, we could add a GET endpoint that searches by googleEventId
+      const createResponse = await fetch('/api/admin/calendar-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          googleEventId: selectedEvent.id, // Use Google Calendar ID as the identifier
+          title: selectedEvent.title,
+          description: selectedEvent.description,
+          location: selectedEvent.location,
+          startTime: selectedEvent.start,
+          endTime: selectedEvent.end,
+          allDay: selectedEvent.allDay,
+          recurring: selectedEvent.recurring,
+          specialEventId: eventData.specialEventId,
+          ministryTeamId: eventData.ministryTeamId,
+          isSpecialEvent: eventData.isSpecialEvent,
+          specialEventNote: eventData.specialEventNote,
+          specialEventImage: eventData.specialEventImage,
+          contactPerson: eventData.contactPerson,
+          featuredOnHomePage: eventData.featuredOnHomePage,
+        }),
+      });
+
+      if (!createResponse.ok) {
+        const errorData = await createResponse.json();
+        console.error('Failed to save event:', errorData);
+        throw new Error(`Failed to save event in database: ${errorData.error || 'Unknown error'}`);
+      }
+
+      const savedEvent = await createResponse.json();
+      console.log('Event saved in database:', savedEvent);
+      
+      // Update local state with the saved event data
       const updatedEvents = allEvents.map(event => 
-        event.id === selectedEvent.id ? { ...event, ...eventData } : event
+        event.id === selectedEvent.id ? { ...event, ...savedEvent.event } : event
       );
       setAllEvents(updatedEvents);
       
       const updatedCalendarEvents = calendarEvents.map(event => 
-        event.id === selectedEvent.id ? { ...event, ...eventData } : event
+        event.id === selectedEvent.id ? { ...event, ...savedEvent.event } : event
       );
       setCalendarEvents(updatedCalendarEvents);
       
       setIsModalOpen(false);
       setSelectedEvent(null);
       onEventUpdated?.();
+      
+      console.log('Event saved successfully');
     } catch (error) {
-      console.error('Failed to update event:', error);
+      console.error('Failed to save event:', error);
+      // You might want to show an error message to the user here
     }
   };
 
@@ -423,6 +504,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
             <AdminEventEditForm
               event={selectedEvent}
               ministries={ministries}
+              specialEvents={specialEvents}
               onSave={handleSaveEvent}
               onCancel={() => setIsModalOpen(false)}
             />
@@ -436,26 +518,42 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
 interface AdminEventEditFormProps {
   event: CalendarEvent;
   ministries: Array<{ id: string; name: string; description?: string }>;
+  specialEvents: Array<{ id: string; name: string; description?: string; color?: string }>;
   onSave: (data: Partial<CalendarEvent>) => void;
   onCancel: () => void;
 }
 
-function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventEditFormProps) {
+function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel }: AdminEventEditFormProps) {
   const [formData, setFormData] = useState({
-    ministryConnection: event.ministryConnection || 'none',
-    ministryTeamId: event.ministryInfo?.id || 'none',
+    specialEventId: event.specialEventId || 'none',
+    ministryTeamId: event.ministryTeamId || 'none',
     isSpecialEvent: event.isSpecialEvent || false,
     specialEventNote: event.specialEventNote || '',
     featuredOnHomePage: event.featuredOnHomePage || false,
+    specialEventImage: event.specialEventImage || '',
+    contactPerson: event.contactPerson || '',
   });
+
+  // Update form data when event changes (when saved connections are loaded)
+  useEffect(() => {
+    setFormData({
+      specialEventId: event.specialEventId || 'none',
+      ministryTeamId: event.ministryTeamId || 'none',
+      isSpecialEvent: event.isSpecialEvent || false,
+      specialEventNote: event.specialEventNote || '',
+      featuredOnHomePage: event.featuredOnHomePage || false,
+      specialEventImage: event.specialEventImage || '',
+      contactPerson: event.contactPerson || '',
+    });
+  }, [event]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Convert "none" values back to empty strings for saving
     const saveData = {
       ...formData,
-      ministryConnection: formData.ministryConnection === 'none' ? '' : formData.ministryConnection,
-      ministryTeamId: formData.ministryTeamId === 'none' ? '' : formData.ministryTeamId,
+      specialEventId: formData.specialEventId === 'none' ? undefined : formData.specialEventId,
+      ministryTeamId: formData.ministryTeamId === 'none' ? undefined : formData.ministryTeamId,
     };
     onSave(saveData);
   };
@@ -509,31 +607,30 @@ function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventE
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="ministryConnection">Ministry Connection</Label>
+            <Label htmlFor="ministryConnection">Special Event Type</Label>
             <Select 
-              value={formData.ministryConnection} 
-              onValueChange={(value) => setFormData({ ...formData, ministryConnection: value })}
+              value={formData.specialEventId} 
+              onValueChange={(value) => setFormData({ ...formData, specialEventId: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select ministry type" />
+                <SelectValue placeholder="Select special event type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="worship">Worship</SelectItem>
-                <SelectItem value="children">Children</SelectItem>
-                <SelectItem value="youth">Youth</SelectItem>
-                <SelectItem value="bible study">Bible Study</SelectItem>
-                <SelectItem value="prayer">Prayer</SelectItem>
-                <SelectItem value="fellowship">Fellowship</SelectItem>
-                <SelectItem value="missions">Missions</SelectItem>
-                <SelectItem value="seniors">Seniors</SelectItem>
-                <SelectItem value="men">Men</SelectItem>
-                <SelectItem value="women">Women</SelectItem>
-                <SelectItem value="young adults">Young Adults</SelectItem>
-                <SelectItem value="family">Family</SelectItem>
-                <SelectItem value="discipleship">Discipleship</SelectItem>
-                <SelectItem value="evangelism">Evangelism</SelectItem>
-                <SelectItem value="pastoral care">Pastoral Care</SelectItem>
+                {specialEvents
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(specialEvent => (
+                    <SelectItem key={specialEvent.id} value={specialEvent.id}>
+                      <div className="flex items-center gap-2">
+                        {specialEvent.color && (
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: specialEvent.color }}
+                          />
+                        )}
+                        {specialEvent.name}
+                      </div>
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -549,11 +646,13 @@ function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventE
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {ministries.map(ministry => (
-                  <SelectItem key={ministry.id} value={ministry.id}>
-                    {ministry.name}
-                  </SelectItem>
-                ))}
+                {ministries
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(ministry => (
+                    <SelectItem key={ministry.id} value={ministry.id}>
+                      {ministry.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -589,15 +688,71 @@ function AdminEventEditForm({ event, ministries, onSave, onCancel }: AdminEventE
           </div>
 
           {formData.isSpecialEvent && (
-            <div>
-              <Label htmlFor="specialEventNote">Special Event Note</Label>
-              <Textarea
-                id="specialEventNote"
-                value={formData.specialEventNote}
-                onChange={(e) => setFormData({ ...formData, specialEventNote: e.target.value })}
-                placeholder="Additional details about this special event..."
-                rows={2}
-              />
+            <div className="space-y-4 border-t pt-4">
+              <div>
+                <Label htmlFor="specialEventNote">Special Event Description</Label>
+                <Textarea
+                  id="specialEventNote"
+                  value={formData.specialEventNote}
+                  onChange={(e) => setFormData({ ...formData, specialEventNote: e.target.value })}
+                  placeholder="Detailed description of this special event..."
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="specialEventImage">Event Image</Label>
+                <Input
+                  type="file"
+                  id="specialEventImage"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      try {
+                        // Upload to blob storage
+                        const uploadFormData = new FormData();
+                        uploadFormData.append('file', file);
+                        
+                        const response = await fetch('/api/admin/special-event-image/upload', {
+                          method: 'POST',
+                          body: uploadFormData,
+                        });
+                        
+                        if (response.ok) {
+                          const result = await response.json();
+                          setFormData({ ...formData, specialEventImage: result.url });
+                        } else {
+                          console.error('Failed to upload image');
+                        }
+                      } catch (error) {
+                        console.error('Error uploading image:', error);
+                      }
+                    }
+                  }}
+                  className="mt-1"
+                />
+                {formData.specialEventImage && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500 mb-2">Uploaded image:</p>
+                    <img 
+                      src={formData.specialEventImage} 
+                      alt="Event preview" 
+                      className="w-32 h-32 object-cover rounded-lg border"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="contactPerson">Contact Person</Label>
+                <Input
+                  id="contactPerson"
+                  value={formData.contactPerson}
+                  onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                  placeholder="Name of person to contact for this event"
+                />
+              </div>
             </div>
           )}
         </div>

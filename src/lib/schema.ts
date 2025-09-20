@@ -99,6 +99,20 @@ export const staff = pgTable('staff', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Special events table for managing special event types with images and configurations
+export const specialEvents = pgTable('special_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  imageUrl: varchar('image_url', { length: 500 }), // Vercel Blob URL for special event image
+  color: varchar('color', { length: 7 }).default('#3B82F6'), // Hex color code for display
+  isDefault: boolean('is_default').default(false).notNull(), // Whether this is a default/required option
+  isActive: boolean('is_active').default(true).notNull(),
+  sortOrder: varchar('sort_order', { length: 10 }).default('0'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Calendar events table for managing Google Calendar events and their custom properties
 export const calendarEvents = pgTable('calendar_events', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -110,10 +124,13 @@ export const calendarEvents = pgTable('calendar_events', {
   endTime: timestamp('end_time').notNull(),
   allDay: boolean('all_day').default(false).notNull(),
   recurring: boolean('recurring').default(false).notNull(),
-  ministryConnection: varchar('ministry_connection', { length: 100 }), // e.g., 'worship', 'youth', 'children'
+  specialEventId: uuid('special_event_id').references(() => specialEvents.id), // Link to special event type
   ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id), // Link to specific ministry team
   isSpecialEvent: boolean('is_special_event').default(false).notNull(),
   specialEventNote: text('special_event_note'), // Additional details for special events
+  specialEventImage: varchar('special_event_image', { length: 500 }), // URL for special event image
+  contactPerson: varchar('contact_person', { length: 255 }), // Contact person for special events
+  featuredOnHomePage: boolean('featured_on_home_page').default(false).notNull(), // Whether to feature on home page
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -161,6 +178,9 @@ export type NewSeasonalGuide = typeof seasonalGuides.$inferInsert;
 
 export type Staff = typeof staff.$inferSelect;
 export type NewStaff = typeof staff.$inferInsert;
+
+export type SpecialEvent = typeof specialEvents.$inferSelect;
+export type NewSpecialEvent = typeof specialEvents.$inferInsert;
 
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type NewCalendarEvent = typeof calendarEvents.$inferInsert;

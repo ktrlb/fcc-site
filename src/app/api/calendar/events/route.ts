@@ -128,10 +128,27 @@ export async function GET() {
     }
 
     // Get ministries for potential linking
-    let ministries: Array<{ id: string; name: string; description?: string }> = [];
+    let ministries: Array<{ 
+      id: string; 
+      name: string; 
+      description?: string;
+      imageUrl?: string;
+      contactPerson?: string;
+      contactEmail?: string;
+      contactPhone?: string;
+    }> = [];
     try {
       const ministryData = await getMinistryTeams();
-      ministries = ministryData || [];
+      ministries = (ministryData || []).map(ministry => ({
+        id: ministry.id,
+        name: ministry.name,
+        description: ministry.description,
+        imageUrl: ministry.graphicImage || undefined,
+        contactPerson: ministry.contactPerson,
+        contactEmail: ministry.contactEmail || undefined,
+        contactPhone: ministry.contactPhone || undefined,
+        categories: ministry.categories || undefined
+      }));
     } catch (error) {
       console.log('Could not fetch ministries:', error);
     }
@@ -145,28 +162,77 @@ export async function GET() {
       ministryBreakdown: analysis.ministryBreakdown
     });
     
-    // Enhance events with ministry information
+    // Get existing calendar event connections from database
+    let calendarEventConnections: Array<{
+      googleEventId: string;
+      ministryTeamId?: string;
+      specialEventId?: string;
+      isSpecialEvent?: boolean;
+      specialEventImage?: string;
+      specialEventNote?: string;
+      contactPerson?: string;
+      ministryTeam?: {
+        id: string;
+        name: string;
+        description?: string;
+        imageUrl?: string;
+        contactPerson?: string;
+        contactEmail?: string;
+        contactPhone?: string;
+        categories?: string[];
+      };
+      specialEvent?: {
+        id: string;
+        name: string;
+        description?: string;
+        imageUrl?: string;
+        color?: string;
+      };
+    }> = [];
+    
+    try {
+      const connectionsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/calendar/connections`);
+      if (connectionsResponse.ok) {
+        const connectionsData = await connectionsResponse.json();
+        calendarEventConnections = connectionsData.connections || [];
+        console.log(`Loaded ${calendarEventConnections.length} calendar event connections from database`);
+      }
+    } catch (error) {
+      console.log('Could not fetch calendar event connections:', error);
+    }
+    
+    // Enhance events with only explicit database connections
     const enhancedEvents = events.map(event => {
-      const eventDate = new Date(event.start);
-      const dayOfWeek = eventDate.getDay();
-      const time = eventDate.toTimeString().slice(0, 5);
-      const location = event.location || '';
+      // Check if there's an existing database connection for this event
+      const existingConnection = calendarEventConnections.find(conn => 
+        conn.googleEventId === event.id
+      );
       
-      // Find ministry connection from analysis
-      const ministryConnection = analysis.recurringEvents.find(recurring => 
-        recurring.title === event.title && 
-        recurring.dayOfWeek === dayOfWeek &&
-        recurring.time === time &&
-        (recurring.location || '') === location
-      )?.ministryConnection;
-      
-      // Try to find matching ministry from database
+      let ministryConnection = null;
       let matchedMinistry = null;
-      if (ministryConnection) {
-        matchedMinistry = ministries.find(ministry => 
-          ministry.name.toLowerCase().includes(ministryConnection.toLowerCase()) ||
-          ministryConnection.toLowerCase().includes(ministry.name.toLowerCase())
-        );
+      let specialEventInfo = null;
+      
+      if (existingConnection) {
+        // Use only explicit database connections
+        if (existingConnection.ministryTeam) {
+          matchedMinistry = existingConnection.ministryTeam;
+          ministryConnection = 'ministry';
+        }
+        if (existingConnection.isSpecialEvent && (existingConnection.specialEventImage || existingConnection.specialEventNote || existingConnection.contactPerson)) {
+          // Use direct special event fields from calendarEvents table
+          specialEventInfo = {
+            id: existingConnection.googleEventId, // Use googleEventId as a unique identifier
+            name: event.title, // Use the event title as the name
+            description: existingConnection.specialEventNote,
+            imageUrl: existingConnection.specialEventImage,
+            contactPerson: existingConnection.contactPerson
+          };
+          ministryConnection = 'special event';
+        } else if (existingConnection.specialEvent) {
+          // Fallback to special event types table (for future use)
+          specialEventInfo = existingConnection.specialEvent;
+          ministryConnection = 'special event';
+        }
       }
       
       const enhancedEvent = {
@@ -174,12 +240,15 @@ export async function GET() {
         start: event.start.toISOString(),
         end: event.end.toISOString(),
         ministryConnection,
-        ministryInfo: matchedMinistry
+        ministryInfo: matchedMinistry,
+        specialEventInfo
       };
       
-      // Log events with ministry connections
+      // Log events with explicit connections
       if (ministryConnection) {
-        console.log(`Event "${event.title}" connected to ministry:`, ministryConnection, matchedMinistry ? `(${matchedMinistry.name})` : '(no database match)');
+        console.log(`Event "${event.title}" has explicit connection:`, ministryConnection, 
+          matchedMinistry ? `(Ministry: ${matchedMinistry.name})` : 
+          specialEventInfo ? `(Special Event: ${specialEventInfo.name})` : '');
       }
       
       return enhancedEvent;

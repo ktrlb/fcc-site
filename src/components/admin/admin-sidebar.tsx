@@ -12,7 +12,8 @@ import {
   FileText, 
   Upload, 
   Settings,
-  LogOut
+  LogOut,
+  Star
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -61,18 +62,24 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
       icon: FileText,
       description: 'Manage seasonal guides'
     },
-    {
-      name: 'Calendar',
-      href: '/calendar',
-      icon: Calendar,
-      description: 'View church calendar'
-    },
-    {
-      name: 'Calendar Admin',
-      href: '/admin/calendar',
-      icon: Calendar,
-      description: 'Manage calendar events'
-    }
+        {
+          name: 'Calendar Admin',
+          href: '/admin/calendar',
+          icon: Calendar,
+          description: 'Manage calendar events'
+        },
+        {
+          name: 'Special Events',
+          href: '/admin/special-events',
+          icon: Settings,
+          description: 'Manage special event types'
+        },
+        {
+          name: 'Special Events List',
+          href: '/admin/special-events-list',
+          icon: Star,
+          description: 'View and manage special events'
+        }
   ];
 
   return (

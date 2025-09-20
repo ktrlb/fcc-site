@@ -7,30 +7,33 @@ import Image from "next/image";
 export async function SpecialEvents() {
   // Get featured seasonal guide from database
   const seasonalGuide = await getFeaturedSeasonalGuide();
-  // This would typically come from your database
-  const specialEvents = [
-    {
-      id: 1,
-      title: "Easter Celebration",
-      date: "March 31, 2024",
-      description: "Join us for our special Easter service and community celebration.",
-      type: "Holiday"
-    },
-    {
-      id: 2,
-      title: "Community Food Drive",
-      date: "April 15, 2024",
-      description: "Help us serve our community by donating non-perishable food items.",
-      type: "Service"
-    },
-    {
-      id: 3,
-      title: "Youth Group Retreat",
-      date: "May 10-12, 2024",
-      description: "A weekend of fellowship, worship, and fun for our youth.",
-      type: "Youth"
+  
+  // Fetch featured special events from database
+  let featuredEvents: Array<{
+    id: string;
+    title: string;
+    startTime: string;
+    endTime: string;
+    allDay?: boolean;
+    location?: string;
+    specialEventImage?: string;
+    specialEventNote?: string;
+    contactPerson?: string;
+    specialEventColor?: string;
+    specialEventName?: string;
+    ministryTeamName?: string;
+  }> = [];
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/featured-special-events`, {
+      cache: 'no-store' // Ensure fresh data
+    });
+    if (response.ok) {
+      const data = await response.json();
+      featuredEvents = data.events || [];
     }
-  ];
+  } catch (error) {
+    console.error('Failed to fetch featured special events:', error);
+  }
 
   const regularGroups = [
     "Sunday School Classes",
@@ -145,34 +148,104 @@ export async function SpecialEvents() {
           </Card>
         </div>
 
-        {/* Special Events Highlight */}
-        <div className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Upcoming Special Events</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {specialEvents.map((event) => (
-              <Card key={event.id} className="p-6 hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex items-center mb-4">
-                    <Calendar className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="text-sm font-medium text-blue-600">{event.type}</span>
-                  </div>
-                  
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h4>
-                  <p className="text-gray-600 mb-3">{event.description}</p>
-                  <p className="text-sm font-semibold text-gray-500">{event.date}</p>
-                </CardContent>
-              </Card>
-            ))}
+        {/* Featured Special Events */}
+        {featuredEvents.length > 0 && (
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Featured Special Events</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredEvents.map((event) => (
+                <Card key={event.id} className="p-6 hover:shadow-lg transition-shadow">
+                  <CardContent className="p-0">
+                    {event.specialEventImage && event.specialEventImage.trim() !== '' && (
+                      <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">
+                        <Image
+                          src={event.specialEventImage.startsWith('http') 
+                            ? event.specialEventImage 
+                            : event.specialEventImage.includes('/') 
+                              ? event.specialEventImage 
+                              : `/uploads/${event.specialEventImage}`}
+                          alt={event.title}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center mb-4">
+                      <Calendar className="h-5 w-5 text-blue-600 mr-2" />
+                      <span 
+                        className="text-sm font-medium px-2 py-1 rounded-full text-white"
+                        style={{ backgroundColor: event.specialEventColor || '#3B82F6' }}
+                      >
+                        {event.specialEventName || 'Special Event'}
+                      </span>
+                    </div>
+                    
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h4>
+                    <p className="text-gray-600 mb-3">
+                      {event.specialEventNote || 'Join us for this special event.'}
+                    </p>
+                    
+                    <div className="space-y-1 text-sm text-gray-500">
+                      <p className="font-semibold">
+                        {new Date(event.startTime).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                      {!event.allDay && (
+                        <p>
+                          {new Date(event.startTime).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}
+                          {event.endTime && (
+                            <> - {new Date(event.endTime).toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })}</>
+                          )}
+                        </p>
+                      )}
+                      {event.location && (
+                        <p className="flex items-center">
+                          <span className="mr-1">📍</span>
+                          {event.location}
+                        </p>
+                      )}
+                      {event.contactPerson && (
+                        <p className="flex items-center">
+                          <span className="mr-1">👤</span>
+                          Contact: {event.contactPerson}
+                        </p>
+                      )}
+                      {event.ministryTeamName && (
+                        <p className="flex items-center">
+                          <span className="mr-1">🏢</span>
+                          {event.ministryTeamName}
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="text-center">
-          <Button size="lg" variant="outline" className="mr-4">
-            View Full Calendar
+          <Button size="lg" variant="outline" className="mr-4" asChild>
+            <a href="/calendar">View Full Calendar</a>
           </Button>
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
-            Join a Group
+          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white" asChild>
+            <a href="/ministry-database">Join a Group</a>
           </Button>
         </div>
       </div>
