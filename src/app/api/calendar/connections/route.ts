@@ -53,6 +53,18 @@ export async function GET() {
 
     console.log(`Found ${connections.length} calendar event connections in database`);
     console.log('Sample connections:', connections.slice(0, 3));
+    
+    // Debug: Check if any connections have ministry data
+    const connectionsWithMinistry = connections.filter(conn => conn.ministryTeam);
+    console.log(`Connections with ministry data: ${connectionsWithMinistry.length}/${connections.length}`);
+    
+    // Debug: Check a specific ministry ID to see if it exists
+    const sampleMinistryId = connections.find(conn => conn.ministryTeamId)?.ministryTeamId;
+    if (sampleMinistryId) {
+      console.log(`Checking if ministry ID ${sampleMinistryId} exists in ministryTeams table...`);
+      const ministryCheck = await db.select().from(ministryTeams).where(eq(ministryTeams.id, sampleMinistryId));
+      console.log(`Ministry check result:`, ministryCheck.length > 0 ? ministryCheck[0] : 'NOT FOUND');
+    }
 
     return NextResponse.json({ connections });
   } catch (error) {
