@@ -116,12 +116,23 @@ export function Calendar({ events = [] }: CalendarProps) {
           const location = event.location || '';
           
           // Check if this event matches any recurring pattern
-          const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => 
-            recurring.title === event.title && 
-            recurring.dayOfWeek === dayOfWeek &&
-            recurring.time === time &&
-            (recurring.location || '') === location
-          );
+          const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => {
+            const titleMatch = recurring.title === event.title;
+            const dayMatch = recurring.dayOfWeek === dayOfWeek;
+            const timeMatch = recurring.time === time;
+            const locationMatch = (recurring.location || '') === location;
+            
+            // Debug log for first few events
+            if (event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
+              console.log(`Checking event "${event.title}":`, {
+                event: { title: event.title, dayOfWeek, time, location },
+                recurring: { title: recurring.title, dayOfWeek: recurring.dayOfWeek, time: recurring.time, location: recurring.location },
+                matches: { titleMatch, dayMatch, timeMatch, locationMatch }
+              });
+            }
+            
+            return titleMatch && dayMatch && timeMatch && locationMatch;
+          });
           
           return !isRecurring;
         });
