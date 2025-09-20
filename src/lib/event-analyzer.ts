@@ -50,17 +50,18 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
     6: [], // Saturday
   };
 
-  // Group events by title similarity and day of week
+  // Group events by title similarity and day of week (ignoring time for initial grouping)
   const eventGroups = new Map<string, CalendarEvent[]>();
 
   events.forEach(event => {
+    // Convert to Chicago timezone for consistent processing
     const eventDate = new Date(event.start);
-    const dayOfWeek = eventDate.getDay();
-    const time = eventDate.toTimeString().slice(0, 5); // HH:MM format
+    const chicagoTime = new Date(eventDate.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+    const dayOfWeek = chicagoTime.getDay();
     
-    // Create a key for grouping similar events
+    // Create a key for grouping similar events by title and day only
     const normalizedTitle = normalizeEventTitle(event.title);
-    const key = `${dayOfWeek}-${time}-${normalizedTitle}`;
+    const key = `${dayOfWeek}-${normalizedTitle}`;
     
     if (!eventGroups.has(key)) {
       eventGroups.set(key, []);

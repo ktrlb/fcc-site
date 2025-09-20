@@ -119,8 +119,10 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
   const handleEventClick = async (recurringEvent: RecurringEvent) => {
     // Find the original event from the events array that matches this recurring event
     const originalEvent = events.find(event => {
+      // Convert to Chicago timezone for consistent matching
       const eventDate = new Date(event.start);
-      const eventTime = eventDate.toTimeString().slice(0, 5);
+      const chicagoTime = new Date(eventDate.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+      const eventTime = chicagoTime.toTimeString().slice(0, 5);
       const eventTitle = event.title;
       const eventLocation = event.location || '';
       
@@ -448,10 +450,11 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                     
                     // Check if this event appears in our recurring events analysis
+                    const chicagoTime = new Date(eventDate.toLocaleString("en-US", {timeZone: "America/Chicago"}));
                     const isRecurring = analysis?.recurringEvents?.some((recurring: RecurringEvent) => 
                       recurring.title === selectedEvent.title && 
                       recurring.dayOfWeek === dayOfWeek &&
-                      recurring.time === eventDate.toTimeString().slice(0, 5)
+                      recurring.time === chicagoTime.toTimeString().slice(0, 5)
                     );
                     
                     if (isRecurring) {
