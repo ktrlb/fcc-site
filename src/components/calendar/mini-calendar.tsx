@@ -121,15 +121,32 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     const originalEvent = events.find(event => {
       // Convert to Chicago timezone for consistent matching
       const eventDate = new Date(event.start);
-      const chicagoTime = new Date(eventDate.toLocaleString("en-US", {timeZone: "America/Chicago"}));
-      const eventTime = chicagoTime.toTimeString().slice(0, 5);
+      
+      // Use Intl.DateTimeFormat to get Chicago timezone components
+      const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      
+      const timeParts = chicagoFormatter.formatToParts(eventDate);
+      const eventTime = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
+      
+      // Get day of week using a separate formatter
+      const dayFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        weekday: 'long'
+      });
+      const dayName = dayFormatter.format(eventDate);
+      const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
       const eventTitle = event.title;
       const eventLocation = event.location || '';
       
       return eventTitle === recurringEvent.title && 
              eventTime === recurringEvent.time && 
              eventLocation === (recurringEvent.location || '') &&
-             eventDate.getDay() === recurringEvent.dayOfWeek;
+             dayOfWeek === recurringEvent.dayOfWeek;
     });
 
     if (originalEvent) {
@@ -450,11 +467,28 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                     
                     // Check if this event appears in our recurring events analysis
-                    const chicagoTime = new Date(eventDate.toLocaleString("en-US", {timeZone: "America/Chicago"}));
+                    const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+                      timeZone: 'America/Chicago',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    });
+                    
+                    const timeParts = chicagoFormatter.formatToParts(eventDate);
+                    const chicagoTime = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
+                    
+                    // Get day of week using a separate formatter
+                    const dayFormatter = new Intl.DateTimeFormat('en-US', {
+                      timeZone: 'America/Chicago',
+                      weekday: 'long'
+                    });
+                    const dayName = dayFormatter.format(eventDate);
+                    const chicagoDayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
+                    
                     const isRecurring = analysis?.recurringEvents?.some((recurring: RecurringEvent) => 
                       recurring.title === selectedEvent.title && 
-                      recurring.dayOfWeek === dayOfWeek &&
-                      recurring.time === chicagoTime.toTimeString().slice(0, 5)
+                      recurring.dayOfWeek === chicagoDayOfWeek &&
+                      recurring.time === chicagoTime
                     );
                     
                     if (isRecurring) {

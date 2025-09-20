@@ -115,9 +115,25 @@ export function Calendar({ events = [] }: CalendarProps) {
          const nonRecurringEvents = events.filter((event: CalendarEvent, index: number) => {
           // Convert to Chicago timezone for consistent filtering
           const eventDate = new Date(event.start);
-          const chicagoTime = new Date(eventDate.toLocaleString("en-US", {timeZone: "America/Chicago"}));
-          const dayOfWeek = chicagoTime.getDay();
-          const time = chicagoTime.toTimeString().slice(0, 5);
+          
+          // Use Intl.DateTimeFormat to get Chicago timezone components
+          const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Chicago',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          
+          const timeParts = chicagoFormatter.formatToParts(eventDate);
+          const time = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
+          
+          // Get day of week using a separate formatter
+          const dayFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Chicago',
+            weekday: 'long'
+          });
+          const dayName = dayFormatter.format(eventDate);
+          const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
           const location = event.location || '';
           
           // Debug: log first few events and specific events being filtered

@@ -54,14 +54,31 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
   const eventGroups = new Map<string, CalendarEvent[]>();
 
   events.forEach(event => {
-    // Convert to Chicago timezone for consistent processing
+    // Get the event date and convert to Chicago timezone properly
     const eventDate = new Date(event.start);
-    const chicagoTime = new Date(eventDate.toLocaleString("en-US", {timeZone: "America/Chicago"}));
-    const dayOfWeek = chicagoTime.getDay();
     
-    // Create a key for grouping similar events by title and day only
+    // Use Intl.DateTimeFormat to get Chicago timezone components
+    const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    const timeParts = chicagoFormatter.formatToParts(eventDate);
+    const time = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
+    
+    // Get day of week using a separate formatter
+    const dayFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      weekday: 'long'
+    });
+    const dayName = dayFormatter.format(eventDate);
+    const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
+    
+    // Create a key for grouping similar events by title, day, and time
     const normalizedTitle = normalizeEventTitle(event.title);
-    const key = `${dayOfWeek}-${normalizedTitle}`;
+    const key = `${dayOfWeek}-${time}-${normalizedTitle}`;
     
     if (!eventGroups.has(key)) {
       eventGroups.set(key, []);
