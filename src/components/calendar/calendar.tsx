@@ -109,17 +109,18 @@ export function Calendar({ events = [] }: CalendarProps) {
         });
         
         console.log('Starting detailed event filtering...');
+        console.log('First 5 events being filtered:', events.slice(0, 5).map(e => e.title));
         
         // Filter out recurring events for the main calendar
-         const nonRecurringEvents = events.filter((event: CalendarEvent) => {
+         const nonRecurringEvents = events.filter((event: CalendarEvent, index: number) => {
           const eventDate = new Date(event.start);
           const dayOfWeek = eventDate.getDay();
           const time = eventDate.toTimeString().slice(0, 5);
           const location = event.location || '';
           
-          // Debug: log first few events being filtered
-          if (event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
-            console.log(`Filtering event "${event.title}":`, { dayOfWeek, time, location });
+          // Debug: log first few events and specific events being filtered
+          if (index < 5 || event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
+            console.log(`Filtering event "${event.title}" (index ${index}):`, { dayOfWeek, time, location });
           }
           
           // Check if this event matches any recurring pattern
@@ -144,9 +145,9 @@ export function Calendar({ events = [] }: CalendarProps) {
           
           const result = !isRecurring;
           
-          // Debug: log result for specific events
-          if (event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
-            console.log(`Event "${event.title}" isRecurring: ${isRecurring}, will be ${result ? 'kept' : 'filtered out'}`);
+          // Debug: log result for first few events and specific events
+          if (index < 5 || event.title === "Tai Chi" || event.title === "Open Pickleball Time") {
+            console.log(`Event "${event.title}" (index ${index}) isRecurring: ${isRecurring}, will be ${result ? 'kept' : 'filtered out'}`);
           }
           
           return result;
