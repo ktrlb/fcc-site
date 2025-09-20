@@ -91,8 +91,25 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
     if (groupEvents.length >= 3) { // At least 3 occurrences to consider it recurring
       const firstEvent = groupEvents[0];
       const eventDate = new Date(firstEvent.start);
-      const dayOfWeek = eventDate.getDay();
-      const time = eventDate.toTimeString().slice(0, 5);
+      
+      // Use the same Chicago timezone conversion as the grouping key
+      const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      
+      const timeParts = chicagoFormatter.formatToParts(eventDate);
+      const time = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
+      
+      // Get day of week using a separate formatter
+      const dayFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        weekday: 'long'
+      });
+      const dayName = dayFormatter.format(eventDate);
+      const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
       
       // Calculate confidence based on consistency
       const confidence = calculateConfidence(groupEvents);
@@ -205,10 +222,15 @@ export function analyzeWorshipServices(events: CalendarEvent[]): {
   exceptions: CalendarEvent[];
   schedule: string;
 } {
-  // Filter for Sunday worship services
+  // Filter for Sunday worship services using Chicago timezone
   const sundayEvents = events.filter(event => {
-    const date = new Date(event.start);
-    return date.getDay() === 0; // Sunday
+    const eventDate = new Date(event.start);
+    const dayFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      weekday: 'long'
+    });
+    const dayName = dayFormatter.format(eventDate);
+    return dayName.toLowerCase() === 'sunday';
   });
 
   const worshipServices = sundayEvents.filter(event => {
@@ -219,15 +241,33 @@ export function analyzeWorshipServices(events: CalendarEvent[]): {
            (title.includes('church') && !title.includes('school'));
   });
 
-  // Check for regular 9 AM and 11 AM services
+  // Check for regular 9 AM and 11 AM services using Chicago timezone
   const regularServices = worshipServices.filter(event => {
-    const time = new Date(event.start).toTimeString().slice(0, 5);
+    const eventDate = new Date(event.start);
+    const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    const timeParts = chicagoFormatter.formatToParts(eventDate);
+    const time = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
     return time === '09:00' || time === '11:00';
   });
 
-  // Find exceptions (different times or special services)
+  // Find exceptions (different times or special services) using Chicago timezone
   const exceptions = worshipServices.filter(event => {
-    const time = new Date(event.start).toTimeString().slice(0, 5);
+    const eventDate = new Date(event.start);
+    const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    const timeParts = chicagoFormatter.formatToParts(eventDate);
+    const time = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
     const title = event.title.toLowerCase();
     return (time !== '09:00' && time !== '11:00') || 
            title.includes('special') ||
