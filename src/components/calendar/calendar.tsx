@@ -109,7 +109,7 @@ export function Calendar({ events = [] }: CalendarProps) {
         });
         
         console.log('Starting detailed event filtering...');
-        console.log('First 5 events being filtered:', events.slice(0, 5).map(e => e.title));
+        console.log('First 5 events being filtered:', events.slice(0, 5).map((e: CalendarEvent) => e.title));
         
         // Filter out recurring events for the main calendar
          const nonRecurringEvents = events.filter((event: CalendarEvent, index: number) => {
