@@ -18,9 +18,7 @@ export const ministrySkills = pgTable('ministry_skills', {
 export const ministryTeams = pgTable('ministry_teams', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
-  contactHeading: varchar('contact_heading', { length: 255 }),
-  leader: varchar('leader', { length: 255 }).notNull(),
-  leaderContact: varchar('leader_contact', { length: 255 }).notNull(),
+  contactHeading: varchar('contact_heading', { length: 255 }), // e.g., "Outreach Chair"
   type: text('type').array(), // Tags for ministry type
   regularMeetingType: varchar('regular_meeting_type', { length: 100 }),
   regularMeetingTime: varchar('regular_meeting_time', { length: 100 }),
@@ -31,9 +29,9 @@ export const ministryTeams = pgTable('ministry_teams', {
   // Legacy fields for backward compatibility
   category: varchar('category', { length: 100 }).notNull(),
   categories: text('categories').array(), // Array of category names for multiple categorization
-  contactPerson: varchar('contact_person', { length: 255 }).notNull(),
-  contactEmail: varchar('contact_email', { length: 255 }).notNull(),
-  contactPhone: varchar('contact_phone', { length: 20 }),
+  contactPerson: varchar('contact_person', { length: 255 }).notNull(), // Primary contact person
+  contactEmail: varchar('contact_email', { length: 255 }), // Primary contact email (optional)
+  contactPhone: varchar('contact_phone', { length: 20 }), // Primary contact phone
   meetingSchedule: text('meeting_schedule'),
   location: varchar('location', { length: 255 }),
   skillsNeeded: text('skills_needed').array(),

@@ -34,8 +34,6 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
   const [formData, setFormData] = useState({
     name: "",
     contactHeading: "",
-    leader: "",
-    leaderContact: "",
     type: [] as string[],
     regularMeetingType: "",
     regularMeetingTime: "",
@@ -66,8 +64,6 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
       setFormData({
         name: ministry.name || "",
         contactHeading: ministry.contactHeading || "",
-        leader: ministry.leader || "",
-        leaderContact: ministry.leaderContact || "",
         type: ministry.type || [],
         regularMeetingType: ministry.regularMeetingType || "",
         regularMeetingTime: ministry.regularMeetingTime || "",
@@ -341,16 +337,19 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                 <Input
                   value={formData.contactHeading}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactHeading: e.target.value }))}
-                  placeholder="e.g., Contact Our Team"
+                  placeholder="e.g., Outreach Chair, Team Lead"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Title/role of the contact person (e.g., &quot;Outreach Chair&quot; for partner organizations)
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Leader Name *
+                  Contact Person Name *
                 </label>
                 <Input
-                  value={formData.leader}
-                  onChange={(e) => setFormData(prev => ({ ...prev, leader: e.target.value }))}
+                  value={formData.contactPerson}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contactPerson: e.target.value }))}
                   required
                 />
               </div>
@@ -359,15 +358,28 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Leader Contact *
+                  Contact Email
                 </label>
                 <Input
-                  value={formData.leaderContact}
-                  onChange={(e) => setFormData(prev => ({ ...prev, leaderContact: e.target.value }))}
-                  placeholder="email@example.com or (555) 123-4567"
-                  required
+                  value={formData.contactEmail}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
+                  type="email"
+                  placeholder="email@example.com (optional)"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Contact Phone
+                </label>
+                <Input
+                  value={formData.contactPhone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ministry Image
@@ -514,46 +526,28 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
               </div>
             </div>
 
-            {/* Legacy Fields for Backward Compatibility */}
+            {/* Additional Information */}
             <div className="border-t pt-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Legacy Fields (for compatibility)</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Contact Person (Legacy)
-                  </label>
-                  <Input
-                    value={formData.contactPerson}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactPerson: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Contact Email (Legacy)
-                  </label>
-                  <Input
-                    value={formData.contactEmail}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                    type="email"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Contact Phone (Legacy)
-                  </label>
-                  <Input
-                    value={formData.contactPhone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Time Commitment (Legacy)
+                    Time Commitment
                   </label>
                   <Input
                     value={formData.timeCommitment}
                     onChange={(e) => setFormData(prev => ({ ...prev, timeCommitment: e.target.value }))}
                     placeholder="e.g., 3-4 hours per week"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location
+                  </label>
+                  <Input
+                    value={formData.location}
+                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="e.g., Church, Community Center"
                   />
                 </div>
               </div>

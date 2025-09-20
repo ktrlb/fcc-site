@@ -33,10 +33,50 @@ function getCategoryStyling(category: string) {
       colors: "text-indigo-500", 
       bgColors: "bg-gradient-to-br from-indigo-100 to-indigo-200" 
     },
-    "Outreach & Service": { 
+    "Service & Outreach": { 
       icon: Heart, 
       colors: "text-pink-500", 
       bgColors: "bg-gradient-to-br from-pink-100 to-pink-200" 
+    },
+    "Community Care": { 
+      icon: Heart, 
+      colors: "text-red-500", 
+      bgColors: "bg-gradient-to-br from-red-100 to-red-200" 
+    },
+    "Leadership": { 
+      icon: Briefcase, 
+      colors: "text-gray-600", 
+      bgColors: "bg-gradient-to-br from-gray-100 to-gray-200" 
+    },
+    "Fellowship": { 
+      icon: Users, 
+      colors: "text-green-500", 
+      bgColors: "bg-gradient-to-br from-green-100 to-green-200" 
+    },
+    "Health & Wellness": { 
+      icon: Heart, 
+      colors: "text-emerald-500", 
+      bgColors: "bg-gradient-to-br from-emerald-100 to-emerald-200" 
+    },
+    "Recreation": { 
+      icon: Users, 
+      colors: "text-orange-500", 
+      bgColors: "bg-gradient-to-br from-orange-100 to-orange-200" 
+    },
+    "Spiritual Growth": { 
+      icon: BookOpen, 
+      colors: "text-violet-500", 
+      bgColors: "bg-gradient-to-br from-violet-100 to-violet-200" 
+    },
+    "Creativity & Arts": { 
+      icon: Users, 
+      colors: "text-pink-500", 
+      bgColors: "bg-gradient-to-br from-pink-100 to-pink-200" 
+    },
+    "Social": { 
+      icon: Users, 
+      colors: "text-teal-500", 
+      bgColors: "bg-gradient-to-br from-teal-100 to-teal-200" 
     },
     "Hospitality": { 
       icon: Utensils, 

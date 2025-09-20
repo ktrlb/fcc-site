@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Edit, Trash2, LogOut, Eye, Search } from "lucide-react";
+import { Plus, Edit, Trash2, LogOut, Eye, Search, FileText } from "lucide-react";
 // Removed direct database imports - using API routes instead
 import type { MinistryTeam } from "@/lib/schema";
 import { MinistryEditModal } from "./ministry-edit-modal";
+import { CSVManagement } from "./csv-management";
 
 export function AdminMinistryDashboard() {
   const [ministries, setMinistries] = useState<MinistryTeam[]>([]);
@@ -17,6 +18,7 @@ export function AdminMinistryDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingMinistry, setEditingMinistry] = useState<MinistryTeam | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [showCSVManagement, setShowCSVManagement] = useState(false);
 
   const loadMinistries = async () => {
     try {
@@ -49,11 +51,10 @@ export function AdminMinistryDashboard() {
     const filtered = ministries.filter((ministry) =>
       ministry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ministry.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.leader.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.leaderContact.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ministry.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ministry.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.contactEmail?.toLowerCase().includes(searchTerm.toLowerCase())
+      ministry.contactEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ministry.contactHeading?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredMinistries(filtered);
   }, [searchTerm, ministries]);
@@ -114,6 +115,13 @@ export function AdminMinistryDashboard() {
               <Eye className="h-4 w-4 mr-2" />
               View Public Site
             </Button>
+            <Button
+              onClick={() => setShowCSVManagement(!showCSVManagement)}
+              variant="outline"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              CSV Tools
+            </Button>
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Ministry
@@ -124,6 +132,13 @@ export function AdminMinistryDashboard() {
             </Button>
           </div>
         </div>
+
+        {/* CSV Management */}
+        {showCSVManagement && (
+          <div className="mb-8">
+            <CSVManagement onDataUpdated={loadMinistries} />
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -236,8 +251,21 @@ export function AdminMinistryDashboard() {
                       </div>
                       <p className="text-gray-600 text-sm mb-2">{ministry.description}</p>
                       <div className="text-sm text-gray-500">
-                        <span className="font-medium">Leader:</span> {ministry.leader} • 
-                        <span className="font-medium ml-2">Contact:</span> {ministry.leaderContact}
+                        <span className="font-medium">Contact:</span> {ministry.contactPerson}
+                        {ministry.contactHeading && (
+                          <span className="text-gray-400"> ({ministry.contactHeading})</span>
+                        )}
+                        <br />
+                        {ministry.contactEmail && (
+                          <>
+                            <span className="font-medium">Email:</span> {ministry.contactEmail}
+                            {ministry.contactPhone && <span className="mx-1">•</span>}
+                          </>
+                        )}
+                        {ministry.contactPhone && (
+                          <span className="font-medium">Phone:</span>
+                        )}
+                        {ministry.contactPhone && ` ${ministry.contactPhone}`}
                       </div>
                     </div>
                     <div className="flex gap-2">

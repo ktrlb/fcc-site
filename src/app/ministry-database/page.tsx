@@ -1,15 +1,12 @@
 import { MinistryDatabase } from "@/components/ministry/ministry-database";
-import { getMinistryTeams, getMinistryCategories } from "@/lib/ministry-queries";
+import { getMinistryTeams } from "@/lib/ministry-queries";
 
 export default async function MinistryDatabasePage() {
-  const [ministries, categories] = await Promise.all([
-    getMinistryTeams(),
-    getMinistryCategories(),
-  ]);
+  const ministries = await getMinistryTeams();
 
   return (
     <div className="min-h-screen">
-      <MinistryDatabase initialMinistries={ministries} initialCategories={categories} />
+      <MinistryDatabase initialMinistries={ministries} />
     </div>
   );
 }

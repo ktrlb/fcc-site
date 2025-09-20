@@ -9,33 +9,30 @@ import { Search, Users, Clock, MapPin, Phone } from "lucide-react";
 import { MinistryPlaceholder } from "./ministry-placeholder";
 import type { MinistryTeam } from "@/lib/schema";
 
-interface MinistryCategory {
-  id: string;
-  name: string;
-  description: string | null;
-  color: string | null;
-  createdAt: Date;
-}
-
 interface Props {
   initialMinistries: MinistryTeam[];
-  initialCategories: MinistryCategory[];
 }
 
-
-export function MinistryDatabase({ initialMinistries, initialCategories }: Props) {
-  const [ministries] = useState<MinistryTeam[]>(initialMinistries);
-  const [filteredMinistries, setFilteredMinistries] = useState<MinistryTeam[]>(initialMinistries);
-  const [categories] = useState<MinistryCategory[]>(initialCategories);
+export function MinistryDatabase({ initialMinistries }: Props) {
+  const [ministries] = useState<MinistryTeam[]>(initialMinistries || []);
+  const [filteredMinistries, setFilteredMinistries] = useState<MinistryTeam[]>(initialMinistries || []);
+  
+  // Generate categories dynamically from ministries
+  const [categories] = useState(() => {
+    const categorySet = new Set<string>();
+    if (initialMinistries && Array.isArray(initialMinistries)) {
+      initialMinistries.forEach(ministry => {
+        if (ministry.categories && ministry.categories.length > 0) {
+          ministry.categories.forEach(cat => categorySet.add(cat));
+        }
+      });
+    }
+    return Array.from(categorySet).sort();
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Start with false since we have initial data
   const [error] = useState<string | null>(null);
-
-  useEffect(() => {
-    setFilteredMinistries(initialMinistries);
-    setIsLoading(false);
-  }, [initialMinistries]);
 
   useEffect(() => {
     let results = ministries;
@@ -165,12 +162,12 @@ export function MinistryDatabase({ initialMinistries, initialCategories }: Props
             </Button>
             {categories.map((category) => (
               <Button
-                key={category.id}
-                variant={selectedCategory === category.name ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category.name)}
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                onClick={() => setSelectedCategory(category)}
                 className="capitalize"
               >
-                {category.name}
+                {category}
               </Button>
             ))}
           </div>
@@ -206,10 +203,10 @@ export function MinistryDatabase({ initialMinistries, initialCategories }: Props
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <MinistryPlaceholder 
-                        ministryName={ministry.name} 
-                        category={ministry.category} 
-                      />
+                <MinistryPlaceholder
+                  ministryName={ministry.name}
+                  category={ministry.categories?.[0] || ministry.category || 'Other'}
+                />
                     )}
                   </div>
                   <CardHeader>
