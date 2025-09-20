@@ -98,6 +98,13 @@ export function Calendar({ events = [] }: CalendarProps) {
         // Store all events for the mini-calendar
         setAllEvents(events);
         
+        // Debug: Check if events have ministry info
+        const eventsWithMinistry = events.filter((e: CalendarEvent) => e.ministryInfo);
+        console.log(`Events with ministry info: ${eventsWithMinistry.length}/${events.length}`);
+        if (eventsWithMinistry.length > 0) {
+          console.log('Sample event with ministry info:', eventsWithMinistry[0]);
+        }
+        
         // Use the analysis from the API response if available, otherwise analyze locally
         const analysis = data.analysis || analyzeEvents(events);
         
@@ -215,6 +222,12 @@ export function Calendar({ events = [] }: CalendarProps) {
   };
 
   const handleEventClick = (event: CalendarEvent) => {
+    console.log('Event clicked for modal:', {
+      title: event.title,
+      ministryConnection: event.ministryConnection,
+      ministryInfo: event.ministryInfo,
+      specialEventInfo: event.specialEventInfo
+    });
     setSelectedEvent(event);
     setIsModalOpen(true);
   };

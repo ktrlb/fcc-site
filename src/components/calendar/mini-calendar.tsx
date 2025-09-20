@@ -150,6 +150,13 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     });
 
     if (originalEvent) {
+      console.log('Mini-calendar event clicked:', {
+        title: originalEvent.title,
+        ministryConnection: originalEvent.ministryConnection,
+        ministryInfo: originalEvent.ministryInfo,
+        specialEventInfo: originalEvent.specialEventInfo
+      });
+      
       // First set the basic event data
       setSelectedEvent(originalEvent);
       setIsModalOpen(true);

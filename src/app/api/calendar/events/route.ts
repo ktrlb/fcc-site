@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getGoogleCalendarEvents } from '@/lib/google-calendar-api';
 import { getMinistryTeams } from '@/lib/ministry-queries';
 import { analyzeEvents } from '@/lib/event-analyzer';
+import { db } from '@/lib/db';
+import { calendarEvents, ministryTeams, specialEvents } from '@/lib/schema';
+import { eq } from 'drizzle-orm';
 
 export async function GET() {
   try {
@@ -173,17 +176,48 @@ export async function GET() {
     }> = [];
     
     try {
-      const connectionsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/calendar/connections`);
-      console.log('Connections API response status:', connectionsResponse.status);
-      if (connectionsResponse.ok) {
-        const connectionsData = await connectionsResponse.json();
-        calendarEventConnections = connectionsData.connections || [];
-        console.log('Loaded calendar connections:', calendarEventConnections.length);
-      } else {
-        console.log('Connections API failed:', connectionsResponse.status, connectionsResponse.statusText);
-      }
+      // Directly query the database instead of making an HTTP fetch call
+      const connections = await db
+        .select({
+          googleEventId: calendarEvents.googleEventId,
+          ministryTeamId: calendarEvents.ministryTeamId,
+          specialEventId: calendarEvents.specialEventId,
+          isSpecialEvent: calendarEvents.isSpecialEvent,
+          specialEventImage: calendarEvents.specialEventImage,
+          specialEventNote: calendarEvents.specialEventNote,
+          contactPerson: calendarEvents.contactPerson,
+          ministryTeam: {
+            id: ministryTeams.id,
+            name: ministryTeams.name,
+            description: ministryTeams.description,
+            imageUrl: ministryTeams.imageUrl,
+            graphicImage: ministryTeams.graphicImage,
+            contactPerson: ministryTeams.contactPerson,
+            contactEmail: ministryTeams.contactEmail,
+            contactPhone: ministryTeams.contactPhone,
+            categories: ministryTeams.categories,
+          },
+          specialEvent: {
+            id: specialEvents.id,
+            name: specialEvents.name,
+            description: specialEvents.description,
+            imageUrl: specialEvents.imageUrl,
+            color: specialEvents.color,
+          }
+        })
+        .from(calendarEvents)
+        .leftJoin(ministryTeams, eq(calendarEvents.ministryTeamId, ministryTeams.id))
+        .leftJoin(specialEvents, eq(calendarEvents.specialEventId, specialEvents.id))
+        .where(eq(calendarEvents.isActive, true));
+
+      calendarEventConnections = connections.filter(conn => conn.googleEventId !== null) as typeof calendarEventConnections;
+      console.log('Loaded calendar connections directly from database:', calendarEventConnections.length);
+      
+      // Debug: Check if any connections have ministry data
+      const connectionsWithMinistry = connections.filter(conn => conn.ministryTeam);
+      console.log(`Connections with ministry data: ${connectionsWithMinistry.length}/${connections.length}`);
     } catch (error) {
-      console.log('Error fetching connections:', error);
+      console.log('Error fetching connections from database:', error);
     }
     
     // Enhance events with only explicit database connections
