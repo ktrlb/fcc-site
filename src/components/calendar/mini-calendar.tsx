@@ -79,6 +79,29 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     description?: string;
     color?: string;
   }[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if screen is mobile-sized
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 720);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  // Format time from HH:MM to HAM or H:MMAM/PM
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const minute = parseInt(minutes);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return minute > 0 ? `${displayHour}:${minutes}${ampm}` : `${displayHour}${ampm}`;
+  };
 
   useEffect(() => {
     if (events.length > 0) {
@@ -286,11 +309,8 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     <Card className="mb-6">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <span>Weekly Recurring Events</span>
-            <Badge variant="secondary" className="text-xs">
-              {analysis.recurringEvents.length} patterns found
-            </Badge>
+          <CardTitle className="text-lg">
+            Weekly Recurring Events
           </CardTitle>
           <Button
             variant="ghost"
@@ -305,7 +325,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
       <CardContent>
         <div className="space-y-3">
           {/* Weekly Grid - Taller to show all events */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className={`grid gap-2 ${isMobile ? 'grid-cols-1' : 'grid-cols-7'}`}>
             {DAYS.map((day, index) => {
               const dayEvents = analysis.weeklyPatterns[index] || [];
               const hasEvents = dayEvents.length > 0;
@@ -315,7 +335,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
               return (
                 <div
                   key={day}
-                  className={`p-3 rounded-lg border-2 transition-all min-h-[200px] ${
+                  className={`p-3 rounded-lg border-2 transition-all min-h-[120px] md:min-h-[200px] ${
                     hasEvents 
                       ? 'border-blue-200 bg-blue-50' 
                       : 'border-gray-200 bg-gray-50'
@@ -360,7 +380,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                                   onClick={() => handleEventClick(event)}
                                 >
                                   <div className="flex items-center gap-1">
-                                    <span className="text-xs text-gray-500 font-mono">{event.time}</span>
+                                    <span className="text-xs text-gray-500 font-mono">{formatTime(event.time)}</span>
                                     <span className="font-medium text-xs break-words">{event.title}</span>
                                   </div>
                                 </div>
@@ -378,7 +398,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                             onClick={() => handleEventClick(event)}
                           >
                             <div className="flex items-center gap-1">
-                              <span className="text-xs text-gray-500 font-mono">{event.time}</span>
+                              <span className="text-xs text-gray-500 font-mono">{formatTime(event.time)}</span>
                               <span className="font-medium text-xs break-words">{event.title}</span>
                             </div>
                           </div>
