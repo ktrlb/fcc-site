@@ -10,8 +10,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://fccgranbury.org'),
   title: "First Christian Church Granbury",
   description: "Welcome to First Christian Church Granbury - A community of faith, fellowship, and service in Granbury, Texas.",
+  openGraph: {
+    title: "First Christian Church Granbury",
+    description: "Welcome to First Christian Church Granbury - A community of faith, fellowship, and service in Granbury, Texas.",
+    url: "https://fccgranbury.org",
+    siteName: "First Christian Church Granbury",
+    images: [
+      {
+        url: "/images/fistpump.jpg",
+        width: 1200,
+        height: 630,
+        alt: "First Christian Church Granbury - Celebrating Community",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "First Christian Church Granbury",
+    description: "Welcome to First Christian Church Granbury - A community of faith, fellowship, and service in Granbury, Texas.",
+    images: ["/images/fistpump.jpg"],
+  },
 };
 
 export default function RootLayout({
