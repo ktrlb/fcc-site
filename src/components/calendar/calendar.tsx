@@ -57,9 +57,23 @@ export function Calendar({ events = [] }: CalendarProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
     fetchEvents();
+  }, []);
+
+  // Check if screen is mobile-sized
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 500);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
   const fetchEvents = async () => {
@@ -315,7 +329,7 @@ export function Calendar({ events = [] }: CalendarProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1">
+        <div className={`grid gap-1 ${isMobile ? 'grid-cols-7' : 'grid-cols-7'}`}>
           {days.map((date, index) => {
             const eventsForDate = getEventsForDate(date);
             const isCurrentDay = isToday(date);
@@ -324,14 +338,27 @@ export function Calendar({ events = [] }: CalendarProps) {
               <div
                 key={index}
                 className={`
-                  p-2 border border-gray-200 rounded-lg
-                  ${date ? 'bg-white hover:bg-gray-50' : 'bg-gray-100'}
-                  ${isCurrentDay ? 'ring-2 ring-blue-500 bg-blue-50' : ''}
-                  ${eventsForDate.length > 0 ? 'min-h-[120px]' : 'min-h-[60px]'}
+                  ${isMobile 
+                    ? `p-3 border border-gray-200 rounded-lg cursor-pointer transition-colors
+                       ${date ? 'hover:bg-gray-100' : 'bg-gray-100'}
+                       ${isCurrentDay ? 'ring-2 ring-blue-500' : ''}
+                       ${eventsForDate.length > 0 ? 'bg-blue-100' : 'bg-white'}`
+                    : `p-2 border border-gray-200 rounded-lg
+                       ${date ? 'bg-white hover:bg-gray-50' : 'bg-gray-100'}
+                       ${isCurrentDay ? 'ring-2 ring-blue-500 bg-blue-50' : ''}
+                       ${eventsForDate.length > 0 ? 'min-h-[120px]' : 'min-h-[60px]'}`
+                  }
                 `}
-                style={{
+                style={!isMobile ? {
                   minHeight: eventsForDate.length > 0 ? `${Math.max(120, 60 + (eventsForDate.length * 24))}px` : '60px'
-                }}
+                } : {}}
+                onClick={isMobile && date ? () => {
+                  if (eventsForDate.length > 0) {
+                    setSelectedEvent(null); // Clear any existing selected event
+                    setSelectedDate(date);
+                    setIsModalOpen(true);
+                  }
+                } : undefined}
               >
                 {date && (
                   <>
@@ -341,28 +368,30 @@ export function Calendar({ events = [] }: CalendarProps) {
                     `}>
                       {date.getDate()}
                     </div>
-                    <div className="space-y-1">
-                      {eventsForDate.map(event => (
-                        <div
-                          key={event.id}
-                          className="text-xs p-1 bg-blue-100 text-blue-800 rounded break-words cursor-pointer hover:bg-blue-200 transition-colors"
-                          title={event.title}
-                          onClick={() => handleEventClick(event)}
-                        >
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="flex-1">{event.title}</span>
-                            {event.ministryConnection && (
-                              <Badge 
-                                variant="secondary" 
-                                className="text-[10px] px-1 py-0 h-4 bg-green-100 text-green-700 border-green-300"
-                              >
-                                {event.ministryConnection}
-                              </Badge>
-                            )}
+                    {!isMobile && (
+                      <div className="space-y-1">
+                        {eventsForDate.map(event => (
+                          <div
+                            key={event.id}
+                            className="text-xs p-1 bg-blue-100 text-blue-800 rounded break-words cursor-pointer hover:bg-blue-200 transition-colors"
+                            title={event.title}
+                            onClick={() => handleEventClick(event)}
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="flex-1">{event.title}</span>
+                              {event.ministryConnection && (
+                                <Badge 
+                                  variant="secondary" 
+                                  className="text-[10px] px-1 py-0 h-4 bg-green-100 text-green-700 border-green-300"
+                                >
+                                  {event.ministryConnection}
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -405,16 +434,22 @@ export function Calendar({ events = [] }: CalendarProps) {
       </Card>
       
       {/* Event Details Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <Dialog open={isModalOpen} onOpenChange={(open) => {
+        setIsModalOpen(open);
+        if (!open) {
+          setSelectedDate(null);
+          setSelectedEvent(null);
+        }
+      }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CalendarIcon className="h-5 w-5" />
-              Event Details
+              {selectedEvent ? 'Event Details' : 'Events for ' + (selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) || '')}
             </DialogTitle>
           </DialogHeader>
           
-          {selectedEvent && (
+          {selectedEvent ? (
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold text-lg text-gray-900">{selectedEvent.title}</h3>
@@ -530,6 +565,54 @@ export function Calendar({ events = [] }: CalendarProps) {
                   Close
                 </Button>
               </div>
+            </div>
+          ) : selectedDate && (
+            <div className="space-y-3">
+              {getEventsForDate(selectedDate).map(event => (
+                <div
+                  key={event.id}
+                  className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                    setSelectedEvent(event);
+                    setSelectedDate(null);
+                  }}
+                >
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="h-4 w-4" />
+                      <span className="text-sm">
+                        {event.start.toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })} - {event.end.toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </span>
+                    </div>
+                    {event.location && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <MapPin className="h-4 w-4" />
+                        <span className="text-sm">{event.location}</span>
+                      </div>
+                    )}
+                    {event.ministryConnection && (
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-green-600" />
+                        <Badge 
+                          variant="secondary" 
+                          className="text-xs bg-green-100 text-green-700 border-green-300"
+                        >
+                          {event.ministryConnection}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </DialogContent>
