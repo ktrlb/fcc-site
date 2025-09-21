@@ -24,18 +24,10 @@ export async function SpecialEvents() {
     ministryTeamName?: string;
   }> = [];
   try {
-    // For server-side rendering, we need to construct the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/featured-special-events`, {
-      next: { revalidate: 60 } // Cache for 1 minute
-    });
-    if (response.ok) {
-      const data = await response.json();
-      featuredEvents = data.events || [];
-      console.log('Homepage: Fetched featured events:', featuredEvents.length, featuredEvents);
-    } else {
-      console.error('Homepage: Failed to fetch featured events, status:', response.status);
-    }
+    // Import the API function directly instead of making HTTP request
+    const { getFeaturedSpecialEvents } = await import('@/lib/content-queries');
+    featuredEvents = await getFeaturedSpecialEvents();
+    console.log('Homepage: Fetched featured events:', featuredEvents.length, featuredEvents);
   } catch (error) {
     console.error('Failed to fetch featured special events:', error);
   }
