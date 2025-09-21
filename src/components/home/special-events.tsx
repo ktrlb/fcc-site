@@ -1,8 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Users, Calendar, Download } from "lucide-react";
-import { getFeaturedSeasonalGuide } from "@/lib/content-queries";
+import { getFeaturedSeasonalGuide, getFeaturedSpecialEvents } from "@/lib/content-queries";
 import Image from "next/image";
+import { GroupsModalWrapper } from "./groups-modal-wrapper";
 
 export async function SpecialEvents() {
   // Get featured seasonal guide from database
@@ -24,8 +25,6 @@ export async function SpecialEvents() {
     ministryTeamName?: string;
   }> = [];
   try {
-    // Import the API function directly instead of making HTTP request
-    const { getFeaturedSpecialEvents } = await import('@/lib/content-queries');
     featuredEvents = await getFeaturedSpecialEvents();
     console.log('Homepage: Fetched featured events:', featuredEvents.length, featuredEvents);
   } catch (error) {
@@ -70,7 +69,7 @@ export async function SpecialEvents() {
                 </p>
                 
                 <div className="bg-blue-50 p-6 rounded-lg">
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col sm:flex-row items-start gap-4">
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg mb-2">What&apos;s Inside:</h4>
                       <ul className="space-y-2 text-gray-700">
@@ -82,8 +81,8 @@ export async function SpecialEvents() {
                       </ul>
                     </div>
                     {seasonalGuide?.coverImageUrl && (
-                      <div className="flex-shrink-0">
-                        <div className="relative w-48 h-64 rounded-lg overflow-hidden shadow-md">
+                      <div className="flex-shrink-0 w-full sm:w-auto">
+                        <div className="relative w-48 h-64 rounded-lg overflow-hidden shadow-md mx-auto sm:mx-0">
                           <Image
                             src={seasonalGuide.coverImageUrl}
                             alt={seasonalGuide.title}
@@ -137,9 +136,23 @@ export async function SpecialEvents() {
                   ))}
                 </ul>
                 
-                <Button variant="outline" className="w-full mt-4">
-                  View All Groups
-                </Button>
+                <div className="space-y-3 mt-4">
+                  <GroupsModalWrapper>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      View Weekly Groups
+                    </Button>
+                  </GroupsModalWrapper>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    asChild
+                  >
+                    <a href="/calendar">View Full Calendar</a>
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

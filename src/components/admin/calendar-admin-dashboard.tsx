@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalendarIcon, X, Star, Users, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalendarIcon, X, Star, Users, Settings, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -58,6 +58,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
   const [error, setError] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [ministries, setMinistries] = useState<{
     id: string;
     name: string;
@@ -271,6 +272,39 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     }
   };
 
+  const handleRefreshCache = async () => {
+    try {
+      setIsRefreshing(true);
+      
+      // Force refresh the calendar cache from Google Calendar API
+      console.log('Force refreshing calendar cache from Google Calendar API...');
+      const calendarResponse = await fetch('/api/calendar/events?forceRefresh=true&refreshType=manual');
+      
+      if (calendarResponse.ok) {
+        console.log('Calendar cache refreshed from Google Calendar API');
+        
+        // Then refresh the recurring events analysis with the fresh data
+        const recurringResponse = await fetch('/api/recurring-events', {
+          method: 'POST',
+        });
+        
+        if (recurringResponse.ok) {
+          console.log('Recurring events analysis refreshed with fresh data');
+        }
+        
+        // Finally, refresh the UI with the fresh data
+        await fetchEvents();
+        console.log('All caches refreshed successfully from Google Calendar API');
+      } else {
+        console.error('Failed to refresh calendar cache from Google Calendar API');
+      }
+    } catch (error) {
+      console.error('Error refreshing cache:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -363,8 +397,22 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Calendar Admin</h2>
-        <p className="text-gray-600">Click on any event to manage ministry connections and special event settings</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Calendar Admin</h2>
+            <p className="text-gray-600">Click on any event to manage ministry connections and special event settings</p>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleRefreshCache}
+            disabled={isRefreshing}
+            className="h-6 w-6"
+            title="Refresh cache (Calendar: 1hr, Recurring Events: 24hr)"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
       </div>
 
       {/* Mini Calendar with Weekly Patterns */}

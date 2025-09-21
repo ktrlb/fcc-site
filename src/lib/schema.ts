@@ -154,6 +154,34 @@ export const calendarCache = pgTable('calendar_cache', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Recurring events analysis cache - stores the analyzed recurring patterns
+export const recurringEventsCache = pgTable('recurring_events_cache', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  title: varchar('title', { length: 500 }).notNull(),
+  dayOfWeek: varchar('day_of_week', { length: 10 }).notNull(), // 0-6 for Sunday-Saturday
+  time: varchar('time', { length: 10 }).notNull(), // HH:MM format
+  location: varchar('location', { length: 500 }),
+  description: text('description'),
+  frequency: varchar('frequency', { length: 20 }).default('weekly').notNull(),
+  confidence: varchar('confidence', { length: 20 }).notNull(), // 0-1 as string
+  ministryConnection: varchar('ministry_connection', { length: 100 }),
+  eventIds: text('event_ids').array(), // Array of Google event IDs that match this pattern
+  lastAnalyzed: timestamp('last_analyzed').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Calendar cache refresh history - tracks when the cache is refreshed
+export const calendarCacheHistory = pgTable('calendar_cache_history', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  refreshType: varchar('refresh_type', { length: 20 }).notNull(), // 'scheduled', 'manual', 'force'
+  eventsCount: varchar('events_count', { length: 10 }).notNull(), // Store as string for now
+  success: boolean('success').notNull(),
+  errorMessage: text('error_message'),
+  durationMs: varchar('duration_ms', { length: 10 }), // Store as string for now
+  source: varchar('source', { length: 50 }).notNull(), // 'google_api', 'fallback_cache', 'sample_data'
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Keep the assets table for general file storage
 export const assets = pgTable('assets', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -208,3 +236,6 @@ export type NewCalendarCache = typeof calendarCache.$inferInsert;
 
 export type Asset = typeof assets.$inferSelect;
 export type NewAsset = typeof assets.$inferInsert;
+
+export type CalendarCacheHistory = typeof calendarCacheHistory.$inferSelect;
+export type NewCalendarCacheHistory = typeof calendarCacheHistory.$inferInsert;

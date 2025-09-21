@@ -1,7 +1,8 @@
 import { db } from './db';
-import { calendarCache } from './schema';
+import { calendarCache, calendarCacheHistory } from './schema';
 import { eq, desc, and, gte } from 'drizzle-orm';
 import { getGoogleCalendarEvents } from './google-calendar-api';
+import { RecurringEventsCacheService } from './recurring-events-cache';
 
 export interface CachedCalendarEvent {
   id: string;
@@ -22,9 +23,35 @@ export class CalendarCacheService {
   private static readonly FORCE_REFRESH_KEY = 'calendar_force_refresh';
 
   /**
+   * Log cache refresh history
+   */
+  private static async logCacheRefresh(
+    refreshType: 'scheduled' | 'manual' | 'force',
+    eventsCount: number,
+    success: boolean,
+    errorMessage: string | null,
+    durationMs: number,
+    source: 'google_api' | 'fallback_cache' | 'sample_data'
+  ): Promise<void> {
+    try {
+      await db.insert(calendarCacheHistory).values({
+        refreshType,
+        eventsCount: eventsCount.toString(),
+        success,
+        errorMessage,
+        durationMs: durationMs.toString(),
+        source,
+      });
+      console.log(`Logged cache refresh: ${refreshType} - ${eventsCount} events - ${success ? 'success' : 'failed'} - ${source}`);
+    } catch (error) {
+      console.error('Failed to log cache refresh history:', error);
+    }
+  }
+
+  /**
    * Get calendar events from cache, refreshing if needed
    */
-  static async getCalendarEvents(forceRefresh = false): Promise<CachedCalendarEvent[]> {
+  static async getCalendarEvents(forceRefresh = false, refreshType: 'scheduled' | 'manual' | 'force' = 'scheduled'): Promise<CachedCalendarEvent[]> {
     const now = new Date();
     const cacheExpiry = new Date(now.getTime() - (this.CACHE_DURATION_HOURS * 60 * 60 * 1000));
 
@@ -55,13 +82,19 @@ export class CalendarCacheService {
     }
 
     console.log('Cache expired or force refresh requested, fetching from Google Calendar...');
-    return await this.refreshCache();
+    return await this.refreshCache(refreshType);
   }
 
   /**
    * Refresh the cache by fetching fresh data from Google Calendar
    */
-  static async refreshCache(): Promise<CachedCalendarEvent[]> {
+  static async refreshCache(refreshType: 'scheduled' | 'manual' | 'force' = 'scheduled'): Promise<CachedCalendarEvent[]> {
+    const startTime = Date.now();
+    let eventsCount = 0;
+    let success = false;
+    let errorMessage: string | null = null;
+    let source: 'google_api' | 'fallback_cache' | 'sample_data' = 'fallback_cache';
+
     try {
       console.log('Fetching fresh calendar data from Google...');
       const calendarId = process.env.GOOGLE_CALENDAR_ID;
@@ -72,6 +105,8 @@ export class CalendarCacheService {
       }
       
       const googleEvents = await getGoogleCalendarEvents(calendarId, serviceAccountKey);
+      eventsCount = googleEvents.length;
+      source = 'google_api';
       
       console.log(`Received ${googleEvents.length} events from Google Calendar`);
 
@@ -98,10 +133,21 @@ export class CalendarCacheService {
       await Promise.all(cachePromises);
       console.log(`Cached ${googleEvents.length} events`);
 
+      // Also refresh the recurring events analysis cache
+      console.log('Refreshing recurring events analysis...');
+      await RecurringEventsCacheService.refreshRecurringEventsCache();
+
+      success = true;
+      const durationMs = Date.now() - startTime;
+      
+      // Log successful refresh
+      await this.logCacheRefresh(refreshType, eventsCount, success, null, durationMs, source);
+
       // Return the cached events
       return await this.getCalendarEvents(false);
     } catch (error) {
       console.error('Error refreshing calendar cache:', error);
+      errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
       // Fall back to existing cache if available
       const fallbackEvents = await db
@@ -109,7 +155,14 @@ export class CalendarCacheService {
         .from(calendarCache)
         .orderBy(desc(calendarCache.startTime));
       
+      eventsCount = fallbackEvents.length;
       console.log(`Using fallback cache: ${fallbackEvents.length} events`);
+      
+      const durationMs = Date.now() - startTime;
+      
+      // Log failed refresh with fallback
+      await this.logCacheRefresh(refreshType, eventsCount, false, errorMessage, durationMs, source);
+
       return fallbackEvents.map(event => ({
         id: event.id,
         googleEventId: event.googleEventId,
@@ -170,5 +223,36 @@ export class CalendarCacheService {
   static async clearCache(): Promise<void> {
     await db.delete(calendarCache);
     console.log('Calendar cache cleared');
+  }
+
+  /**
+   * Get cache refresh history
+   */
+  static async getCacheHistory(limit = 50): Promise<Array<{
+    id: string;
+    refreshType: string;
+    eventsCount: number;
+    success: boolean;
+    errorMessage: string | null;
+    durationMs: number | null;
+    source: string;
+    createdAt: Date;
+  }>> {
+    const history = await db
+      .select()
+      .from(calendarCacheHistory)
+      .orderBy(desc(calendarCacheHistory.createdAt))
+      .limit(limit);
+
+    return history.map(entry => ({
+      id: entry.id,
+      refreshType: entry.refreshType,
+      eventsCount: parseInt(entry.eventsCount, 10),
+      success: entry.success,
+      errorMessage: entry.errorMessage,
+      durationMs: entry.durationMs ? parseInt(entry.durationMs, 10) : null,
+      source: entry.source,
+      createdAt: entry.createdAt,
+    }));
   }
 }

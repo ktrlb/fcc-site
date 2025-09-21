@@ -6,8 +6,13 @@ import { db } from '@/lib/db';
 import { calendarEvents, ministryTeams, specialEvents } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Check for forceRefresh parameter
+    const { searchParams } = new URL(request.url);
+    const forceRefresh = searchParams.get('forceRefresh') === 'true';
+    const refreshType = searchParams.get('refreshType') as 'scheduled' | 'manual' | 'force' || 'scheduled';
+    
     // Get environment variables
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
@@ -61,7 +66,8 @@ export async function GET() {
     // Fetch events from cache (which will refresh from Google Calendar if needed)
     let events;
     try {
-      const cachedEvents = await CalendarCacheService.getCalendarEvents();
+      const actualRefreshType = forceRefresh ? (refreshType === 'manual' ? 'manual' : 'force') : 'scheduled';
+      const cachedEvents = await CalendarCacheService.getCalendarEvents(forceRefresh, actualRefreshType);
       
       // Convert cached events to the format expected by the rest of the code
       events = cachedEvents.map(event => ({
@@ -288,6 +294,8 @@ export async function GET() {
       events: enhancedEvents,
       analysis: {
         recurringEvents: analysis.recurringEvents,
+        uniqueEvents: analysis.uniqueEvents,
+        weeklyPatterns: analysis.weeklyPatterns,
         ministryBreakdown: analysis.ministryBreakdown
       }
     });

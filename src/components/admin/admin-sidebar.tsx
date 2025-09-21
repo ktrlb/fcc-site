@@ -80,12 +80,6 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
           href: '/admin/special-events-list',
           icon: Star,
           description: 'View and manage special events'
-        },
-        {
-          name: 'Calendar Cache',
-          href: '/admin/calendar-cache',
-          icon: Calendar,
-          description: 'Manage calendar data caching'
         }
   ];
 
