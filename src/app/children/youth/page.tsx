@@ -9,7 +9,7 @@ export default function YouthPage() {
             <div 
               className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600"
               style={{
-                backgroundImage: "url(&apos;/images/youth-header-background.jpg&apos;)",
+                backgroundImage: "url('/images/youth-header-background.jpg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat"

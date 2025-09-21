@@ -8,12 +8,12 @@ export default function ChildrenPage() {
           <section className="relative text-white overflow-hidden" style={{ height: '450px' }}>
             <div 
               className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800"
-              style={{
-                backgroundImage: "url(&apos;/images/childrens-header-background.jpeg&apos;)",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat"
-              }}
+                style={{
+                  backgroundImage: "url('/images/childrens-header-background.jpeg')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat"
+                }}
             />
             <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}></div>
             <div className="relative flex items-center justify-center h-full">

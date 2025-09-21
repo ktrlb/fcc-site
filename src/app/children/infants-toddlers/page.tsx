@@ -9,7 +9,7 @@ export default function InfantsToddlersPage() {
         <div 
           className="absolute inset-0 bg-gradient-to-r from-pink-600 to-pink-800"
           style={{
-            backgroundImage: "url(&apos;/images/nursery-ministry-background.jpeg&apos;)",
+            backgroundImage: "url('/images/nursery-ministry-background.jpeg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat"
