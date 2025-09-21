@@ -13,9 +13,9 @@ export function Footer() {
               <Image
                 src="/images/Basic FCC Logo Assets-White.png"
                 alt="First Christian Church Granbury"
-                width={40}
-                height={40}
-                className="h-8 w-auto"
+                width={1080}
+                height={1080}
+                className="h-8 w-8 object-contain mx-1"
               />
               <h3 className="text-lg font-semibold">First Christian Church</h3>
             </div>

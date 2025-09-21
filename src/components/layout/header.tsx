@@ -41,7 +41,7 @@ export function Header() {
                 alt="First Christian Church Granbury"
                 width={40}
                 height={40}
-                className="h-8 w-auto"
+                className="h-8 w-8 object-contain mx-1"
               />
               <span className="text-lg font-bold text-gray-900">First Christian Church</span>
             </div>

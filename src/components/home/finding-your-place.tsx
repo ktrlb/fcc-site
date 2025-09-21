@@ -134,8 +134,10 @@ export function FindingYourPlace() {
 
 
         <div className="text-center mt-8">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
-            Explore All Five Areas
+          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+            <Link href="/ministry-database">
+              Explore All FCC Ministries
+            </Link>
           </Button>
         </div>
       </div>

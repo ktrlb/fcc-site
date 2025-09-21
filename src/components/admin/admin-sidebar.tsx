@@ -96,9 +96,9 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
           <Image
             src="/images/Basic FCC Logo Assets-Transparent.png"
             alt="First Christian Church Granbury"
-            width={32}
-            height={32}
-            className="h-6 w-auto"
+            width={1080}
+            height={1080}
+            className="h-6 w-6 object-contain"
           />
           <h2 className="text-lg font-semibold">Admin Panel</h2>
         </div>

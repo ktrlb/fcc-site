@@ -4,6 +4,7 @@ import { SpecialEvents } from "@/components/home/special-events";
 import { FeaturedAssets } from "@/components/home/featured-assets";
 import { LearnMore } from "@/components/home/learn-more";
 import { FindingYourPlace } from "@/components/home/finding-your-place";
+import { ChildrenYouthMinistries } from "@/components/home/children-youth-ministries";
 import { EmailSignup } from "@/components/home/email-signup";
 
 // Force dynamic rendering to avoid static generation issues
@@ -18,6 +19,7 @@ export default async function Home() {
       <FeaturedAssets />
       <LearnMore />
       <FindingYourPlace />
+      <ChildrenYouthMinistries />
       <EmailSignup />
     </div>
   );

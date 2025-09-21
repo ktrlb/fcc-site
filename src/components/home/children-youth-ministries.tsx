@@ -1,0 +1,79 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Baby, Users, Heart, ArrowRight } from "lucide-react";
+import Link from "next/link";
+
+export function ChildrenYouthMinistries() {
+  const ministries = [
+    {
+      title: "Infants & Toddlers",
+      description: "To support our parents with infants and toddlers, we have a staffed nursery available to 3 and unders",
+      icon: Baby,
+      href: "/children/infants-toddlers",
+      color: "bg-pink-50 text-pink-600",
+      ageRange: "Birth - 3 years"
+    },
+    {
+      title: "Children",
+      description: "Children are invited to worship along with the congregation. They are invited to sit in the front left pews or with their families. After communion, we invite the children to the Children's Worship Center for a child-focused way to engage our theme for the day. For the Sunday School hour, our Pathfinders Kids Club encourages play and creativity.",
+      icon: Users,
+      href: "/children/children",
+      color: "bg-blue-50 text-blue-600",
+      ageRange: "Age 4 through 2nd grade"
+    },
+    {
+      title: "Students",
+      description: "Our Chi-Rho program for middle schoolers and CYF program for high schoolers are where young disciples grow through love and service.",
+      icon: Heart,
+      href: "/children/youth",
+      color: "bg-green-50 text-green-600",
+      ageRange: "6th through 12th grade"
+    }
+  ];
+
+  return (
+    <section className="py-16 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Children & Youth Ministries
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            We believe that children and youth are not just the future of the church, 
+            but an integral part of our community today. Our ministries are designed 
+            to nurture faith at every stage of development.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {ministries.map((ministry, index) => (
+            <Card key={index} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-8">
+                <div className="flex items-center mb-6">
+                  <div className={`p-4 rounded-full ${ministry.color} mr-4`}>
+                    <ministry.icon className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{ministry.title}</h3>
+                    <p className="text-sm text-gray-500">{ministry.ageRange}</p>
+                  </div>
+                </div>
+                
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  {ministry.description}
+                </p>
+                
+                <Button asChild variant="outline" className="w-full group">
+                  <Link href={ministry.href}>
+                    Learn More
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

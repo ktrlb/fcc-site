@@ -27,9 +27,9 @@ export function AboutHero() {
             <Image
               src="/images/Basic FCC Logo Assets-White Circle.png"
               alt="First Christian Church Granbury"
-              width={80}
-              height={80}
-              className="h-16 w-auto drop-shadow-lg"
+              width={96}
+              height={96}
+              className="h-24 w-24 object-contain drop-shadow-lg"
             />
           </div>
           <h1 className="text-4xl md:text-6xl font-bold font-serif text-white drop-shadow-2xl">
