@@ -63,7 +63,7 @@ export async function SeeYouOnSunday() {
                   <MapPin className="h-5 w-5 text-gray-500 mr-3" />
                   <div>
                     <p className="font-semibold text-lg">Location</p>
-                    <p className="text-gray-600">2101 W US Hwy 377, Granbury, TX 76048</p>
+                    <p className="text-gray-600">2109 W US Hwy 377, Granbury, TX 76048</p>
                   </div>
                 </div>
               </div>

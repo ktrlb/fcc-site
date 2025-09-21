@@ -66,9 +66,14 @@ export function Staff() {
                       objectPosition: person.focalPoint ? 
                         (() => {
                           try {
-                            const focal = JSON.parse(person.focalPoint);
+                            // The focal point might be double-encoded, so we need to parse it twice
+                            let focal = JSON.parse(person.focalPoint);
+                            if (typeof focal === 'string') {
+                              focal = JSON.parse(focal);
+                            }
                             return `${focal.x}% ${focal.y}%`;
-                          } catch {
+                          } catch (error) {
+                            console.log(`Error parsing focal point for ${person.name}:`, error, person.focalPoint);
                             return 'center';
                           }
                         })() : 'center'

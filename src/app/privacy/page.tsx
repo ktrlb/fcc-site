@@ -33,7 +33,7 @@ export default function PrivacyPage() {
           </p>
           <p className="text-gray-700">
             First Christian Church Granbury<br />
-            2101 W US Hwy 377<br />
+            2109 W US Hwy 377<br />
             Granbury, TX 76048<br />
             Phone: (817) 573-5431
           </p>

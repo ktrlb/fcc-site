@@ -17,7 +17,7 @@ export function WaysToDonate() {
       description: "Send your donation to our locked mailbox",
       icon: Mail,
       action: "View Address",
-      address: "2101 W US Hwy 377, Granbury, TX 76048",
+      address: "2109 W US Hwy 377, Granbury, TX 76048",
       isExternal: false
     },
     {

@@ -27,7 +27,7 @@ export function GivingInfo() {
         <div className="mt-12 text-center">
           <div className="bg-blue-50 rounded-lg p-8">
             <h3 className="text-2xl font-bold text-gray-900 font-serif mb-4">
-              Ready to Make a Difference?
+              Thank You for Your Generosity
             </h3>
             <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
               Your generosity helps us continue our mission of sharing God&apos;s love with all people. 

@@ -24,12 +24,12 @@ export function WhereToFindUs() {
                   <div>
                     <h4 className="text-lg font-semibold text-gray-900 mb-2">First Christian Church Granbury</h4>
                     <p className="text-gray-600 mb-4">
-                      2101 W US Hwy 377<br />
+                      2109 W US Hwy 377<br />
                       Granbury, TX 76048
                     </p>
                     <Button asChild variant="outline">
                       <a 
-                        href="https://maps.google.com/?q=2101+W+US+Hwy+377+Granbury+TX+76048"
+                        href="https://maps.google.com/?q=2109+W+US+Hwy+377+Granbury+TX+76048"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center"
@@ -42,14 +42,22 @@ export function WhereToFindUs() {
                   </div>
                 </div>
                 
-                {/* Map Placeholder */}
-                <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <MapPin className="h-12 w-12 mx-auto mb-2" />
-                    <p className="text-sm">Interactive Map</p>
-                    <p className="text-xs">Click &quot;Get Directions&quot; to open in Google Maps</p>
-                  </div>
+                {/* Interactive Google Map */}
+                <div className="rounded-lg overflow-hidden h-64">
+                  <iframe
+                    src="https://maps.google.com/maps?q=2109+W+US+Hwy+377,+Granbury,+TX+76048&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="First Christian Church Granbury Location"
+                  />
                 </div>
+                <p className="text-center text-blue-600 mt-2 text-base" style={{ fontStyle: 'italic' }}>
+                  The Church Next to Tractor Supply
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -116,17 +124,32 @@ export function WhereToFindUs() {
                     </div>
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-gray-900">Live Streaming</h4>
-                      <p className="text-gray-600 text-sm">Join us for worship from anywhere</p>
+                      <p className="text-gray-600 text-sm">We stream our services live on Facebook and YouTube</p>
                     </div>
-                    <Button asChild variant="outline" size="sm">
-                      <a 
-                        href="/live"
-                        className="inline-flex items-center"
-                      >
-                        Watch Live
-                        <ExternalLink className="h-4 w-4 ml-1" />
-                      </a>
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button asChild variant="outline" size="sm">
+                        <a 
+                          href="https://www.facebook.com/FCCGranbury"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center"
+                        >
+                          Facebook
+                          <ExternalLink className="h-4 w-4 ml-1" />
+                        </a>
+                      </Button>
+                      <Button asChild variant="outline" size="sm">
+                        <a 
+                          href="https://www.youtube.com/@fccgranburytx"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center"
+                        >
+                          YouTube
+                          <ExternalLink className="h-4 w-4 ml-1" />
+                        </a>
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

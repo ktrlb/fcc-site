@@ -94,28 +94,6 @@ export function WorshipServices() {
           </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="mt-12 text-center">
-          <div className="bg-blue-50 rounded-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-900 font-serif mb-4">
-              Ready to Join Us?
-            </h3>
-            <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
-              We&apos;d love to have you join us for worship. Come as you are and experience 
-              the warmth of our community.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-900 mb-1">This Sunday</h4>
-                <p className="text-sm text-gray-600">9:00 AM Modern / 11:00 AM Traditional</p>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-900 mb-1">Location</h4>
-                <p className="text-sm text-gray-600">2101 W US Hwy 377, Granbury, TX</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

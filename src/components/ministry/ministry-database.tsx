@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function MinistryDatabase({ initialMinistries }: Props) {
+  const searchParams = useSearchParams();
   const [ministries] = useState<MinistryTeam[]>(initialMinistries || []);
   const [filteredMinistries, setFilteredMinistries] = useState<MinistryTeam[]>(initialMinistries || []);
   
@@ -33,6 +35,14 @@ export function MinistryDatabase({ initialMinistries }: Props) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isLoading, setIsLoading] = useState(false); // Start with false since we have initial data
   const [error] = useState<string | null>(null);
+
+  // Initialize search term from URL parameters
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let results = ministries;
@@ -63,7 +73,9 @@ export function MinistryDatabase({ initialMinistries }: Props) {
       results = results.filter((m) =>
         m.name.toLowerCase().includes(term) ||
         m.description.toLowerCase().includes(term) ||
-        (m.skillsNeeded || []).some((s) => s.toLowerCase().includes(term))
+        (m.skillsNeeded || []).some((s) => s.toLowerCase().includes(term)) ||
+        (m.categories || []).some((cat) => cat.toLowerCase().includes(term)) ||
+        (m.category && m.category.toLowerCase().includes(term))
       );
     }
     setFilteredMinistries(results);
@@ -106,19 +118,6 @@ export function MinistryDatabase({ initialMinistries }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-blue-600 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold font-serif mb-4">
-              Ministry Database
-            </h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Discover ways to get involved in our church community. Find ministry opportunities that match your interests, skills, and availability.
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Search and Filter Section */}
       <div className="py-8 bg-white border-b">

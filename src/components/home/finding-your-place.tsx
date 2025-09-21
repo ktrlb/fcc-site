@@ -16,8 +16,9 @@ export function FindingYourPlace() {
       title: "Prayer",
       description: "Connect with God and our community through prayer",
       icon: Heart,
-      href: "/prayer",
+      href: "/ministry-database?search=prayer",
       color: "bg-red-50 text-red-600",
+      buttonText: "Explore Prayer Ministries",
       features: [
         "Prayer Groups",
         "Prayer Concerns List",
@@ -28,8 +29,9 @@ export function FindingYourPlace() {
       title: "Study",
       description: "Grow in faith through Bible study and learning",
       icon: BookOpen,
-      href: "/study",
+      href: "/ministry-database?search=discipleship",
       color: "bg-blue-50 text-blue-600",
+      buttonText: "Explore Study Opportunities",
       features: [
         "Sunday School Classes",
         "Seasonal Bible Studies",
@@ -40,8 +42,9 @@ export function FindingYourPlace() {
       title: "Service",
       description: "Make a difference through serving others",
       icon: HandHeart,
-      href: "/service",
+      href: "/ministry-database?search=outreach",
       color: "bg-green-50 text-green-600",
+      buttonText: "Explore Opportunities to Serve",
       features: [
         "Community Partners",
         "Miracle Days",
@@ -52,8 +55,9 @@ export function FindingYourPlace() {
       title: "Presence",
       description: "Build relationships through fellowship and community",
       icon: Users,
-      href: "/presence",
+      href: "/ministry-database?search=fellowship",
       color: "bg-purple-50 text-purple-600",
+      buttonText: "Explore Opportunities to Connect",
       features: [
         "Fellowship Events",
         "Small Groups",
@@ -66,6 +70,7 @@ export function FindingYourPlace() {
       icon: DollarSign,
       href: "/give",
       color: "bg-yellow-50 text-yellow-600",
+      buttonText: "Learn More",
       features: [
         "Online Giving",
         "Stewardship Campaign",
@@ -122,7 +127,7 @@ export function FindingYourPlace() {
                   
                   <Button asChild variant="outline" className="w-full group">
                     <Link href={item.href}>
-                      Learn More
+                      {item.buttonText}
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
