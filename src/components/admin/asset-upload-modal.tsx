@@ -34,6 +34,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
   const assetTypes = [
     { value: "sermon_series", label: "Sermon Series", icon: Image },
     { value: "seasonal_guide", label: "Seasonal Guide", icon: FileText },
+    { value: "directory", label: "Church Directory", icon: FileText },
   ];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

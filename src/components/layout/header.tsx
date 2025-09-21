@@ -17,9 +17,10 @@ const navigation = [
     name: "Resources", 
     href: "#",
     dropdown: [
-      { name: "Sermon Series", href: "/sermon-series" },
-      { name: "Seasonal Guides", href: "/seasonal-guides" },
       { name: "Calendar", href: "/calendar" },
+      { name: "La Reunión", href: "https://www.la-reunion.org", external: true },
+      { name: "FCC Library", href: "/library" },
+      { name: "Church Directory", href: "/directory" },
     ]
   },
   { name: "Videos", href: "https://www.fccgranbury.live/", external: true },
@@ -123,9 +124,20 @@ export function Header() {
                   <DropdownMenuContent>
                     {item.dropdown.map((dropdownItem) => (
                       <DropdownMenuItem key={dropdownItem.name} asChild>
-                        <Link href={dropdownItem.href} className="cursor-pointer">
-                          {dropdownItem.name}
-                        </Link>
+                        {dropdownItem.external ? (
+                          <a 
+                            href={dropdownItem.href} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="cursor-pointer"
+                          >
+                            {dropdownItem.name}
+                          </a>
+                        ) : (
+                          <Link href={dropdownItem.href} className="cursor-pointer">
+                            {dropdownItem.name}
+                          </Link>
+                        )}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

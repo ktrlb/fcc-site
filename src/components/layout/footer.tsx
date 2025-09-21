@@ -54,17 +54,22 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Resources</h3>
             <div className="space-y-2 text-sm">
-              <Link href="/resources" className="block text-gray-300 hover:text-white transition-colors">
-                Church Library
+              <Link href="/calendar" className="block text-gray-300 hover:text-white transition-colors">
+                Calendar
               </Link>
-              <Link href="/resources" className="block text-gray-300 hover:text-white transition-colors">
-                Medical Supply Library
-              </Link>
-              <Link href="https://www.la-reunion.org" className="block text-gray-300 hover:text-white transition-colors">
+              <a 
+                href="https://www.la-reunion.org" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block text-gray-300 hover:text-white transition-colors"
+              >
                 La Reunión
+              </a>
+              <Link href="/library" className="block text-gray-300 hover:text-white transition-colors">
+                FCC Library
               </Link>
-              <Link href="/resources" className="block text-gray-300 hover:text-white transition-colors">
-                Respite Care
+              <Link href="/directory" className="block text-gray-300 hover:text-white transition-colors">
+                Church Directory
               </Link>
             </div>
           </div>
