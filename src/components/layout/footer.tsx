@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Facebook, Youtube, Mail, MapPin, Phone } from "lucide-react";
 
 export function Footer() {
@@ -8,7 +9,16 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Church Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">First Christian Church</h3>
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/images/Basic FCC Logo Assets-White.png"
+                alt="First Christian Church Granbury"
+                width={40}
+                height={40}
+                className="h-8 w-auto"
+              />
+              <h3 className="text-lg font-semibold">First Christian Church</h3>
+            </div>
             <div className="space-y-2 text-sm text-gray-300">
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
@@ -64,21 +74,21 @@ export function Footer() {
             <h3 className="text-lg font-semibold">Connect</h3>
             <div className="flex space-x-4">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/FCCGranbury"
                 className="text-gray-300 hover:text-white transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5" />
               </a>
               <a
-                href="https://youtube.com"
+                href="https://www.youtube.com/@fccgranburytx"
                 className="text-gray-300 hover:text-white transition-colors"
                 aria-label="YouTube"
               >
                 <Youtube className="h-5 w-5" />
               </a>
               <a
-                href="mailto:info@fccgranbury.org"
+                href="mailto:office@fccgranbury.org"
                 className="text-gray-300 hover:text-white transition-colors"
                 aria-label="Email"
               >

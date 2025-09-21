@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { 
@@ -91,7 +92,16 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
   return (
     <div className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col">
       <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold">Admin Panel</h2>
+        <div className="flex items-center space-x-3">
+          <Image
+            src="/images/Basic FCC Logo Assets-Transparent.png"
+            alt="First Christian Church Granbury"
+            width={32}
+            height={32}
+            className="h-6 w-auto"
+          />
+          <h2 className="text-lg font-semibold">Admin Panel</h2>
+        </div>
       </div>
       
       <nav className="flex-1 p-4 space-y-2">

@@ -70,7 +70,7 @@ export function WhereToFindUs() {
                     </div>
                     <Button asChild variant="outline" size="sm">
                       <a 
-                        href="https://facebook.com/fccgranbury"
+                        href="https://www.facebook.com/FCCGranbury"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center"
@@ -95,7 +95,7 @@ export function WhereToFindUs() {
                     </div>
                     <Button asChild variant="outline" size="sm">
                       <a 
-                        href="https://youtube.com/@fccgranbury"
+                        href="https://www.youtube.com/@fccgranburytx"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center"

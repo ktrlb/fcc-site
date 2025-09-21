@@ -6,6 +6,9 @@ import { LearnMore } from "@/components/home/learn-more";
 import { FindingYourPlace } from "@/components/home/finding-your-place";
 import { EmailSignup } from "@/components/home/email-signup";
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   return (
     <div className="min-h-screen">

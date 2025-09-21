@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
@@ -34,10 +35,14 @@ export function Header() {
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">First Christian Church Granbury</span>
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">FCC</span>
-              </div>
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/images/Basic FCC Logo Assets-Transparent.png"
+                alt="First Christian Church Granbury"
+                width={40}
+                height={40}
+                className="h-8 w-auto"
+              />
               <span className="text-lg font-bold text-gray-900">First Christian Church</span>
             </div>
           </Link>
