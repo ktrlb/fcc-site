@@ -23,6 +23,7 @@ export async function SpecialEvents() {
     specialEventColor?: string;
     specialEventName?: string;
     ministryTeamName?: string;
+    recurringDescription?: string;
   }> = [];
   try {
     featuredEvents = await getFeaturedSpecialEvents();
@@ -184,15 +185,6 @@ export async function SpecialEvents() {
                       </div>
                     )}
                     
-                    <div className="flex items-center mb-4">
-                      <Calendar className="h-5 w-5 text-blue-600 mr-2" />
-                      <span 
-                        className="text-sm font-medium px-2 py-1 rounded-full text-white"
-                        style={{ backgroundColor: event.specialEventColor || '#3B82F6' }}
-                      >
-                        {event.specialEventName || 'Special Event'}
-                      </span>
-                    </div>
                     
                     <h4 className="text-xl font-bold text-gray-900 mb-2">
                       {(event as { displayTitle?: string }).displayTitle || event.title}
@@ -202,15 +194,21 @@ export async function SpecialEvents() {
                     </p>
                     
                     <div className="space-y-1 text-sm text-gray-500">
-                      <p className="font-semibold">
-                        {new Date(event.startTime).toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          timeZone: 'America/Chicago'
-                        })}
-                      </p>
+                      {event.recurringDescription ? (
+                        <p className="font-semibold">
+                          {event.recurringDescription}
+                        </p>
+                      ) : (
+                        <p className="font-semibold">
+                          {new Date(event.startTime).toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            timeZone: 'America/Chicago'
+                          })}
+                        </p>
+                      )}
                       {!event.allDay && (
                         <p>
                           {new Date(event.startTime).toLocaleTimeString('en-US', {
