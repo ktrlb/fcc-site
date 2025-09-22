@@ -70,7 +70,8 @@ export async function SeeYouOnSunday() {
 
               <div className="mt-6">
                 <p className="text-sm text-gray-600">
-                  <strong>Next Service:</strong> {nextSunday.toLocaleDateString('en-US', { 
+                  <strong>Next Service:</strong> {nextSunday.toLocaleDateString('en-US', {
+                    timeZone: 'America/Chicago', 
                     weekday: 'long', 
                     year: 'numeric', 
                     month: 'long', 

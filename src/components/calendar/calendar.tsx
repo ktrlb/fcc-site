@@ -417,7 +417,7 @@ export function Calendar({ events = [] }: CalendarProps) {
                     <div>
                       <h4 className="font-medium text-gray-900">{event.title}</h4>
                       <p className="text-sm text-gray-600">
-                        {event.start.toLocaleDateString()} at {event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {event.start.toLocaleDateString('en-US', { timeZone: 'America/Chicago' })} at {event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'America/Chicago' })}
                       </p>
                       {event.location && (
                         <p className="text-sm text-gray-500">{event.location}</p>
@@ -445,7 +445,7 @@ export function Calendar({ events = [] }: CalendarProps) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CalendarIcon className="h-5 w-5" />
-              {selectedEvent ? 'Event Details' : 'Events for ' + (selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) || '')}
+              {selectedEvent ? 'Event Details' : 'Events for ' + (selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' }) || '')}
             </DialogTitle>
           </DialogHeader>
           
@@ -463,7 +463,8 @@ export function Calendar({ events = [] }: CalendarProps) {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
+                      day: 'numeric',
+                      timeZone: 'America/Chicago'
                     })}
                   </span>
                 </div>
@@ -474,11 +475,13 @@ export function Calendar({ events = [] }: CalendarProps) {
                     {selectedEvent.start.toLocaleTimeString('en-US', {
                       hour: 'numeric',
                       minute: '2-digit',
-                      hour12: true
+                      hour12: true,
+                      timeZone: 'America/Chicago'
                     })} - {selectedEvent.end.toLocaleTimeString('en-US', {
                       hour: 'numeric',
                       minute: '2-digit',
-                      hour12: true
+                      hour12: true,
+                      timeZone: 'America/Chicago'
                     })}
                   </span>
                 </div>
@@ -585,11 +588,13 @@ export function Calendar({ events = [] }: CalendarProps) {
                         {event.start.toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
-                          hour12: true
+                          hour12: true,
+                          timeZone: 'America/Chicago'
                         })} - {event.end.toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
-                          hour12: true
+                          hour12: true,
+                          timeZone: 'America/Chicago'
                         })}
                       </span>
                     </div>

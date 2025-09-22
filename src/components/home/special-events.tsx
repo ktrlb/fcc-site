@@ -207,7 +207,8 @@ export async function SpecialEvents() {
                           weekday: 'long',
                           year: 'numeric',
                           month: 'long',
-                          day: 'numeric'
+                          day: 'numeric',
+                          timeZone: 'America/Chicago'
                         })}
                       </p>
                       {!event.allDay && (
@@ -215,13 +216,15 @@ export async function SpecialEvents() {
                           {new Date(event.startTime).toLocaleTimeString('en-US', {
                             hour: 'numeric',
                             minute: '2-digit',
-                            hour12: true
+                            hour12: true,
+                            timeZone: 'America/Chicago'
                           })}
                           {event.endTime && (
                             <> - {new Date(event.endTime).toLocaleTimeString('en-US', {
                               hour: 'numeric',
                               minute: '2-digit',
-                              hour12: true
+                              hour12: true,
+                              timeZone: 'America/Chicago'
                             })}</>
                           )}
                         </p>

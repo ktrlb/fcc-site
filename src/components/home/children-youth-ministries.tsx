@@ -7,7 +7,7 @@ export function ChildrenYouthMinistries() {
   const ministries = [
     {
       title: "Infants & Toddlers",
-      description: "To support our parents with infants and toddlers, we have a staffed nursery available to 3 and unders",
+      description: "We provide a warm, safe, and nurturing environment for our youngest members. Our staffed nursery is available for children 3 and under. We also have a private mothers room if you need a quiet space with your little one.",
       icon: Baby,
       href: "/children/infants-toddlers",
       color: "bg-pink-50 text-pink-600",
@@ -15,7 +15,7 @@ export function ChildrenYouthMinistries() {
     },
     {
       title: "Children",
-      description: "Children are invited to worship along with the congregation. They are invited to sit in the front left pews or with their families. After communion, we invite the children to the Children's Worship Center for a child-focused way to engage our theme for the day. For the Sunday School hour, our Pathfinders Kids Club encourages play and creativity.",
+      description: "Children are welcome to worship along with the congregation. They may sit in the front left pews or with their families. After communion, we encourage the children to join us in the Children's Worship Center for a child-focused way to engage our theme for the day. For the Sunday School hour, our Pathfinders Kids Club encourages play and creativity.",
       icon: Users,
       href: "/children/children",
       color: "bg-blue-50 text-blue-600",

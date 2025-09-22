@@ -528,6 +528,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                           <Calendar className="h-4 w-4" />
                           <span className="text-sm">
                             Every {days[dayOfWeek]} at {new Date(selectedEvent.start).toLocaleTimeString('en-US', {
+                              timeZone: 'America/Chicago',
                               hour: 'numeric',
                               minute: '2-digit',
                               hour12: true
@@ -545,7 +546,8 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                                 weekday: 'long',
                                 year: 'numeric',
                                 month: 'long',
-                                day: 'numeric'
+                                day: 'numeric',
+                                timeZone: 'America/Chicago'
                               })}
                             </span>
                           </div>
@@ -556,11 +558,13 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                               {new Date(selectedEvent.start).toLocaleTimeString('en-US', {
                                 hour: 'numeric',
                                 minute: '2-digit',
-                                hour12: true
+                                hour12: true,
+                                timeZone: 'America/Chicago'
                               })} - {new Date(selectedEvent.end).toLocaleTimeString('en-US', {
                                 hour: 'numeric',
                                 minute: '2-digit',
-                                hour12: true
+                                hour12: true,
+                                timeZone: 'America/Chicago'
                               })}
                             </span>
                           </div>
@@ -720,7 +724,8 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
+                timeZone: 'America/Chicago'
               })}
             </span>
           </div>
@@ -730,11 +735,13 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
               {new Date(event.start).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: '2-digit',
-                hour12: true
+                hour12: true,
+                timeZone: 'America/Chicago'
               })} - {new Date(event.end).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: '2-digit',
-                hour12: true
+                hour12: true,
+                timeZone: 'America/Chicago'
               })}
             </span>
           </div>

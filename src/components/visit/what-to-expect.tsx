@@ -7,7 +7,7 @@ export function WhatToExpect() {
     {
       question: "What's the Parking Situation?",
       icon: Car,
-          answer: "As you pull into our parking lot, either a right hand turn or a left hand turn will lead you to a parking space. Both main entrances to our church (on the right and the left sides) are under big car ports. Once you're inside, you should see a greeter who will help you find your way around our facility (Look for someone with a yellow name tag! They're our &quot;Welcome Team&quot; and should be able to help)."
+          answer: "As you pull into our parking lot, either a right hand turn or a left hand turn will lead you to a parking space. Both main entrances to our church (on the right and the left sides) are under big car ports. Once you're inside, you should see a greeter who will help you find your way around our facility (Look for someone with a yellow name tag! They're our \"Welcome Team\" and should be able to help)."
     },
     {
       question: "Is FCC Handicap Accessible?",
@@ -34,7 +34,7 @@ export function WhatToExpect() {
       icon: Baby,
       answer: (
         <>
-          You bet! FCC Granbury is dedicated to fostering the faith of our children and youth, and to providing meaningful spiritual opportunities for families. On Sundays, our staffed Nursery is available for our youngest, and we invite our kids into worship to sit with their families or in the front row on the left with our children&apos;s leaders. After communion, kids are invited to the Childrens Worship Center for child-centered worship activities. We also have a &quot;prayground&quot; available in the gathering area with things to keep kids entertained. You can learn more about our{" "}
+          You bet! FCC Granbury is dedicated to fostering the faith of our children and youth, and to providing meaningful spiritual opportunities for families. On Sundays, our staffed Nursery is available for our youngest, and we welcome our kids into worship to sit with their families or in the front row on the left with our children&apos;s leaders. After communion, kids are invited to the Childrens Worship Center for child-centered worship activities. We also have a &quot;prayground&quot; available in the gathering area with things to keep kids entertained. You can learn more about our{" "}
           <Link href="/children/infants-toddlers" className="text-blue-600 hover:text-blue-800 underline">
             nursery
           </Link>
@@ -107,7 +107,7 @@ export function WhatToExpect() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-center">
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-1">Call Us</h4>
-                <p className="text-sm text-gray-600">(817) 573-5433</p>
+                <p className="text-sm text-gray-600">(817) 573-5431</p>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-1">Email Us</h4>
