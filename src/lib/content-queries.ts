@@ -222,7 +222,9 @@ export async function getFeaturedSpecialEvents() {
       .where(
         and(
           eq(calendarEvents.isActive, true),
-          eq(calendarEvents.featuredOnHomePage, true)
+          eq(calendarEvents.featuredOnHomePage, true),
+          // Exclude external events from public featured events
+          eq(calendarEvents.isExternal, false)
         )
       )
       .orderBy(desc(calendarCache.startTime));

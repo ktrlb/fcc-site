@@ -167,6 +167,7 @@ export async function GET(request: Request) {
       ministryTeamId?: string;
       specialEventId?: string;
       isSpecialEvent?: boolean;
+      isExternal?: boolean;
       specialEventImage?: string;
       specialEventNote?: string;
       contactPerson?: string;
@@ -198,6 +199,7 @@ export async function GET(request: Request) {
           ministryTeamId: calendarEvents.ministryTeamId,
           specialEventId: calendarEvents.specialEventId,
           isSpecialEvent: calendarEvents.isSpecialEvent,
+          isExternal: calendarEvents.isExternal,
           specialEventImage: calendarEvents.specialEventImage,
           specialEventNote: calendarEvents.specialEventNote,
           contactPerson: calendarEvents.contactPerson,
@@ -236,7 +238,51 @@ export async function GET(request: Request) {
     }
     
     // Enhance events with only explicit database connections
-    const enhancedEvents = events.map(event => {
+    const includeExternal = new URL(request.url).searchParams.get('includeExternal') === 'true';
+
+    // Build a set of external series patterns so that all matching occurrences are excluded
+    const chicagoTimeOf = (d: Date) => {
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: false });
+      const parts = fmt.formatToParts(d);
+      const hh = parts.find(p => p.type === 'hour')?.value || '00';
+      const mm = parts.find(p => p.type === 'minute')?.value || '00';
+      return `${hh}:${mm}`;
+    };
+    const chicagoDowOf = (d: Date) => {
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', weekday: 'long' });
+      const name = fmt.format(d).toLowerCase();
+      return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].indexOf(name);
+    };
+
+    const externalSeriesKeys = new Set<string>();
+    for (const conn of calendarEventConnections) {
+      if (!conn.isExternal) continue;
+      const underlying = events.find(e => e.id === conn.googleEventId);
+      if (!underlying) continue;
+      const key = [
+        (underlying.title || '').trim(),
+        chicagoDowOf(new Date(underlying.start)),
+        chicagoTimeOf(new Date(underlying.start)),
+        (underlying.location || '').trim()
+      ].join('|');
+      externalSeriesKeys.add(key);
+    }
+
+    const enhancedEvents = events
+      // Optionally filter out external events (outside groups) from public calendar
+      .filter(event => {
+        if (includeExternal) return true;
+        const conn = calendarEventConnections.find(c => c.googleEventId === event.id);
+        if (conn?.isExternal) return false;
+        const seriesKey = [
+          (event.title || '').trim(),
+          chicagoDowOf(new Date(event.start)),
+          chicagoTimeOf(new Date(event.start)),
+          (event.location || '').trim()
+        ].join('|');
+        return !externalSeriesKeys.has(seriesKey);
+      })
+      .map(event => {
       // Check if there's an existing database connection for this event
       const existingConnection = calendarEventConnections.find(conn => 
         conn.googleEventId === event.id
@@ -277,10 +323,18 @@ export async function GET(request: Request) {
         }
       }
       
+      const seriesKey = [
+        (event.title || '').trim(),
+        chicagoDowOf(new Date(event.start)),
+        chicagoTimeOf(new Date(event.start)),
+        (event.location || '').trim()
+      ].join('|');
+
       const enhancedEvent = {
         ...event,
         start: event.start.toISOString(),
         end: event.end.toISOString(),
+        isExternal: existingConnection?.isExternal ?? externalSeriesKeys.has(seriesKey),
         ministryConnection,
         ministryInfo: matchedMinistry,
         specialEventInfo

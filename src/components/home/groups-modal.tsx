@@ -37,6 +37,7 @@ interface CalendarEvent {
     contactPerson?: string;
   };
   isSpecialEvent?: boolean;
+  isExternal?: boolean;
   specialEventNote?: string;
   specialEventImage?: string;
   contactPerson?: string;
@@ -72,49 +73,55 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      // For now, use the existing calendar events API and analyze locally
-      // This will be replaced with the cached recurring events API once the migration is run
-      const response = await fetch('/api/calendar/events');
+      // Use recurring events cache API for efficient weekly groups display
+      const response = await fetch('/api/recurring-events');
       if (response.ok) {
-        const data = await response.json();
-        // Convert ISO strings back to Date objects
-        const eventsData = (data.events || []).map((event: {
-          id: string;
-          title: string;
-          start: string;
-          end: string;
-          description?: string;
-          location?: string;
-          allDay: boolean;
-          recurring?: boolean;
-          ministryConnection?: string;
-          ministryInfo?: {
-            id: string;
-            name: string;
-            description?: string;
-            imageUrl?: string;
-            contactPerson?: string;
-            contactEmail?: string;
-            contactPhone?: string;
-          };
-          specialEventInfo?: {
-            id: string;
-            name: string;
-            description?: string;
-            imageUrl?: string;
-            color?: string;
-            contactPerson?: string;
-          };
-        }) => ({
-          ...event,
-          start: new Date(event.start),
-          end: new Date(event.end)
-        }));
-        
-        setEvents(eventsData);
-        // Use the analysis from the API response if available, otherwise analyze locally
-        const eventAnalysis = data.analysis || analyzeEvents(eventsData);
-        setAnalysis(eventAnalysis);
+        const data = await response.json() as {
+          recurringEvents?: Array<{ title: string; dayOfWeek: number; time: string; location?: string; isExternal?: boolean }>;
+          weeklyPatterns?: { [key: number]: Array<{ title: string; dayOfWeek: number; time: string; location?: string; isExternal?: boolean }> };
+        };
+        // API already returns recurringEvents and weeklyPatterns; exclude external from cache
+        type CachedEvent = { title: string; dayOfWeek: number; time: string; location?: string; isExternal?: boolean };
+        const recurring = (data.recurringEvents as CachedEvent[] || []).filter((e) => !e.isExternal);
+        const weekly: { [key: number]: CachedEvent[] } = data.weeklyPatterns || {};
+        const weeklyFiltered: { [key: number]: CachedEvent[] } = {};
+        Object.keys(weekly).forEach(k => {
+          const day = Number(k);
+          weeklyFiltered[day] = (weekly[day] || []).filter((e) => !e.isExternal);
+        });
+        // If cache is empty (or everything filtered), fall back to live analysis
+        if ((recurring?.length || 0) === 0) {
+          const live = await fetch('/api/calendar/events');
+          if (live.ok) {
+            const liveData = await live.json() as {
+              events?: Array<{ id: string; title: string; start: string; end: string; location?: string; allDay: boolean; recurring?: boolean; }>;
+              analysis?: ReturnType<typeof analyzeEvents>;
+            };
+            type RawEvent = { id: string; title: string; start: Date; end: Date; location?: string; allDay: boolean; recurring?: boolean; isExternal?: boolean };
+            const eventsData: RawEvent[] = (liveData.events || []).map((event) => ({
+              ...event,
+              start: new Date(event.start),
+              end: new Date(event.end)
+            }));
+            // Filter out external by instance and series (API should already exclude, but double-guard)
+            const filtered: RawEvent[] = eventsData.filter((e) => !e.isExternal);
+            const analysis = (liveData.analysis || analyzeEvents(filtered));
+            setEvents(filtered as unknown as CalendarEvent[]);
+            setAnalysis({
+              recurringEvents: analysis.recurringEvents,
+              uniqueEvents: analysis.uniqueEvents,
+              weeklyPatterns: analysis.weeklyPatterns,
+            });
+            return;
+          }
+        }
+
+        setEvents([]); // not used now
+        setAnalysis({
+          recurringEvents: recurring as unknown as RecurringEvent[],
+          uniqueEvents: [],
+          weeklyPatterns: weeklyFiltered as unknown as { [dayOfWeek: number]: RecurringEvent[] },
+        });
       }
     } catch (error) {
       console.error('Failed to fetch events:', error);

@@ -24,6 +24,7 @@ interface CalendarEvent {
   ministryConnection?: string;
   specialEventId?: string;
   ministryTeamId?: string;
+  isExternal?: boolean;
   ministryInfo?: {
     id: string;
     name: string;
@@ -198,6 +199,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
               specialEventId: data.event.specialEventId,
               ministryTeamId: data.event.ministryTeamId,
               isSpecialEvent: data.event.isSpecialEvent,
+              isExternal: data.event.isExternal,
               specialEventNote: data.event.specialEventNote,
               specialEventImage: data.event.specialEventImage,
               contactPerson: data.event.contactPerson,
@@ -236,12 +238,32 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
           specialEventId: eventData.specialEventId,
           ministryTeamId: eventData.ministryTeamId,
           isSpecialEvent: eventData.isSpecialEvent,
+          isExternal: eventData.isExternal,
           specialEventNote: eventData.specialEventNote,
           specialEventImage: eventData.specialEventImage,
           contactPerson: eventData.contactPerson,
           recurringDescription: eventData.recurringDescription,
           endsBy: eventData.endsBy,
           featuredOnHomePage: eventData.featuredOnHomePage,
+          // When toggling from mini calendar, also allow bulk applying to the series
+          applyToSeries: true,
+          seriesCriteria: (() => {
+            // Derive Chicago time and day for matching
+            const d = new Date(selectedEvent.start);
+            const timeFmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: false });
+            const parts = timeFmt.formatToParts(d);
+            const hh = parts.find(p => p.type === 'hour')?.value || '00';
+            const mm = parts.find(p => p.type === 'minute')?.value || '00';
+            const dayFmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', weekday: 'long' });
+            const dayName = dayFmt.format(d).toLowerCase();
+            const dow = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].indexOf(dayName);
+            return {
+              title: selectedEvent.title,
+              dayOfWeek: dow,
+              time: `${hh}:${mm}`,
+              location: selectedEvent.location || ''
+            };
+          })()
         }),
       });
 
@@ -677,6 +699,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
     specialEventId: event.specialEventId || 'none',
     ministryTeamId: event.ministryTeamId || 'none',
     isSpecialEvent: event.isSpecialEvent || false,
+    isExternal: event.isExternal || false,
     specialEventNote: event.specialEventNote || '',
     featuredOnHomePage: event.featuredOnHomePage || false,
     specialEventImage: event.specialEventImage || '',
@@ -691,6 +714,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       specialEventId: event.specialEventId || 'none',
       ministryTeamId: event.ministryTeamId || 'none',
       isSpecialEvent: event.isSpecialEvent || false,
+      isExternal: event.isExternal || false,
       specialEventNote: event.specialEventNote || '',
       featuredOnHomePage: event.featuredOnHomePage || false,
       specialEventImage: event.specialEventImage || '',
@@ -816,6 +840,19 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
         </div>
 
         <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isExternal"
+              checked={formData.isExternal}
+              onChange={(e) => setFormData({ ...formData, isExternal: e.target.checked })}
+              className="rounded"
+            />
+            <Label htmlFor="isExternal" className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-gray-600" />
+              Outside group (hide from public calendar)
+            </Label>
+          </div>
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"

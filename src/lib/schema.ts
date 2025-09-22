@@ -127,6 +127,8 @@ export const calendarEvents = pgTable('calendar_events', {
   specialEventId: uuid('special_event_id').references(() => specialEvents.id), // Link to special event type
   ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id), // Link to specific ministry team
   isSpecialEvent: boolean('is_special_event').default(false).notNull(),
+  // Flag for outside groups using the facility; hidden from public views when true
+  isExternal: boolean('is_external').default(false).notNull(),
   specialEventNote: text('special_event_note'), // Additional details for special events
   specialEventImage: varchar('special_event_image', { length: 500 }), // URL for special event image
   contactPerson: varchar('contact_person', { length: 255 }), // Contact person for special events
@@ -166,6 +168,7 @@ export const recurringEventsCache = pgTable('recurring_events_cache', {
   confidence: varchar('confidence', { length: 20 }).notNull(), // 0-1 as string
   ministryConnection: varchar('ministry_connection', { length: 100 }),
   eventIds: text('event_ids').array(), // Array of Google event IDs that match this pattern
+  isExternal: boolean('is_external').default(false).notNull(),
   lastAnalyzed: timestamp('last_analyzed').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { calendarEvents } from '@/lib/schema';
+import { calendarEvents, calendarCache } from '@/lib/schema';
 import { eq, desc } from 'drizzle-orm';
 import type { NewCalendarEvent } from '@/lib/schema';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
@@ -34,6 +34,94 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
+
+    // Bulk apply to series (for recurring patterns)
+    if (data.applyToSeries && data.seriesCriteria) {
+      const { title, dayOfWeek, time, location } = data.seriesCriteria as {
+        title: string;
+        dayOfWeek: number; // 0-6 Sunday-Saturday
+        time: string; // HH:MM in 24h Chicago time
+        location?: string;
+      };
+
+      // Fetch matching events from cache
+      const cached = await db
+        .select()
+        .from(calendarCache);
+
+      // Helper to extract Chicago HH:MM and day index
+      const chicagoTimeOf = (d: Date) => {
+        const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: false });
+        const parts = fmt.formatToParts(d);
+        const hh = parts.find(p => p.type === 'hour')?.value || '00';
+        const mm = parts.find(p => p.type === 'minute')?.value || '00';
+        return `${hh}:${mm}`;
+      };
+      const chicagoDowOf = (d: Date) => {
+        const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', weekday: 'long' });
+        const name = fmt.format(d).toLowerCase();
+        return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].indexOf(name);
+      };
+
+      const matchingGoogleIds = cached
+        .filter(e => {
+          const dow = chicagoDowOf(e.startTime as Date);
+          const hhmm = chicagoTimeOf(e.startTime as Date);
+          const loc = (e.location || '').trim();
+          return (
+            e.title === title &&
+            dow === dayOfWeek &&
+            hhmm === time &&
+            (location ? loc === location : true)
+          );
+        })
+        .map(e => e.googleEventId)
+        .filter((id): id is string => !!id);
+
+      // Upsert/update calendar_events for each matching id
+      for (const googleEventId of matchingGoogleIds) {
+        const existing = await db
+          .select({ id: calendarEvents.id })
+          .from(calendarEvents)
+          .where(eq(calendarEvents.googleEventId, googleEventId))
+          .limit(1);
+
+        if (existing.length > 0) {
+          await db
+            .update(calendarEvents)
+            .set({
+              isExternal: !!data.isExternal,
+              updatedAt: new Date(),
+            })
+            .where(eq(calendarEvents.id, existing[0].id));
+        } else {
+          const insertEvent: NewCalendarEvent = {
+            googleEventId,
+            title,
+            description: null,
+            location: location || null,
+            startTime: new Date(), // placeholder
+            endTime: new Date(),   // placeholder
+            allDay: false,
+            recurring: true,
+            specialEventId: undefined,
+            ministryTeamId: undefined,
+            isSpecialEvent: false,
+            isExternal: !!data.isExternal,
+            specialEventNote: null,
+            specialEventImage: null,
+            contactPerson: null,
+            recurringDescription: null,
+            endsBy: null,
+            featuredOnHomePage: false,
+            isActive: true,
+          };
+          await db.insert(calendarEvents).values(insertEvent);
+        }
+      }
+
+      return NextResponse.json({ ok: true, applied: matchingGoogleIds.length });
+    }
     
     // First, try to find an existing event with this googleEventId
     const existingEvent = await db
@@ -48,6 +136,7 @@ export async function POST(request: Request) {
         specialEventId: data.specialEventId,
         ministryTeamId: data.ministryTeamId,
         isSpecialEvent: data.isSpecialEvent || false,
+        isExternal: data.isExternal || false,
         specialEventNote: data.specialEventNote,
         specialEventImage: data.specialEventImage,
         contactPerson: data.contactPerson,
@@ -78,6 +167,7 @@ export async function POST(request: Request) {
         specialEventId: data.specialEventId,
         ministryTeamId: data.ministryTeamId,
         isSpecialEvent: data.isSpecialEvent || false,
+        isExternal: data.isExternal || false,
         specialEventNote: data.specialEventNote,
         specialEventImage: data.specialEventImage,
         contactPerson: data.contactPerson,

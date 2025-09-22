@@ -60,6 +60,7 @@ export async function PUT(
       recurring: data.recurring,
       ministryTeamId: data.ministryTeamId,
       isSpecialEvent: data.isSpecialEvent,
+      isExternal: data.isExternal,
       specialEventNote: data.specialEventNote,
       specialEventImage: data.specialEventImage,
       contactPerson: data.contactPerson,

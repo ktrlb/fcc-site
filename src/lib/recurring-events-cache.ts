@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from './db';
 import { recurringEventsCache } from './schema';
 import { CalendarCacheService } from './calendar-cache';
-import { analyzeEvents, RecurringEvent } from './event-analyzer';
-import { eq, desc } from 'drizzle-orm';
+import { analyzeEvents } from './event-analyzer';
+import { desc } from 'drizzle-orm';
 
 export interface CachedRecurringEvent {
   id: string;
@@ -15,6 +16,7 @@ export interface CachedRecurringEvent {
   confidence: number;
   ministryConnection?: string;
   eventIds: string[];
+  isExternal?: boolean;
   lastAnalyzed: Date;
 }
 
@@ -39,6 +41,7 @@ export class RecurringEventsCacheService {
       confidence: parseFloat(event.confidence),
       ministryConnection: event.ministryConnection || undefined,
       eventIds: event.eventIds || [],
+      isExternal: (event as any).isExternal || false,
       lastAnalyzed: event.lastAnalyzed,
     }));
   }
@@ -66,7 +69,7 @@ export class RecurringEventsCacheService {
       }));
 
       // Analyze events for recurring patterns
-      const analysis = analyzeEvents(eventsForAnalysis);
+      const analysis = analyzeEvents(eventsForAnalysis as any);
       
       console.log(`Found ${analysis.recurringEvents.length} recurring event patterns`);
 
@@ -74,10 +77,20 @@ export class RecurringEventsCacheService {
       await db.delete(recurringEventsCache);
       console.log('Cleared existing recurring events cache');
 
+      // External series keys are computed upstream; keep empty set here
+      const externalSeriesKeys = new Set<string>();
+
       // Insert new recurring events into cache
       if (analysis.recurringEvents.length > 0) {
-        const cachePromises = analysis.recurringEvents.map(recurringEvent => 
-          db.insert(recurringEventsCache).values({
+        const cachePromises = analysis.recurringEvents.map(recurringEvent => {
+          const seriesKey = [
+            (recurringEvent.title || '').trim(),
+            recurringEvent.dayOfWeek,
+            recurringEvent.time,
+            (recurringEvent.location || '').trim(),
+          ].join('|');
+          const isExternal = externalSeriesKeys.has(seriesKey);
+          return db.insert(recurringEventsCache).values({
             title: recurringEvent.title,
             dayOfWeek: recurringEvent.dayOfWeek.toString(),
             time: recurringEvent.time,
@@ -87,9 +100,10 @@ export class RecurringEventsCacheService {
             confidence: recurringEvent.confidence.toString(),
             ministryConnection: recurringEvent.ministryConnection,
             eventIds: recurringEvent.eventIds,
+            isExternal,
             lastAnalyzed: new Date(),
-          })
-        );
+          });
+        });
 
         await Promise.all(cachePromises);
         console.log(`Cached ${analysis.recurringEvents.length} recurring event patterns`);

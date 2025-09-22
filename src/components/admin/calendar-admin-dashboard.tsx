@@ -37,6 +37,7 @@ interface CalendarEvent {
   recurringDescription?: string;
   endsBy?: string;
   featuredOnHomePage?: boolean;
+  isExternal?: boolean;
 }
 
 interface CalendarAdminDashboardProps {
@@ -80,7 +81,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
   const fetchEvents = async () => {
     try {
       setError(null);
-      const response = await fetch('/api/calendar/events');
+      const response = await fetch('/api/calendar/events?includeExternal=true');
       if (response.ok) {
         const data = await response.json();
         // Convert ISO strings back to Date objects and preserve ministry info
@@ -102,6 +103,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
           isSpecialEvent?: boolean;
           specialEventNote?: string;
           featuredOnHomePage?: boolean;
+          isExternal?: boolean;
         }) => ({
           ...event,
           start: new Date(event.start),
@@ -183,6 +185,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
           console.log('CalendarAdminDashboard: Loaded event data from database:', {
             title: event.title,
             isSpecialEvent: data.event.isSpecialEvent,
+            isExternal: data.event.isExternal,
             specialEventImage: data.event.specialEventImage,
             specialEventNote: data.event.specialEventNote,
             contactPerson: data.event.contactPerson
@@ -194,6 +197,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
             specialEventId: data.event.specialEventId,
             ministryTeamId: data.event.ministryTeamId,
             isSpecialEvent: data.event.isSpecialEvent,
+            isExternal: data.event.isExternal,
             specialEventNote: data.event.specialEventNote,
             specialEventImage: data.event.specialEventImage,
             contactPerson: data.event.contactPerson,
@@ -233,6 +237,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
           specialEventId: eventData.specialEventId,
           ministryTeamId: eventData.ministryTeamId,
           isSpecialEvent: eventData.isSpecialEvent,
+          isExternal: eventData.isExternal,
           specialEventNote: eventData.specialEventNote,
           specialEventImage: eventData.specialEventImage,
           contactPerson: eventData.contactPerson,
@@ -481,7 +486,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
                       {eventsForDate.map(event => (
                         <div
                           key={event.id}
-                          className="text-xs p-1 bg-blue-100 text-blue-800 rounded break-words cursor-pointer hover:bg-blue-200 transition-colors"
+                          className={`text-xs p-1 rounded break-words cursor-pointer transition-colors ${event.isExternal ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-blue-100 text-blue-800 hover:bg-blue-200'}`}
                           title={event.title}
                           onClick={() => handleEventClick(event)}
                         >
@@ -591,6 +596,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
     specialEventId: event.specialEventId || 'none',
     ministryTeamId: event.ministryTeamId || 'none',
     isSpecialEvent: event.isSpecialEvent || false,
+    isExternal: event.isExternal || false,
     specialEventNote: event.specialEventNote || '',
     featuredOnHomePage: event.featuredOnHomePage || false,
     specialEventImage: event.specialEventImage || '',
@@ -613,6 +619,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       specialEventId: event.specialEventId || 'none',
       ministryTeamId: event.ministryTeamId || 'none',
       isSpecialEvent: event.isSpecialEvent || false,
+      isExternal: event.isExternal || false,
       specialEventNote: event.specialEventNote || '',
       featuredOnHomePage: event.featuredOnHomePage || false,
       specialEventImage: event.specialEventImage || '',
@@ -735,6 +742,19 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
         </div>
 
         <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isExternal"
+              checked={formData.isExternal}
+              onChange={(e) => setFormData({ ...formData, isExternal: e.target.checked })}
+              className="rounded"
+            />
+            <Label htmlFor="isExternal" className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-gray-600" />
+              Outside group (hide from public calendar)
+            </Label>
+          </div>
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
