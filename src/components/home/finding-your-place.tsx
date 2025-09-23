@@ -17,7 +17,7 @@ export function FindingYourPlace() {
       description: "Connect with God and our community through prayer",
       icon: Heart,
       href: "/ministry-database?search=prayer",
-      color: "bg-red-50 text-red-600",
+      color: "bg-red-100 text-red-600",
       buttonText: "Explore Prayer Ministries",
       features: [
         "Prayer Groups",
@@ -30,7 +30,7 @@ export function FindingYourPlace() {
       description: "Grow in faith through Bible study and learning",
       icon: BookOpen,
       href: "/ministry-database?search=discipleship",
-      color: "bg-blue-50 text-blue-600",
+      color: "bg-sky-50 text-indigo-900",
       buttonText: "Explore Study Opportunities",
       features: [
         "Sunday School Classes",
@@ -43,7 +43,7 @@ export function FindingYourPlace() {
       description: "Make a difference through serving others",
       icon: HandHeart,
       href: "/ministry-database?search=outreach",
-      color: "bg-green-50 text-green-600",
+      color: "bg-yellow-100 text-amber-300",
       buttonText: "Explore Opportunities to Serve",
       features: [
         "Community Partners",
@@ -69,7 +69,7 @@ export function FindingYourPlace() {
       description: "Share your resources to support our mission",
       icon: DollarSign,
       href: "/give",
-      color: "bg-yellow-50 text-yellow-600",
+      color: "bg-red-100 text-red-600",
       buttonText: "Learn More",
       features: [
         "Online Giving",
@@ -80,23 +80,23 @@ export function FindingYourPlace() {
   ];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16" style={{ background: 'linear-gradient(135deg, #115e59 0%, #1e3a8a 100%)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 font-serif">
+          <h2 className="text-4xl font-bold text-white mb-4 font-serif">
             Finding Your Place Here
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
             Discover the five areas of discipleship that help us grow in faith and serve our community.
           </p>
         </div>
 
         <div className="mb-12">
-          <div className="bg-blue-50 p-8 rounded-lg mb-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+          <div className="bg-stone-50 p-8 rounded-lg mb-8 max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold text-teal-800 mb-4 text-center">
               The Five Things
             </h3>
-            <p className="text-lg text-gray-700 text-center max-w-4xl mx-auto">
+            <p className="text-lg text-teal-800 text-center max-w-4xl mx-auto">
               Each year, usually in October, we challenge each person in our church to assess where they are 
               in these five areas of discipleship. These are opportunities to give of our time, our love, 
               and our financial resources.
@@ -111,14 +111,14 @@ export function FindingYourPlace() {
                     <div className={`p-3 rounded-full ${item.color} mr-4`}>
                       <item.icon className="h-6 w-6" />
                     </div>
-                    <h4 className="text-xl font-bold text-gray-900">{item.title}</h4>
+                    <h4 className="text-xl font-bold text-stone-900">{item.title}</h4>
                   </div>
                   
-                  <p className="text-gray-600 mb-4">{item.description}</p>
+                  <p className="text-stone-700 mb-4">{item.description}</p>
                   
                   <ul className="space-y-2 mb-6">
                     {item.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-sm text-gray-600">
+                      <li key={featureIndex} className="flex items-center text-sm text-stone-700">
                         <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-2"></div>
                         {feature}
                       </li>
@@ -139,7 +139,7 @@ export function FindingYourPlace() {
 
 
         <div className="text-center mt-8">
-          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+          <Button asChild size="lg" className="bg-white hover:bg-emerald-100 text-stone-700 px-8 py-3">
             <Link href="/ministry-database">
               Explore All FCC Ministries
             </Link>

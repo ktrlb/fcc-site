@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-gradient-teal-indigo {
+    background: linear-gradient(135deg, #115e59 0%, #1e3a8a 100%);
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: 0 0% 100%;

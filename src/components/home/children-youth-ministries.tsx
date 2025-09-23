@@ -10,7 +10,7 @@ export function ChildrenYouthMinistries() {
       description: "We provide a warm, safe, and nurturing environment for our youngest members. Our staffed nursery is available for children 3 and under. We also have a private mothers room if you need a quiet space with your little one.",
       icon: Baby,
       href: "/children/infants-toddlers",
-      color: "bg-pink-50 text-pink-600",
+      color: "bg-red-100 text-red-600",
       ageRange: "Birth - 3 years"
     },
     {
@@ -18,7 +18,7 @@ export function ChildrenYouthMinistries() {
       description: "Children are welcome to worship along with the congregation. They may sit in the front left pews or with their families. After communion, we encourage the children to join us in the Children's Worship Center for a child-focused way to engage our theme for the day. For the Sunday School hour, our Pathfinders Kids Club encourages play and creativity.",
       icon: Users,
       href: "/children/children",
-      color: "bg-blue-50 text-blue-600",
+      color: "bg-sky-50 text-indigo-900",
       ageRange: "Age 4 through 2nd grade"
     },
     {
@@ -26,19 +26,19 @@ export function ChildrenYouthMinistries() {
       description: "Our Chi-Rho program for middle schoolers and CYF program for high schoolers are where young disciples grow through love and service.",
       icon: Heart,
       href: "/children/youth",
-      color: "bg-green-50 text-green-600",
+      color: "bg-orange-200 text-amber-500",
       ageRange: "6th through 12th grade"
     }
   ];
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4">
             Children & Youth Ministries
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-stone-700 max-w-3xl mx-auto">
             We believe that children and youth are not just the future of the church, 
             but an integral part of our community today. Our ministries are designed 
             to nurture faith at every stage of development.
@@ -54,12 +54,12 @@ export function ChildrenYouthMinistries() {
                     <ministry.icon className="h-8 w-8" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900">{ministry.title}</h3>
-                    <p className="text-sm text-gray-500">{ministry.ageRange}</p>
+                    <h3 className="text-xl font-bold text-stone-900">{ministry.title}</h3>
+                    <p className="text-sm text-stone-600">{ministry.ageRange}</p>
                   </div>
                 </div>
                 
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <p className="text-stone-600 mb-6 leading-relaxed">
                   {ministry.description}
                 </p>
                 

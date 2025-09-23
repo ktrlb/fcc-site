@@ -14,13 +14,13 @@ export async function SeeYouOnSunday() {
   const sermonSeries = await getFeaturedSermonSeries();
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 font-serif">
+          <h2 className="text-4xl font-bold text-stone-700 mb-4 font-serif">
             See You On Sunday
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-stone-700 max-w-3xl mx-auto">
             Join us for worship, fellowship, and community as we gather together in faith.
           </p>
         </div>

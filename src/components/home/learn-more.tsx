@@ -28,13 +28,13 @@ export function LearnMore() {
   ];
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 font-serif">
+          <h2 className="text-4xl font-bold text-white mb-4 font-serif">
             Learn More About FCC
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-white max-w-3xl mx-auto">
             Discover our mission, meet our team, and learn about our rich history in the Granbury community.
           </p>
         </div>
@@ -43,10 +43,10 @@ export function LearnMore() {
           {/* Mission */}
           <Card className="p-8">
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Mission</h3>
+              <h3 className="text-2xl font-bold text-stone-900 mb-6">Our Mission</h3>
               
               <div className="space-y-6">
-                <p className="text-gray-600 text-lg">
+                <p className="text-stone-700 text-lg">
                   To share with ALL people the unconditional love of God that we experience in Jesus Christ our Lord.
                 </p>
               </div>
@@ -56,21 +56,21 @@ export function LearnMore() {
           {/* Vision */}
           <Card className="p-8">
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Our Vision</h3>
+              <h3 className="text-2xl font-bold text-stone-900 mb-6">Our Vision</h3>
               
               <div className="space-y-6">
-                <p className="text-gray-600 text-lg">
+                <p className="text-stone-700 text-lg">
                   Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
                 </p>
-                <div className="text-gray-600 space-y-4">
+                <div className="text-stone-700 space-y-4">
                   <p>
-                    <span className="font-semibold text-gray-800">Not pride and judgment,</span> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.
+                    <span className="font-semibold text-stone-700">Not pride and judgment,</span> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.
                   </p>
                   <p>
-                    <span className="font-semibold text-gray-800">Not easy answers,</span> but growing together through shared engagement with the scriptures and the hard questions of life and faith.
+                    <span className="font-semibold text-stone-700">Not easy answers,</span> but growing together through shared engagement with the scriptures and the hard questions of life and faith.
                   </p>
                   <p>
-                    <span className="font-semibold text-gray-800">Not a self-serving institution,</span> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.
+                    <span className="font-semibold text-stone-700">Not a self-serving institution,</span> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.
                   </p>
                 </div>
               </div>
@@ -80,20 +80,20 @@ export function LearnMore() {
 
         {/* Core Values */}
         <div className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Our Core Values</h3>
+          <h3 className="text-2xl font-bold text-white mb-8 text-center">Our Core Values</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {coreValues.map((value, index) => (
               <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
                   <div className="flex justify-center mb-4">
-                    <div className="p-3 bg-blue-100 rounded-full">
-                      <value.icon className="h-6 w-6 text-blue-600" />
+                    <div className="p-3 bg-red-100 rounded-full">
+                      <value.icon className="h-6 w-6 text-red-600" />
                     </div>
                   </div>
                   
-                  <h4 className="text-lg font-bold text-gray-900 mb-2">{value.title}</h4>
-                  <p className="text-gray-600 text-sm">{value.description}</p>
+                  <h4 className="text-lg font-bold text-stone-900 mb-2">{value.title}</h4>
+                  <p className="text-stone-700 text-sm">{value.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -101,7 +101,7 @@ export function LearnMore() {
         </div>
 
         <div className="text-center">
-          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
+          <Button asChild size="lg" className="bg-white hover:bg-red-100 text-stone-700 px-8 py-3">
             <Link href="/about">Learn More About Our Staff, History & Leadership</Link>
           </Button>
         </div>

@@ -42,13 +42,13 @@ export async function FeaturedAssets() {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4 font-serif">
+          <h2 className="text-4xl font-bold text-stone-900 mb-4 font-serif">
             Featured Resources
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-stone-600 max-w-3xl mx-auto">
             Download our latest resources, documents, and media to support your faith journey.
           </p>
         </div>
@@ -84,17 +84,17 @@ export async function FeaturedAssets() {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                      <h3 className="text-lg font-semibold text-stone-600 mb-2 line-clamp-2">
                         {asset.name}
                       </h3>
                       
                       {asset.description && (
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        <p className="text-stone-600 text-sm mb-3 line-clamp-2">
                           {asset.description}
                         </p>
                       )}
                       
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <div className="flex items-center justify-between text-sm text-stone-600 mb-4">
                         <span className="capitalize">{asset.type}</span>
                         {asset.fileSize && (
                           <span>{formatFileSize(asset.fileSize)}</span>
@@ -104,7 +104,7 @@ export async function FeaturedAssets() {
                       <Button 
                         asChild
                         size="sm" 
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        className="w-full bg-white hover:bg-sky-50 text-indigo-900"
                       >
                         <a 
                           href={asset.fileUrl}
