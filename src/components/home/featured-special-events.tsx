@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getFeaturedSpecialEvents } from "@/lib/content-queries";
 import Image from "next/image";
+import { ExpandableText } from "./expandable-text";
 
 export async function FeaturedSpecialEvents() {
   // Fetch featured special events from database
@@ -68,9 +69,12 @@ export async function FeaturedSpecialEvents() {
                 <h4 className="text-xl font-bold text-stone-900 mb-2">
                   {(event as { displayTitle?: string }).displayTitle || event.title}
                 </h4>
-                <p className="text-stone-900 mb-3">
-                  {event.specialEventNote || 'Join us for this special event.'}
-                </p>
+                <ExpandableText
+                  text={event.specialEventNote || 'Join us for this special event.'}
+                  collapsedChars={90}
+                  className="text-stone-900 mb-1"
+                  toggleClassName="text-sm text-indigo-700 hover:text-indigo-800 underline block ml-auto"
+                />
                 
                 <div className="space-y-1 text-sm text-stone-700">
                   {event.recurringDescription ? (

@@ -100,20 +100,19 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
       throw authError;
     }
 
-    // Get first day of current month and 6 months from now
+    // Get first day of current month and end of next year to capture all special events
     const now = new Date();
     const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const sixMonthsFromNow = new Date();
-    sixMonthsFromNow.setMonth(now.getMonth() + 6);
+    const endOfNextYear = new Date(now.getFullYear() + 1, 11, 31, 23, 59, 59); // December 31st of next year
 
     console.log('Fetching events from calendar:', calendarId);
-    console.log('Time range:', startOfCurrentMonth.toISOString(), 'to', sixMonthsFromNow.toISOString());
+    console.log('Time range:', startOfCurrentMonth.toISOString(), 'to', endOfNextYear.toISOString());
 
     // Fetch events
     const response = await calendar.events.list({
       calendarId: calendarId,
       timeMin: startOfCurrentMonth.toISOString(),
-      timeMax: sixMonthsFromNow.toISOString(),
+      timeMax: endOfNextYear.toISOString(),
       singleEvents: true, // This expands recurring events
       orderBy: 'startTime',
     });

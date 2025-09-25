@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronDown, ChevronUp, Clock, MapPin, Users, Calendar, X, Settings, Star } from 'lucide-react';
+import { Clock, MapPin, Users, Calendar, X, Settings, Star } from 'lucide-react';
 import { RecurringEvent, analyzeEvents, getWeeklySchedule } from '@/lib/event-analyzer';
 
 interface CalendarEvent {
@@ -66,7 +66,6 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     uniqueEvents: CalendarEvent[];
     weeklyPatterns: { [dayOfWeek: number]: RecurringEvent[] };
   } | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ministries, setMinistries] = useState<{
@@ -80,6 +79,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     description?: string;
     color?: string;
   }[]>([]);
+  const [recurringPatterns, setRecurringPatterns] = useState<any[]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
   // Check if screen is mobile-sized
@@ -118,6 +118,11 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     }
   }, [isAdminMode]);
 
+  // Always load recurring patterns so both public and admin mini-calendars use the same connections
+  useEffect(() => {
+    fetchRecurringPatterns();
+  }, []);
+
   const fetchMinistries = async () => {
     try {
       const response = await fetch('/api/ministries');
@@ -142,75 +147,171 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
     }
   };
 
+  const fetchRecurringPatterns = async () => {
+    try {
+      const res = await fetch('/api/recurring-events');
+      if (res.ok) {
+        const data = await res.json();
+        setRecurringPatterns(data.recurringEvents || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch recurring events patterns:', e);
+    }
+  };
+
+  // Helper function to get next occurrence date for recurring events
+  const getNextOccurrenceDate = (dayOfWeek: number, timeHHmm: string): Date => {
+    const now = new Date();
+    // Start from today in America/Chicago, then move to requested day
+    const chicagoNow = new Date(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      }).format(now).replace(/(\d{2})\/(\d{2})\/(\d{4}),\s(\d{2}):(\d{2})/, '$3-$1-$2T$4:$5:00')
+    );
+    const chicagoDay = chicagoNow.getDay();
+    const [hh, mm] = timeHHmm.split(':').map(Number);
+    const delta = (dayOfWeek - chicagoDay + 7) % 7;
+    chicagoNow.setDate(chicagoNow.getDate() + delta);
+    chicagoNow.setHours(hh, mm, 0, 0);
+    return chicagoNow;
+  };
+
   const handleEventClick = async (recurringEvent: RecurringEvent) => {
-    // Find the original event from the events array that matches this recurring event
-    const originalEvent = events.find(event => {
-      // Convert to Chicago timezone for consistent matching
-      const eventDate = new Date(event.start);
-      
-      // Use Intl.DateTimeFormat to get Chicago timezone components
-      const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'America/Chicago',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-      
-      const timeParts = chicagoFormatter.formatToParts(eventDate);
-      const eventTime = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
-      
-      // Get day of week using a separate formatter
-      const dayFormatter = new Intl.DateTimeFormat('en-US', {
-        timeZone: 'America/Chicago',
-        weekday: 'long'
-      });
-      const dayName = dayFormatter.format(eventDate);
-      const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
-      const eventTitle = event.title;
-      const eventLocation = event.location || '';
-      
-      return eventTitle === recurringEvent.title && 
-             eventTime === recurringEvent.time && 
-             eventLocation === (recurringEvent.location || '') &&
-             dayOfWeek === recurringEvent.dayOfWeek;
+    console.log('Mini-calendar recurring event clicked:', {
+      title: recurringEvent.title,
+      ministryTeamId: recurringEvent.ministryTeamId,
+      specialEventId: recurringEvent.specialEventId,
+      isSpecialEvent: recurringEvent.isSpecialEvent
     });
 
-    if (originalEvent) {
-      console.log('Mini-calendar event clicked:', {
-        title: originalEvent.title,
-        ministryConnection: originalEvent.ministryConnection,
-        ministryInfo: originalEvent.ministryInfo,
-        specialEventInfo: originalEvent.specialEventInfo
-      });
-      
-      // First set the basic event data
-      setSelectedEvent(originalEvent);
-      setIsModalOpen(true);
-      
-      // Then fetch any saved connections from the database
+    // Try to enrich from cached recurring patterns (admin wants pattern-based linkage)
+    const norm = (s?: string) => (s || '').trim().toLowerCase();
+    const match = recurringPatterns.find((p: any) => {
+      const titleEq = norm(p.title) === norm(recurringEvent.title);
+      const dowEq = parseInt(p.dayOfWeek as string) === recurringEvent.dayOfWeek;
+      const timeEq = norm(p.time) === norm(recurringEvent.time);
+      const locA = norm(p.location);
+      const locB = norm(recurringEvent.location);
+      const locEq = locA === locB || !locA || !locB; // treat empty/undefined as equivalent
+      return titleEq && dowEq && timeEq && locEq;
+    }) || {};
+
+    // Create a calendar event from the recurring event with stored connections
+    const calendarEvent: CalendarEvent = {
+      id: `${recurringEvent.title}-${recurringEvent.dayOfWeek}-${recurringEvent.time}`,
+      title: recurringEvent.title,
+      start: getNextOccurrenceDate(recurringEvent.dayOfWeek, recurringEvent.time),
+      end: getNextOccurrenceDate(recurringEvent.dayOfWeek, recurringEvent.time),
+      location: recurringEvent.location,
+      allDay: false,
+      recurring: true,
+      ministryConnection: recurringEvent.ministryConnection,
+      ministryTeamId: match.ministryTeamId ?? recurringEvent.ministryTeamId,
+      specialEventId: match.specialEventId ?? recurringEvent.specialEventId,
+      isSpecialEvent: (match.isSpecialEvent ?? recurringEvent.isSpecialEvent) || false,
+      specialEventNote: match.specialEventNote ?? recurringEvent.specialEventNote,
+      specialEventImage: match.specialEventImage ?? recurringEvent.specialEventImage,
+      contactPerson: match.contactPerson ?? recurringEvent.contactPerson,
+      recurringDescription: match.recurringDescription ?? recurringEvent.recurringDescription,
+      endsBy: match.endsBy ?? recurringEvent.endsBy,
+      featuredOnHomePage: (match.featuredOnHomePage ?? recurringEvent.featuredOnHomePage) || false,
+      isExternal: (match.isExternal ?? recurringEvent.isExternal) || false,
+    };
+
+    // Set the event and open modal
+    setSelectedEvent(calendarEvent);
+    setIsModalOpen(true);
+
+    // Fetch ministry and special event details if IDs are present
+    let effectiveMinistryTeamId = calendarEvent.ministryTeamId;
+    let effectiveSpecialEventId = calendarEvent.specialEventId;
+
+    // Fallback: if IDs missing after cache match, query by pattern
+    if (!effectiveMinistryTeamId && !effectiveSpecialEventId) {
       try {
-        const response = await fetch(`/api/admin/calendar-events/by-google-id/${originalEvent.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.event) {
-            // Merge the saved connections with the Google Calendar event data
-            setSelectedEvent({
-              ...originalEvent,
-              specialEventId: data.event.specialEventId,
-              ministryTeamId: data.event.ministryTeamId,
-              isSpecialEvent: data.event.isSpecialEvent,
-              isExternal: data.event.isExternal,
-              specialEventNote: data.event.specialEventNote,
-              specialEventImage: data.event.specialEventImage,
-              contactPerson: data.event.contactPerson,
-              recurringDescription: data.event.recurringDescription,
-              endsBy: data.event.endsBy,
-              featuredOnHomePage: data.event.featuredOnHomePage,
-            });
+        const body = {
+          title: recurringEvent.title,
+          dayOfWeek: recurringEvent.dayOfWeek,
+          time: recurringEvent.time,
+          location: recurringEvent.location || ''
+        };
+        const resp = await fetch('/api/calendar/events/by-recurring', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          effectiveMinistryTeamId = data?.event?.ministryTeamId || null;
+          effectiveSpecialEventId = data?.event?.specialEventId || null;
+          if (effectiveMinistryTeamId || effectiveSpecialEventId) {
+            setSelectedEvent(prev => prev ? {
+              ...prev,
+              ministryTeamId: effectiveMinistryTeamId || undefined,
+              specialEventId: effectiveSpecialEventId || undefined,
+              isSpecialEvent: data?.event?.isSpecialEvent ?? prev.isSpecialEvent,
+              specialEventNote: data?.event?.specialEventNote ?? prev.specialEventNote,
+              specialEventImage: data?.event?.specialEventImage ?? prev.specialEventImage,
+              contactPerson: data?.event?.contactPerson ?? prev.contactPerson,
+              recurringDescription: data?.event?.recurringDescription ?? prev.recurringDescription,
+              endsBy: data?.event?.endsBy ?? prev.endsBy,
+              featuredOnHomePage: data?.event?.featuredOnHomePage ?? prev.featuredOnHomePage,
+            } : prev);
           }
         }
-      } catch (error) {
-        console.error('Failed to fetch saved connections:', error);
+      } catch (e) {
+        console.error('Pattern lookup failed:', e);
+      }
+    }
+
+    if (effectiveMinistryTeamId) {
+      try {
+        const teamRes = await fetch(`/api/ministries/${effectiveMinistryTeamId}`);
+        if (teamRes.ok) {
+          const teamData = await teamRes.json();
+          if (teamData.team) {
+            setSelectedEvent((prev) => prev ? {
+              ...prev,
+              ministryInfo: {
+                id: teamData.team.id,
+                name: teamData.team.name,
+                description: teamData.team.description,
+                imageUrl: teamData.team.imageUrl,
+                contactPerson: teamData.team.contactPerson,
+                contactEmail: teamData.team.contactEmail,
+                contactPhone: teamData.team.contactPhone,
+              }
+            } : prev);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch ministry team info:', e);
+      }
+    }
+
+    if (effectiveSpecialEventId) {
+      try {
+        const seRes = await fetch(`/api/special-events/${effectiveSpecialEventId}`);
+        if (seRes.ok) {
+          const seData = await seRes.json();
+          if (seData.event) {
+            setSelectedEvent((prev) => prev ? {
+              ...prev,
+              specialEventInfo: {
+                id: seData.event.id,
+                name: seData.event.name,
+                description: seData.event.description,
+                imageUrl: seData.event.imageUrl,
+                color: seData.event.color,
+                contactPerson: seData.event.contactPerson,
+              }
+            } : prev);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch special event info:', e);
       }
     }
   };
@@ -308,9 +409,16 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
       'prayer': 'bg-red-100 text-red-800 border-red-200',
       'fellowship': 'bg-yellow-100 text-yellow-800 border-yellow-200',
       'missions': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      'special': 'bg-pink-100 text-pink-800 border-pink-200',
       'default': 'bg-gray-100 text-gray-800 border-gray-200'
     };
     
+    // Check if it's a special event first
+    if (event.isSpecialEvent) {
+      return colors.special;
+    }
+    
+    // Then check ministry connection
     return colors[event.ministryConnection as keyof typeof colors] || colors.default;
   };
 
@@ -330,19 +438,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
   return (
     <Card className="mb-6">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">
-            Weekly Recurring Events
-          </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="h-8 w-8 p-0"
-          >
-            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </Button>
-        </div>
+        <CardTitle className="text-lg">Weekly Recurring Events</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -436,51 +532,13 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
             })}
           </div>
 
-          {/* Ministry Connections Summary */}
-          {isExpanded && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <h4 className="font-semibold text-gray-900 mb-3">Ministry Connections Summary</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {Array.from(new Set(analysis.recurringEvents
-                  .map(e => e.ministryConnection)
-                  .filter(Boolean)
-                )).map((ministry, index) => (
-                  <div key={index} className="p-3 rounded-lg border bg-white">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{getMinistryIcon(ministry)}</span>
-                      <span className="font-medium text-sm capitalize">{ministry}</span>
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      {analysis.recurringEvents.filter(e => e.ministryConnection === ministry).length} recurring events
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Pattern Analysis */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <h5 className="font-medium text-gray-900 mb-2">Pattern Analysis</h5>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <div className="text-sm font-medium text-blue-900">Total Recurring Events</div>
-                    <div className="text-2xl font-bold text-blue-700">{analysis.recurringEvents.length}</div>
-                  </div>
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <div className="text-sm font-medium text-green-900">Average Confidence</div>
-                    <div className="text-2xl font-bold text-green-700">
-                      {Math.round(analysis.recurringEvents.reduce((acc, e) => acc + e.confidence, 0) / analysis.recurringEvents.length * 100)}%
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Removed Ministry Connections Summary and toggle */}
         </div>
       </CardContent>
       
       {/* Event Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className={isAdminMode ? "max-w-2xl max-h-[90vh] overflow-y-auto" : "max-w-md"}>
+        <DialogContent className={isAdminMode ? "max-w-2xl max-h-[90vh] overflow-y-auto" : "max-w-md max-h-[90vh] overflow-y-auto"}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {isAdminMode ? (
@@ -604,7 +662,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                 </div>
                 
                 
-                {(selectedEvent.ministryInfo || selectedEvent.specialEventInfo) && (
+                {(selectedEvent.ministryInfo || selectedEvent.specialEventInfo || selectedEvent.specialEventNote || selectedEvent.specialEventImage) && (
                   <div className="pt-4 border-t border-gray-200">
                     
                     {selectedEvent.ministryInfo && (
@@ -660,6 +718,30 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                           <div className="flex items-center gap-2 text-sm text-gray-600">
                             <Users className="h-4 w-4" />
                             <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Fallback render for special event data saved on the event (no specialEventInfo object) */}
+                    {!selectedEvent.specialEventInfo && (selectedEvent.specialEventImage || selectedEvent.specialEventNote) && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        {selectedEvent.specialEventImage && (
+                          <div className="mb-3">
+                            <img
+                              src={selectedEvent.specialEventImage}
+                              alt={selectedEvent.title}
+                              className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                            />
+                          </div>
+                        )}
+                        {selectedEvent.specialEventNote && (
+                          <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventNote}</p>
+                        )}
+                        {selectedEvent.contactPerson && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Users className="h-4 w-4" />
+                            <span>Contact: {selectedEvent.contactPerson}</span>
                           </div>
                         )}
                       </div>

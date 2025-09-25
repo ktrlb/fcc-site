@@ -71,11 +71,13 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     description?: string; 
     color?: string 
   }>>([]);
+  const [recurringEventsData, setRecurringEventsData] = useState<any[]>([]);
 
   useEffect(() => {
     fetchEvents();
     fetchMinistries();
     fetchSpecialEvents();
+    fetchRecurringEvents();
   }, []);
 
   const fetchEvents = async () => {
@@ -171,6 +173,18 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     }
   };
 
+  const fetchRecurringEvents = async () => {
+    try {
+      const response = await fetch('/api/recurring-events');
+      if (response.ok) {
+        const data = await response.json();
+        setRecurringEventsData(data.recurringEvents || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch recurring events:', error);
+    }
+  };
+
   const handleEventClick = async (event: CalendarEvent) => {
     // First set the basic event data
     setSelectedEvent(event);
@@ -184,15 +198,13 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
         if (data.event) {
           console.log('CalendarAdminDashboard: Loaded event data from database:', {
             title: event.title,
-            isSpecialEvent: data.event.isSpecialEvent,
-            isExternal: data.event.isExternal,
-            specialEventImage: data.event.specialEventImage,
-            specialEventNote: data.event.specialEventNote,
-            contactPerson: data.event.contactPerson
+            ministryTeamId: data.event.ministryTeamId,
+            specialEventId: data.event.specialEventId,
+            isSpecialEvent: data.event.isSpecialEvent
           });
           
           // Merge the saved connections with the Google Calendar event data
-          setSelectedEvent({
+          const updatedEvent = {
             ...event,
             specialEventId: data.event.specialEventId,
             ministryTeamId: data.event.ministryTeamId,
@@ -204,7 +216,11 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
             recurringDescription: data.event.recurringDescription,
             endsBy: data.event.endsBy,
             featuredOnHomePage: data.event.featuredOnHomePage,
-          });
+          };
+          
+          setSelectedEvent(updatedEvent);
+        } else {
+          console.log('CalendarAdminDashboard: No saved connections found for event:', event.title);
         }
       }
     } catch (error) {
@@ -218,15 +234,13 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     try {
       console.log('Saving event data:', eventData);
       
-      // For now, we'll always create a new database entry since we don't have a lookup by googleEventId
-      // In the future, we could add a GET endpoint that searches by googleEventId
       const createResponse = await fetch('/api/admin/calendar-events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          googleEventId: selectedEvent.id, // Use Google Calendar ID as the identifier
+          googleEventId: selectedEvent.id,
           title: selectedEvent.title,
           description: selectedEvent.description,
           location: selectedEvent.location,
@@ -273,7 +287,6 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
       console.log('Event saved successfully');
     } catch (error) {
       console.error('Failed to save event:', error);
-      // You might want to show an error message to the user here
     }
   };
 
@@ -593,17 +606,18 @@ interface AdminEventEditFormProps {
 
 function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel }: AdminEventEditFormProps) {
   const [formData, setFormData] = useState({
-    specialEventId: event.specialEventId || 'none',
-    ministryTeamId: event.ministryTeamId || 'none',
-    isSpecialEvent: event.isSpecialEvent || false,
-    isExternal: event.isExternal || false,
-    specialEventNote: event.specialEventNote || '',
-    featuredOnHomePage: event.featuredOnHomePage || false,
-    specialEventImage: event.specialEventImage || '',
-    contactPerson: event.contactPerson || '',
-    recurringDescription: event.recurringDescription || '',
-    endsBy: event.endsBy || '',
+    specialEventId: 'none',
+    ministryTeamId: 'none',
+    isSpecialEvent: false,
+    isExternal: false,
+    specialEventNote: '',
+    featuredOnHomePage: false,
+    specialEventImage: '',
+    contactPerson: '',
+    recurringDescription: '',
+    endsBy: '',
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Update form data when event changes (when saved connections are loaded)
   useEffect(() => {
@@ -612,7 +626,9 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       isSpecialEvent: event.isSpecialEvent,
       specialEventImage: event.specialEventImage,
       specialEventNote: event.specialEventNote,
-      contactPerson: event.contactPerson
+      contactPerson: event.contactPerson,
+      ministryTeamId: event.ministryTeamId,
+      specialEventId: event.specialEventId
     });
     
     setFormData({
@@ -627,6 +643,15 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       recurringDescription: event.recurringDescription || '',
       endsBy: event.endsBy || '',
     });
+    
+    console.log('AdminEventEditForm: Form data set to:', {
+      specialEventId: event.specialEventId || 'none',
+      ministryTeamId: event.ministryTeamId || 'none',
+      isSpecialEvent: event.isSpecialEvent || false,
+      isExternal: event.isExternal || false,
+    });
+    
+    setIsLoading(false);
   }, [event]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -639,6 +664,15 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
     };
     onSave(saveData);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+        <span className="ml-2 text-gray-600">Loading event connections...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

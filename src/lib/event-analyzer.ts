@@ -28,6 +28,17 @@ export interface RecurringEvent {
   confidence: number; // 0-1, how confident we are this is recurring
   eventIds: string[]; // IDs of events that match this pattern
   ministryConnection?: string; // Link to ministry if detected
+  // Add ministry and special event connection fields for persistent connections
+  ministryTeamId?: string;
+  specialEventId?: string;
+  isSpecialEvent?: boolean;
+  specialEventNote?: string;
+  specialEventImage?: string;
+  contactPerson?: string;
+  recurringDescription?: string;
+  endsBy?: Date;
+  featuredOnHomePage?: boolean;
+  isExternal?: boolean;
 }
 
 export interface EventAnalysis {

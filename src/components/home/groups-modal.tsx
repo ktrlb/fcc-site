@@ -131,6 +131,29 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
   };
 
   const handleEventClick = async (recurringEvent: RecurringEvent) => {
+    console.log('=== EVENT CLICKED ===');
+    console.log('Clicked recurring event:', recurringEvent);
+    console.log('Available events count:', events.length);
+    console.log('Events with same title:', events.filter(e => e.title === recurringEvent.title).map(e => ({ id: e.id, title: e.title, start: e.start })));
+    
+    function getNextOccurrenceDate(dayOfWeek: number, timeHHmm: string): Date {
+      const now = new Date();
+      // Start from today in America/Chicago, then move to requested day
+      const chicagoNow = new Date(
+        new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Chicago',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false
+        }).format(now).replace(/(\d{2})\/(\d{2})\/(\d{4}),\s(\d{2}):(\d{2})/, '$3-$1-$2T$4:$5:00')
+      );
+      const chicagoDay = chicagoNow.getDay();
+      const [hh, mm] = timeHHmm.split(':').map(Number);
+      const delta = (dayOfWeek - chicagoDay + 7) % 7;
+      chicagoNow.setDate(chicagoNow.getDate() + delta);
+      chicagoNow.setHours(hh, mm, 0, 0);
+      return chicagoNow;
+    }
+
     // Find the original event from the events array that matches this recurring event
     const originalEvent = events.find(event => {
       // Convert to Chicago timezone for consistent matching
@@ -163,9 +186,14 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
              dayOfWeek === recurringEvent.dayOfWeek;
     });
 
+    console.log('=== MATCHING RESULT ===');
+    console.log('Found original event:', !!originalEvent);
     if (originalEvent) {
       console.log('Groups modal event clicked:', {
+        id: originalEvent.id,
         title: originalEvent.title,
+        start: originalEvent.start,
+        location: originalEvent.location,
         ministryConnection: originalEvent.ministryConnection,
         ministryInfo: originalEvent.ministryInfo,
         specialEventInfo: originalEvent.specialEventInfo
@@ -177,7 +205,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
       
       // Then fetch any saved connections from the database
       try {
-        const response = await fetch(`/api/admin/calendar-events/by-google-id/${originalEvent.id}`);
+        const response = await fetch(`/api/calendar/events/by-google-id/${originalEvent.id}`);
         if (response.ok) {
           const data = await response.json();
           if (data.event) {
@@ -194,10 +222,244 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
               endsBy: data.event.endsBy,
               featuredOnHomePage: data.event.featuredOnHomePage,
             });
+
+            // If ministryTeamId exists, fetch ministry info for richer modal
+            if (data.event.ministryTeamId) {
+              try {
+                const teamRes = await fetch(`/api/ministries/${data.event.ministryTeamId}`);
+                if (teamRes.ok) {
+                  const teamData = await teamRes.json();
+                  if (teamData.team) {
+                    setSelectedEvent((prev) => prev ? {
+                      ...prev,
+                      ministryInfo: {
+                        id: teamData.team.id,
+                        name: teamData.team.name,
+                        description: teamData.team.description,
+                        imageUrl: teamData.team.imageUrl,
+                        contactPerson: teamData.team.contactPerson,
+                        contactEmail: teamData.team.contactEmail,
+                        contactPhone: teamData.team.contactPhone,
+                      }
+                    } : prev);
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to fetch ministry team info:', e);
+              }
+            } else {
+              // Fallback: try resolve a team by name similarity from all ministries
+              try {
+                const listRes = await fetch('/api/ministries');
+                if (listRes.ok) {
+                  const listData = await listRes.json();
+                  const teams: Array<{ id: string; name: string; description?: string; image_url?: string; imageUrl?: string }>
+                    = listData.ministries || [];
+                  const title = originalEvent.title.toLowerCase();
+                  const guess = teams.find(t => title.includes((t.name || '').toLowerCase()))
+                    || teams.find(t => (t.name || '').toLowerCase().includes('respite'))
+                    || null;
+                  if (guess) {
+                    setSelectedEvent((prev) => prev ? {
+                      ...prev,
+                      ministryInfo: {
+                        id: guess.id,
+                        name: guess.name,
+                        description: (guess as any).description ?? null,
+                        imageUrl: (guess as any).imageUrl ?? (guess as any).image_url ?? null,
+                      }
+                    } : prev);
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to resolve ministry by name:', e);
+              }
+            }
+
+            // If specialEventId exists, fetch special event info too
+            if (data.event.specialEventId) {
+              try {
+                console.log('[GroupsModal] fetch special event (live):', data.event.specialEventId);
+                const seRes = await fetch(`/api/special-events/${data.event.specialEventId}`);
+                if (seRes.ok) {
+                  const seData = await seRes.json();
+                  console.log('[GroupsModal] special event response (live):', seData);
+                  if (seData.event) {
+                    setSelectedEvent((prev) => prev ? {
+                      ...prev,
+                      specialEventInfo: {
+                        id: seData.event.id,
+                        name: seData.event.name,
+                        description: seData.event.description,
+                        imageUrl: seData.event.imageUrl,
+                        color: seData.event.color,
+                      }
+                    } : prev);
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to fetch special event info:', e);
+              }
+            } else if (data.event?.isSpecialEvent) {
+              console.warn('[GroupsModal] Event marked as special but missing specialEventId. Cannot load special event details.');
+            }
           }
         }
       } catch (error) {
         console.error('Failed to fetch saved connections:', error);
+      }
+    }
+
+    // If no live match, try server-side recurring lookup to get manual links
+    if (!originalEvent) {
+      console.log('[GroupsModal] No live event match. Trying recurring lookup...');
+      try {
+        const recurRes = await fetch('/api/calendar/events/by-recurring', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: recurringEvent.title,
+            dayOfWeek: recurringEvent.dayOfWeek,
+            time: recurringEvent.time,
+            location: recurringEvent.location || ''
+          })
+        });
+        if (recurRes.ok) {
+          const recurData = await recurRes.json();
+          console.log('[GroupsModal] Recurring lookup result:', recurData);
+          if (recurData?.event) {
+            const fallbackEvent: CalendarEvent = {
+              id: recurData.event.googleEventId || `${recurringEvent.title}-${recurringEvent.dayOfWeek}-${recurringEvent.time}`,
+              title: recurringEvent.title,
+              start: getNextOccurrenceDate(recurringEvent.dayOfWeek, recurringEvent.time),
+              end: getNextOccurrenceDate(recurringEvent.dayOfWeek, recurringEvent.time),
+              location: recurringEvent.location,
+              allDay: false,
+              recurring: true,
+              ministryConnection: (recurringEvent as unknown as { ministryConnection?: string }).ministryConnection,
+              specialEventId: recurData.event.specialEventId,
+              ministryTeamId: recurData.event.ministryTeamId,
+              isSpecialEvent: recurData.event.isSpecialEvent,
+              specialEventNote: recurData.event.specialEventNote,
+              specialEventImage: recurData.event.specialEventImage,
+              contactPerson: recurData.event.contactPerson,
+              recurringDescription: recurData.event.recurringDescription,
+              endsBy: recurData.event.endsBy,
+              featuredOnHomePage: recurData.event.featuredOnHomePage,
+            };
+            setSelectedEvent(fallbackEvent);
+            setIsEventModalOpen(true);
+
+            // Fetch linked ministry info when present
+            if (recurData.event.ministryTeamId) {
+              try {
+                console.log('[GroupsModal] fetch ministry team (recurring):', recurData.event.ministryTeamId);
+                const teamRes = await fetch(`/api/ministries/${recurData.event.ministryTeamId}`);
+                if (teamRes.ok) {
+                  const teamData = await teamRes.json();
+                  console.log('[GroupsModal] ministry team response (recurring):', teamData);
+                  if (teamData.team) {
+                    setSelectedEvent((prev) => prev ? {
+                      ...prev,
+                      ministryInfo: {
+                        id: teamData.team.id,
+                        name: teamData.team.name,
+                        description: teamData.team.description,
+                        imageUrl: teamData.team.imageUrl,
+                        contactPerson: teamData.team.contactPerson,
+                        contactEmail: teamData.team.contactEmail,
+                        contactPhone: teamData.team.contactPhone,
+                      }
+                    } : prev);
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to fetch ministry team info (recurring):', e);
+              }
+            }
+
+            // Fetch linked special event info when present
+            if (recurData.event.specialEventId) {
+              try {
+                console.log('[GroupsModal] fetch special event (recurring):', recurData.event.specialEventId);
+                const seRes = await fetch(`/api/special-events/${recurData.event.specialEventId}`);
+                if (seRes.ok) {
+                  const seData = await seRes.json();
+                  console.log('[GroupsModal] special event response (recurring):', seData);
+                  if (seData.event) {
+                    setSelectedEvent((prev) => prev ? {
+                      ...prev,
+                      specialEventInfo: {
+                        id: seData.event.id,
+                        name: seData.event.name,
+                        description: seData.event.description,
+                        imageUrl: seData.event.imageUrl,
+                        color: seData.event.color,
+                      }
+                    } : prev);
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to fetch special event info (recurring):', e);
+              }
+            }
+            return;
+          }
+        } else {
+          console.warn('[GroupsModal] Recurring lookup failed with status:', recurRes.status);
+        }
+      } catch (err) {
+        console.error('[GroupsModal] Recurring lookup error:', err);
+      }
+
+      // Final minimal fallback so details modal still opens
+      console.log('[GroupsModal] Using final minimal fallback event.');
+      const minimalEvent: CalendarEvent = {
+        id: `${recurringEvent.title}-${recurringEvent.dayOfWeek}-${recurringEvent.time}`,
+        title: recurringEvent.title,
+        start: getNextOccurrenceDate(recurringEvent.dayOfWeek, recurringEvent.time),
+        end: getNextOccurrenceDate(recurringEvent.dayOfWeek, recurringEvent.time),
+        location: recurringEvent.location,
+        allDay: false,
+        recurring: true,
+        ministryConnection: (recurringEvent as unknown as { ministryConnection?: string }).ministryConnection,
+        ministryTeamId: (recurringEvent as unknown as { ministryTeamId?: string }).ministryTeamId,
+        // Carry special event data from the cached recurring pattern when available
+        isSpecialEvent: (recurringEvent as unknown as { isSpecialEvent?: boolean }).isSpecialEvent,
+        specialEventImage: (recurringEvent as unknown as { specialEventImage?: string }).specialEventImage,
+        specialEventNote: (recurringEvent as unknown as { specialEventNote?: string }).specialEventNote,
+        contactPerson: (recurringEvent as unknown as { contactPerson?: string }).contactPerson,
+        recurringDescription: (recurringEvent as unknown as { recurringDescription?: string }).recurringDescription,
+        featuredOnHomePage: (recurringEvent as unknown as { featuredOnHomePage?: boolean }).featuredOnHomePage,
+      };
+      setSelectedEvent(minimalEvent);
+      setIsEventModalOpen(true);
+
+      // If the cached recurring event carries a ministryTeamId, fetch details to render in modal
+      try {
+        const cachedTeamId = (recurringEvent as unknown as { ministryTeamId?: string }).ministryTeamId;
+        if (cachedTeamId) {
+          const teamRes = await fetch(`/api/ministries/${cachedTeamId}`);
+          if (teamRes.ok) {
+            const teamData = await teamRes.json();
+            if (teamData.team) {
+              setSelectedEvent((prev) => prev ? {
+                ...prev,
+                ministryInfo: {
+                  id: teamData.team.id,
+                  name: teamData.team.name,
+                  description: teamData.team.description,
+                  imageUrl: teamData.team.imageUrl,
+                  contactPerson: teamData.team.contactPerson,
+                  contactEmail: teamData.team.contactEmail,
+                  contactPhone: teamData.team.contactPhone,
+                }
+              } : prev);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch ministry team info (cached minimal fallback):', e);
       }
     }
   };
@@ -345,7 +607,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
 
       {/* Event Details Modal */}
       <Dialog open={isEventModalOpen} onOpenChange={setIsEventModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
@@ -389,7 +651,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
               </div>
               
               
-              {(selectedEvent.ministryInfo || selectedEvent.specialEventInfo) && (
+              {(selectedEvent.ministryInfo || selectedEvent.specialEventInfo || selectedEvent.specialEventImage || selectedEvent.specialEventNote) && (
                 <div className="pt-4 border-t border-gray-200">
                   
                   {selectedEvent.ministryInfo && (
@@ -445,6 +707,30 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Users className="h-4 w-4" />
                           <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Fallback render for special event data saved directly on the event when specialEventInfo is not available */}
+                  {!selectedEvent.specialEventInfo && (selectedEvent.specialEventImage || selectedEvent.specialEventNote) && (
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      {selectedEvent.specialEventImage && (
+                        <div className="mb-3">
+                          <img
+                            src={selectedEvent.specialEventImage}
+                            alt={selectedEvent.title}
+                            className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                          />
+                        </div>
+                      )}
+                      {selectedEvent.specialEventNote && (
+                        <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventNote}</p>
+                      )}
+                      {selectedEvent.contactPerson && (
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Users className="h-4 w-4" />
+                          <span>Contact: {selectedEvent.contactPerson}</span>
                         </div>
                       )}
                     </div>

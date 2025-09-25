@@ -15,6 +15,16 @@ export interface CachedRecurringEvent {
   frequency: string;
   confidence: number;
   ministryConnection?: string;
+  // Add ministry and special event connection fields
+  ministryTeamId?: string;
+  specialEventId?: string;
+  isSpecialEvent?: boolean;
+  specialEventNote?: string;
+  specialEventImage?: string;
+  contactPerson?: string;
+  recurringDescription?: string;
+  endsBy?: Date;
+  featuredOnHomePage?: boolean;
   eventIds: string[];
   isExternal?: boolean;
   lastAnalyzed: Date;
@@ -40,6 +50,15 @@ export class RecurringEventsCacheService {
       frequency: event.frequency,
       confidence: parseFloat(event.confidence),
       ministryConnection: event.ministryConnection || undefined,
+      ministryTeamId: (event as any).ministryTeamId || undefined,
+      specialEventId: (event as any).specialEventId || undefined,
+      isSpecialEvent: (event as any).isSpecialEvent || false,
+      specialEventNote: (event as any).specialEventNote || undefined,
+      specialEventImage: (event as any).specialEventImage || undefined,
+      contactPerson: (event as any).contactPerson || undefined,
+      recurringDescription: (event as any).recurringDescription || undefined,
+      endsBy: (event as any).endsBy || undefined,
+      featuredOnHomePage: (event as any).featuredOnHomePage || false,
       eventIds: event.eventIds || [],
       isExternal: (event as any).isExternal || false,
       lastAnalyzed: event.lastAnalyzed,
@@ -82,7 +101,7 @@ export class RecurringEventsCacheService {
 
       // Insert new recurring events into cache
       if (analysis.recurringEvents.length > 0) {
-        const cachePromises = analysis.recurringEvents.map(recurringEvent => {
+        const cachePromises = analysis.recurringEvents.map(async (recurringEvent) => {
           const seriesKey = [
             (recurringEvent.title || '').trim(),
             recurringEvent.dayOfWeek,
@@ -90,6 +109,54 @@ export class RecurringEventsCacheService {
             (recurringEvent.location || '').trim(),
           ].join('|');
           const isExternal = externalSeriesKeys.has(seriesKey);
+          
+          // Look up ministry connections from calendar_events table
+          let ministryConnection = recurringEvent.ministryConnection;
+          let ministryTeamId = null;
+          let specialEventId = null;
+          let isSpecialEvent = false;
+          let specialEventNote = null;
+          let specialEventImage = null;
+          let contactPerson = null;
+          let recurringDescription = null;
+          let endsBy = null;
+          let featuredOnHomePage = false;
+
+          // Try to find a matching calendar event with ministry connections
+          if (recurringEvent.eventIds && recurringEvent.eventIds.length > 0) {
+            try {
+              const { calendarEvents } = await import('./schema');
+              const { eq, or } = await import('drizzle-orm');
+              
+              const matchingEvent = await db
+                .select()
+                .from(calendarEvents)
+                .where(
+                  or(
+                    ...recurringEvent.eventIds.map(eventId => 
+                      eq(calendarEvents.googleEventId, eventId)
+                    )
+                  )
+                )
+                .limit(1);
+
+              if (matchingEvent.length > 0) {
+                const event = matchingEvent[0];
+                ministryTeamId = event.ministryTeamId;
+                specialEventId = event.specialEventId;
+                isSpecialEvent = event.isSpecialEvent || false;
+                specialEventNote = event.specialEventNote;
+                specialEventImage = event.specialEventImage;
+                contactPerson = event.contactPerson;
+                recurringDescription = event.recurringDescription;
+                endsBy = event.endsBy;
+                featuredOnHomePage = event.featuredOnHomePage || false;
+              }
+            } catch (error) {
+              console.warn('Failed to lookup ministry connections for recurring event:', error);
+            }
+          }
+
           return db.insert(recurringEventsCache).values({
             title: recurringEvent.title,
             dayOfWeek: recurringEvent.dayOfWeek.toString(),
@@ -98,7 +165,16 @@ export class RecurringEventsCacheService {
             description: recurringEvent.description,
             frequency: recurringEvent.frequency,
             confidence: recurringEvent.confidence.toString(),
-            ministryConnection: recurringEvent.ministryConnection,
+            ministryConnection,
+            ministryTeamId,
+            specialEventId,
+            isSpecialEvent,
+            specialEventNote,
+            specialEventImage,
+            contactPerson,
+            recurringDescription,
+            endsBy,
+            featuredOnHomePage,
             eventIds: recurringEvent.eventIds,
             isExternal,
             lastAnalyzed: new Date(),
@@ -106,7 +182,7 @@ export class RecurringEventsCacheService {
         });
 
         await Promise.all(cachePromises);
-        console.log(`Cached ${analysis.recurringEvents.length} recurring event patterns`);
+        console.log(`Cached ${analysis.recurringEvents.length} recurring event patterns with ministry connections`);
       }
 
       // Return the cached events

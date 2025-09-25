@@ -167,6 +167,16 @@ export const recurringEventsCache = pgTable('recurring_events_cache', {
   frequency: varchar('frequency', { length: 20 }).default('weekly').notNull(),
   confidence: varchar('confidence', { length: 20 }).notNull(), // 0-1 as string
   ministryConnection: varchar('ministry_connection', { length: 100 }),
+  // Add ministry and special event ID fields for persistent connections
+  ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id),
+  specialEventId: uuid('special_event_id').references(() => specialEvents.id),
+  isSpecialEvent: boolean('is_special_event').default(false).notNull(),
+  specialEventNote: text('special_event_note'),
+  specialEventImage: varchar('special_event_image', { length: 500 }),
+  contactPerson: varchar('contact_person', { length: 255 }),
+  recurringDescription: varchar('recurring_description', { length: 255 }),
+  endsBy: timestamp('ends_by'),
+  featuredOnHomePage: boolean('featured_on_home_page').default(false).notNull(),
   eventIds: text('event_ids').array(), // Array of Google event IDs that match this pattern
   isExternal: boolean('is_external').default(false).notNull(),
   lastAnalyzed: timestamp('last_analyzed').defaultNow().notNull(),
