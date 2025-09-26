@@ -28,7 +28,7 @@ export function LearnMore() {
   ];
 
   return (
-    <section className="py-16" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' }}>
+    <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4 font-serif">
@@ -41,12 +41,12 @@ export function LearnMore() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Mission */}
-          <Card className="p-8">
+          <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-stone-900 mb-6">Our Mission</h3>
+              <h3 className="text-2xl font-bold text-white mb-6">Our Mission</h3>
               
               <div className="space-y-6">
-                <p className="text-stone-700 text-lg">
+                <p className="text-white text-lg">
                   To share with ALL people the unconditional love of God that we experience in Jesus Christ our Lord.
                 </p>
               </div>
@@ -54,23 +54,23 @@ export function LearnMore() {
           </Card>
 
           {/* Vision */}
-          <Card className="p-8">
+          <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-stone-900 mb-6">Our Vision</h3>
+              <h3 className="text-2xl font-bold text-white mb-6">Our Vision</h3>
               
               <div className="space-y-6">
-                <p className="text-stone-700 text-lg">
+                <p className="text-white text-lg">
                   Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
                 </p>
-                <div className="text-stone-700 space-y-4">
+                <div className="text-white space-y-4">
                   <p>
-                    <span className="font-semibold text-stone-700">Not pride and judgment,</span> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.
+                    <span className="font-semibold text-white">Not pride and judgment,</span> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.
                   </p>
                   <p>
-                    <span className="font-semibold text-stone-700">Not easy answers,</span> but growing together through shared engagement with the scriptures and the hard questions of life and faith.
+                    <span className="font-semibold text-white">Not easy answers,</span> but growing together through shared engagement with the scriptures and the hard questions of life and faith.
                   </p>
                   <p>
-                    <span className="font-semibold text-stone-700">Not a self-serving institution,</span> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.
+                    <span className="font-semibold text-white">Not a self-serving institution,</span> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.
                   </p>
                 </div>
               </div>
@@ -83,25 +83,36 @@ export function LearnMore() {
           <h3 className="text-2xl font-bold text-white mb-8 text-center">Our Core Values</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {coreValues.map((value, index) => (
-              <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-3 bg-red-100 rounded-full">
-                      <value.icon className="h-6 w-6 text-red-600" />
+            {coreValues.map((value, index) => {
+              // Cycle through signature colors
+              const colors = [
+                { bg: 'red-600', text: 'text-red-600', hex: '#dc2626' },
+                { bg: 'teal-800', text: 'text-teal-800', hex: '#115e59' },
+                { bg: 'indigo-900', text: 'text-indigo-900', hex: '#312e81' },
+                { bg: 'amber-500', text: 'text-amber-500', hex: '#f59e0b' }
+              ];
+              const colorScheme = colors[index % colors.length];
+              
+              return (
+                <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: colorScheme.hex }}>
+                  <CardContent className="p-0">
+                    <div className="flex justify-center mb-4">
+                      <div className="p-3 bg-white rounded-full">
+                        <value.icon className="h-6 w-6" style={{ color: colorScheme.hex }} />
+                      </div>
                     </div>
-                  </div>
-                  
-                  <h4 className="text-lg font-bold text-stone-900 mb-2">{value.title}</h4>
-                  <p className="text-stone-700 text-sm">{value.description}</p>
-                </CardContent>
-              </Card>
-            ))}
+                    
+                    <h4 className="text-lg font-bold text-white mb-2">{value.title}</h4>
+                    <p className="text-white text-sm">{value.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
 
         <div className="text-center">
-          <Button asChild size="lg" className="bg-white hover:bg-red-100 text-stone-700 px-8 py-3">
+          <Button asChild size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3">
             <Link href="/about">Learn More About Our Staff, History & Leadership</Link>
           </Button>
         </div>

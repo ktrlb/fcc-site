@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalendarIcon, X, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalendarIcon, X, Users, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -520,13 +520,13 @@ export function Calendar({ events = [] }: CalendarProps) {
                )}
                {selectedEvent.ministryInfo.contactEmail && (
                  <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                   <span className="text-xs">📧</span>
+                   <Mail className="h-3 w-3" />
                    <span>{selectedEvent.ministryInfo.contactEmail}</span>
                  </div>
                )}
                {selectedEvent.ministryInfo.contactPhone && (
                  <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                   <span className="text-xs">📞</span>
+                   <Phone className="h-3 w-3" />
                    <span>{selectedEvent.ministryInfo.contactPhone}</span>
                  </div>
                )}

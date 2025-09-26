@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MapPin, Users, Calendar, X } from 'lucide-react';
+import { Clock, MapPin, Users, Calendar, X, Music, Mail, Phone } from 'lucide-react';
 import { analyzeEvents, RecurringEvent } from '@/lib/event-analyzer';
 
 interface CalendarEvent {
@@ -543,7 +543,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         {dayName}
                         {isSunday && (
                           <Badge variant="secondary" className="text-xs bg-yellow-200 text-yellow-800">
-                            🎵 Worship Services
+                            <Music className="inline h-4 w-4 mr-1" /> Worship Services
                           </Badge>
                         )}
                       </h3>
@@ -676,13 +676,13 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                       )}
                       {selectedEvent.ministryInfo.contactEmail && (
                         <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                          <span className="text-xs">📧</span>
+                          <Mail className="h-3 w-3" />
                           <span>{selectedEvent.ministryInfo.contactEmail}</span>
                         </div>
                       )}
                       {selectedEvent.ministryInfo.contactPhone && (
                         <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                          <span className="text-xs">📞</span>
+                          <Phone className="h-3 w-3" />
                           <span>{selectedEvent.ministryInfo.contactPhone}</span>
                         </div>
                       )}

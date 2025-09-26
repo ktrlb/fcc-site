@@ -1,3 +1,5 @@
+import { Handshake, BookOpen, Heart } from 'lucide-react';
+
 export function MissionVision() {
   return (
     <section className="py-16 bg-gray-50">
@@ -37,7 +39,7 @@ export function MissionVision() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">🤝</span>
+                  <Handshake className="h-6 w-6" />
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold text-gray-900 mb-3 font-serif">Relationship</h4>
@@ -51,7 +53,7 @@ export function MissionVision() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">📖</span>
+                  <BookOpen className="h-6 w-6" />
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold text-gray-900 mb-3 font-serif">Discipleship</h4>
@@ -65,7 +67,7 @@ export function MissionVision() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-start space-x-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl">🙏</span>
+                  <Heart className="h-6 w-6" />
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold text-gray-900 mb-3 font-serif">Humility</h4>

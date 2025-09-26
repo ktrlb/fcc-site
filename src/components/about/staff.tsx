@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Staff as StaffType } from '@/lib/schema';
+import { User } from 'lucide-react';
 
 export function Staff() {
   const [staff, setStaff] = useState<StaffType[]>([]);
@@ -84,7 +85,7 @@ export function Staff() {
                     className="bg-gray-200 rounded-full flex items-center justify-center shadow-lg"
                     style={{ width: '192px', height: '192px' }}
                   >
-                    <span className="text-4xl text-gray-400">👤</span>
+                    <User className="h-16 w-16 text-gray-400" />
                   </div>
                 )}
               </div>

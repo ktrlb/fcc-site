@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Clock, MapPin, Users, Calendar, X, Settings, Star } from 'lucide-react';
+import { Clock, MapPin, Users, Calendar, X, Settings, Star, Music, Mail, Phone, Baby, User2, BookOpen, Heart, Coffee, Globe } from 'lucide-react';
 import { RecurringEvent, analyzeEvents, getWeeklySchedule } from '@/lib/event-analyzer';
 
 interface CalendarEvent {
@@ -424,14 +424,14 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
 
   const getMinistryIcon = (ministry?: string) => {
     switch (ministry) {
-      case 'children': return '👶';
-      case 'youth': return '👥';
-      case 'worship': return '🎵';
-      case 'bible study': return '📖';
-      case 'prayer': return '🙏';
-      case 'fellowship': return '☕';
-      case 'missions': return '🌍';
-      default: return '📅';
+      case 'children': return <Baby className="inline h-4 w-4" />;
+      case 'youth': return <User2 className="inline h-4 w-4" />;
+      case 'worship': return <Music className="inline h-4 w-4" />;
+      case 'bible study': return <BookOpen className="inline h-4 w-4" />;
+      case 'prayer': return <Heart className="inline h-4 w-4" />;
+      case 'fellowship': return <Coffee className="inline h-4 w-4" />;
+      case 'missions': return <Globe className="inline h-4 w-4" />;
+      default: return <Calendar className="inline h-4 w-4" />;
     }
   };
 
@@ -463,7 +463,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                     {day}
                     {isSunday && (
                       <div className="text-xs text-blue-600 font-normal mt-1">
-                        🎵 Worship Services
+                        <Music className="inline h-4 w-4 mr-1" /> Worship Services
                       </div>
                     )}
                   </div>
@@ -687,13 +687,13 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                         )}
                         {selectedEvent.ministryInfo.contactEmail && (
                           <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                            <span className="text-xs">📧</span>
+                            <Mail className="h-3 w-3" />
                             <span>{selectedEvent.ministryInfo.contactEmail}</span>
                           </div>
                         )}
                         {selectedEvent.ministryInfo.contactPhone && (
                           <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                            <span className="text-xs">📞</span>
+                            <Phone className="h-3 w-3" />
                             <span>{selectedEvent.ministryInfo.contactPhone}</span>
                           </div>
                         )}

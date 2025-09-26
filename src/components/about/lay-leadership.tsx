@@ -1,24 +1,26 @@
+import { Building2, Heart, Users, Target } from 'lucide-react';
+
 export function LayLeadership() {
   const leadershipRoles = [
     {
       title: "General Board",
       description: "The General Board provides overall governance and strategic direction for our congregation, ensuring our church operates effectively and fulfills its mission.",
-      icon: "🏛️"
+      icon: Building2
     },
     {
       title: "Elders",
       description: "Elders provide spiritual leadership and pastoral care, offering guidance, prayer, and support to our church family and helping maintain our spiritual foundation.",
-      icon: "🙏"
+      icon: Heart
     },
     {
       title: "Deacons",
       description: "Deacons serve our congregation through practical ministry, supporting worship services, and helping those in need within our community.",
-      icon: "🤝"
+      icon: Users
     },
     {
       title: "Mission-Vision Team",
       description: "The Mission-Vision Team helps shape our church's direction and priorities, ensuring we stay focused on our calling to serve God and our community effectively.",
-      icon: "🎯"
+      icon: Target
     }
   ];
 
@@ -54,7 +56,7 @@ export function LayLeadership() {
             <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="text-center mb-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">{role.icon}</span>
+                  <role.icon className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 font-serif">{role.title}</h3>
               </div>

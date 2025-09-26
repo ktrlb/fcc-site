@@ -402,7 +402,7 @@ export function AdminSpecialEventsListDashboard() {
                 </p>
                 {editingEvent.location && (
                   <p className="text-sm text-gray-600 mt-1">
-                    📍 {editingEvent.location}
+                    <MapPin className="inline h-4 w-4 mr-1" /> {editingEvent.location}
                   </p>
                 )}
               </div>

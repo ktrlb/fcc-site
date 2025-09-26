@@ -42,24 +42,32 @@ export async function FeaturedAssets() {
   }
 
   return (
-    <section className="py-16 bg-stone-50">
+    <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-stone-900 mb-4 font-serif">
+          <h2 className="text-4xl font-bold text-white mb-4 font-serif">
             Featured Resources
           </h2>
-          <p className="text-xl text-stone-600 max-w-3xl mx-auto">
+          <p className="text-xl text-white max-w-3xl mx-auto">
             Download our latest resources, documents, and media to support your faith journey.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredAssets.map((asset) => {
+          {featuredAssets.map((asset, index) => {
             const IconComponent = getFileIcon(asset.type);
             const isImage = asset.type === 'image' && asset.mimeType?.startsWith('image/');
             
+            // Cycle through signature colors
+            const colors = [
+              { bg: 'red-600', text: 'text-red-600', hex: '#dc2626' },
+              { bg: 'teal-800', text: 'text-teal-800', hex: '#115e59' },
+              { bg: 'indigo-900', text: 'text-indigo-900', hex: '#312e81' }
+            ];
+            const colorScheme = colors[index % colors.length];
+            
             return (
-              <Card key={asset.id} className="hover:shadow-lg transition-shadow">
+              <Card key={asset.id} className="hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: colorScheme.hex }}>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
@@ -77,24 +85,24 @@ export async function FeaturedAssets() {
                           />
                         </div>
                       ) : (
-                        <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <IconComponent className="h-8 w-8 text-blue-600" />
+                        <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center">
+                          <IconComponent className="h-8 w-8" style={{ color: colorScheme.hex }} />
                         </div>
                       )}
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-stone-600 mb-2 line-clamp-2">
+                      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
                         {asset.name}
                       </h3>
                       
                       {asset.description && (
-                        <p className="text-stone-600 text-sm mb-3 line-clamp-2">
+                        <p className="text-white text-sm mb-3 line-clamp-2">
                           {asset.description}
                         </p>
                       )}
                       
-                      <div className="flex items-center justify-between text-sm text-stone-600 mb-4">
+                      <div className="flex items-center justify-between text-sm text-white/80 mb-4">
                         <span className="capitalize">{asset.type}</span>
                         {asset.fileSize && (
                           <span>{formatFileSize(asset.fileSize)}</span>
@@ -104,7 +112,7 @@ export async function FeaturedAssets() {
                       <Button 
                         asChild
                         size="sm" 
-                        className="w-full bg-white hover:bg-sky-50 text-indigo-900"
+                        className={`w-full bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${colorScheme.text}`}
                       >
                         <a 
                           href={asset.fileUrl}

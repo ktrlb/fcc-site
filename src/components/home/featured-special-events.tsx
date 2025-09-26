@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { getFeaturedSpecialEvents } from "@/lib/content-queries";
 import Image from "next/image";
 import { ExpandableText } from "./expandable-text";
+import { MapPin, User, Building2 } from "lucide-react";
 
 export async function FeaturedSpecialEvents() {
   // Fetch featured special events from database
@@ -34,20 +35,29 @@ export async function FeaturedSpecialEvents() {
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-stone-900 mb-4 font-serif">
+          <h2 className="text-4xl font-bold text-white mb-4 font-serif">
             Featured Special Events
           </h2>
-          <p className="text-xl text-stone-700 max-w-3xl mx-auto">
+          <p className="text-xl text-white max-w-3xl mx-auto">
             Don&apos;t miss these upcoming special events and gatherings in our community.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredEvents.map((event) => (
-            <Card key={event.id} className="p-6 hover:shadow-lg transition-shadow">
+          {featuredEvents.map((event, index) => {
+            // Cycle through signature colors
+            const colors = [
+              { bg: 'red-600', text: 'text-red-600', hex: '#dc2626' },
+              { bg: 'teal-800', text: 'text-teal-800', hex: '#115e59' },
+              { bg: 'indigo-900', text: 'text-indigo-900', hex: '#312e81' }
+            ];
+            const colorScheme = colors[index % colors.length];
+            
+            return (
+            <Card key={event.id} className="p-6 hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: colorScheme.hex }}>
               <CardContent className="p-0">
                 {event.specialEventImage && event.specialEventImage.trim() !== '' && (
                   <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">
@@ -66,17 +76,17 @@ export async function FeaturedSpecialEvents() {
                   </div>
                 )}
                 
-                <h4 className="text-xl font-bold text-stone-900 mb-2">
+                <h4 className="text-xl font-bold text-white mb-2">
                   {(event as { displayTitle?: string }).displayTitle || event.title}
                 </h4>
                 <ExpandableText
                   text={event.specialEventNote || 'Join us for this special event.'}
                   collapsedChars={90}
-                  className="text-stone-900 mb-1"
-                  toggleClassName="text-sm text-indigo-700 hover:text-indigo-800 underline block ml-auto"
+                  className="text-white mb-1"
+                  toggleClassName="text-sm text-white/80 hover:text-white underline block ml-auto"
                 />
                 
-                <div className="space-y-1 text-sm text-stone-700">
+                <div className="space-y-1 text-sm text-white">
                   {event.recurringDescription ? (
                     <p className="font-semibold">
                       {event.recurringDescription}
@@ -112,30 +122,31 @@ export async function FeaturedSpecialEvents() {
                   )}
                   {event.location && (
                     <p className="flex items-center">
-                      <span className="mr-1">📍</span>
+                      <MapPin className="h-4 w-4 mr-2" />
                       {event.location}
                     </p>
                   )}
                   {event.contactPerson && (
                     <p className="flex items-center">
-                      <span className="mr-1">👤</span>
+                      <User className="h-4 w-4 mr-2" />
                       Contact: {event.contactPerson}
                     </p>
                   )}
                   {event.ministryTeamName && (
                     <p className="flex items-center">
-                      <span className="mr-1">🏢</span>
+                      <Building2 className="h-4 w-4 mr-2" />
                       {event.ministryTeamName}
                     </p>
                   )}
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
 
         <div className="text-center mt-12">
-          <Button size="lg" className="bg-indigo-900 hover:bg-indigo-800 text-white" asChild>
+          <Button size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
             <a href="/calendar">View Full Calendar</a>
           </Button>
         </div>
