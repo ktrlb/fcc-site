@@ -132,11 +132,11 @@ export function StaffDashboard() {
         <StaffUploadModal onStaffAdded={fetchStaff} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-4 max-w-4xl">
         {staff.map((member, index) => (
           <Card 
             key={member.id} 
-            className={`overflow-hidden transition-all duration-200 ${
+            className={`w-full transition-all duration-200 ${
               draggedIndex === index ? 'opacity-50 scale-95' : 'hover:shadow-lg'
             }`}
             draggable
@@ -144,66 +144,76 @@ export function StaffDashboard() {
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, index)}
           >
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-4">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4 h-20">
+                {/* Drag Handle */}
                 <div 
-                  className="cursor-move p-2 hover:bg-gray-100 rounded-md transition-colors"
+                  className="cursor-move p-2 hover:bg-gray-100 rounded-md transition-colors flex-shrink-0"
                   title="Drag to reorder"
                 >
                   <GripVertical className="h-5 w-5 text-gray-400" />
                 </div>
-                {member.imageUrl ? (
-                  <img
-                    src={member.imageUrl}
-                    alt={member.name}
-                    className="w-16 h-16 rounded-full object-cover"
-                    style={{
-                      objectPosition: member.focalPoint ? 
-                        (() => {
-                          try {
-                            // The focal point might be double-encoded, so we need to parse it twice
-                            let focal = JSON.parse(member.focalPoint);
-                            if (typeof focal === 'string') {
-                              focal = JSON.parse(focal);
-                            }
-                            return `${focal.x}% ${focal.y}%`;
-                          } catch (error) {
-                            console.log(`Error parsing focal point for ${member.name}:`, error, member.focalPoint);
-                            return 'center';
-                          }
-                        })() : 'center'
-                    }}
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User className="h-8 w-8 text-gray-400" />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{member.name}</CardTitle>
-                  <p className="text-sm text-gray-600">{member.title}</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail className="h-4 w-4" />
-                <span className="truncate">{member.email}</span>
-              </div>
-              
-              <p className="text-sm text-gray-700 line-clamp-3">
-                {member.bio}
-              </p>
 
-              <div className="flex items-center justify-between">
-                <Badge variant={member.isActive ? "default" : "secondary"}>
-                  {member.isActive ? "Active" : "Inactive"}
-                </Badge>
-                <div className="flex gap-2">
+                {/* Staff Image */}
+                <div className="flex-shrink-0">
+                  {member.imageUrl ? (
+                    <img
+                      src={member.imageUrl}
+                      alt={member.name}
+                      className="w-16 h-16 rounded-full object-cover"
+                      style={{
+                        objectPosition: member.focalPoint ? 
+                          (() => {
+                            try {
+                              // The focal point might be double-encoded, so we need to parse it twice
+                              let focal = JSON.parse(member.focalPoint);
+                              if (typeof focal === 'string') {
+                                focal = JSON.parse(focal);
+                              }
+                              return `${focal.x}% ${focal.y}%`;
+                            } catch (error) {
+                              console.log(`Error parsing focal point for ${member.name}:`, error, member.focalPoint);
+                              return 'center';
+                            }
+                          })() : 'center'
+                      }}
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="h-8 w-8 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Staff Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">{member.name}</h3>
+                    <Badge variant={member.isActive ? "default" : "secondary"} className="text-xs">
+                      {member.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2 truncate">{member.title}</p>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Mail className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{member.email}</span>
+                  </div>
+                </div>
+
+                {/* Bio Preview */}
+                <div className="flex-1 min-w-0 hidden lg:block">
+                  <p className="text-sm text-gray-700 line-clamp-2 truncate">
+                    {member.bio}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 flex-shrink-0">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setEditingStaff(member)}
+                    className="h-8 w-8 p-0"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -211,7 +221,7 @@ export function StaffDashboard() {
                     size="sm"
                     variant="outline"
                     onClick={() => handleDelete(member.id)}
-                    className="text-red-600 hover:text-red-700"
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

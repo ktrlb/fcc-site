@@ -8,16 +8,27 @@ export async function GET() {
     const staffMembers = await db
       .select()
       .from(staff)
-      .where(eq(staff.isActive, true))
-      .orderBy(staff.sortOrder, staff.name);
+      .where(eq(staff.isActive, true));
 
-    console.log('Returning staff data from database:', staffMembers.length, 'members');
-    staffMembers.forEach(member => {
+    // Sort by sortOrder as a number, then by name
+    const sortedStaff = staffMembers.sort((a, b) => {
+      const orderA = parseInt(a.sortOrder || '0', 10);
+      const orderB = parseInt(b.sortOrder || '0', 10);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      return a.name.localeCompare(b.name);
+    });
+
+    console.log('Returning staff data from database:', sortedStaff.length, 'members');
+    sortedStaff.forEach(member => {
       if (member.focalPoint) {
         console.log(`Staff ${member.name} focal point:`, member.focalPoint);
       }
     });
-    return NextResponse.json({ staff: staffMembers });
+    return NextResponse.json({ staff: sortedStaff });
   } catch (error) {
     console.error('Error fetching staff:', error);
     return NextResponse.json(

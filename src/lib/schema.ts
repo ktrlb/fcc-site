@@ -72,6 +72,17 @@ export const sermonSeries = pgTable('sermon_series', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const sundays = pgTable('sundays', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  date: varchar('date', { length: 10 }).notNull(), // The specific Sunday date (YYYY-MM-DD)
+  sermonSeriesId: uuid('sermon_series_id').references(() => sermonSeries.id),
+  title: varchar('title', { length: 255 }), // Optional custom title for this Sunday
+  description: text('description'), // Optional description
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const seasonalGuides = pgTable('seasonal_guides', {
   id: uuid('id').defaultRandom().primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
@@ -231,6 +242,9 @@ export type NewMinistryTeamSkill = typeof ministryTeamSkills.$inferInsert;
 
 export type SermonSeries = typeof sermonSeries.$inferSelect;
 export type NewSermonSeries = typeof sermonSeries.$inferInsert;
+
+export type Sunday = typeof sundays.$inferSelect;
+export type NewSunday = typeof sundays.$inferInsert;
 
 export type SeasonalGuide = typeof seasonalGuides.$inferSelect;
 export type NewSeasonalGuide = typeof seasonalGuides.$inferInsert;
