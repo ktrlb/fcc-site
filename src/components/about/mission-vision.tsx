@@ -12,10 +12,18 @@ export function MissionVision() {
         <div className="grid md:grid-cols-2 gap-12">
           {/* Mission Statement */}
           <div className="rounded-lg shadow-sm p-8 border-0" style={{ backgroundColor: 'rgb(220 38 38)' }}>
-            <h3 className="text-2xl font-bold text-white font-serif mb-4">Our Mission</h3>
-            <p className="text-white leading-relaxed text-lg">
-              To share with ALL people the unconditional love of God that we experience in Jesus Christ our Lord.
-            </p>
+            <h3 className="text-2xl font-bold text-white font-serif mb-8">Our Mission</h3>
+            <div className="text-center space-y-6">
+              <p className="text-white leading-relaxed text-2xl mb-6 font-medium">
+                To share with <span className="text-4xl font-bold text-yellow-300">ALL people</span>
+              </p>
+              <p className="text-white leading-relaxed text-xl mb-6">
+                the unconditional love of God
+              </p>
+              <p className="text-white leading-relaxed text-xl italic">
+                that we experience in Jesus Christ our Lord.
+              </p>
+            </div>
           </div>
 
           {/* Vision Statement */}

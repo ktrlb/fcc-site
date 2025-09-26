@@ -24,19 +24,20 @@ export async function SeeYouOnSunday() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-7xl mx-auto">
           {/* Service Schedule */}
-          <Card className="p-8 !bg-red-600 border-0 text-white shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
-            <CardContent className="!px-0">
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-white text-center">Upcoming Sunday</h3>
-              </div>
-              
-              <div className="space-y-4">
+          <Card className="p-4 md:p-6 lg:p-8 !bg-red-600 border-0 text-white shadow-none h-full flex flex-col" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+            <CardContent className="!px-0 text-white flex flex-col h-full">
+              <div className="px-8 py-8 flex-1 flex flex-col">
+                <div className="mb-6">
+                  <h3 className="text-xl md:text-2xl font-bold text-white text-center">Upcoming Sunday</h3>
+                </div>
+                
+                <div className="space-y-4 flex-1">
                 <div className="flex items-center">
                   <Clock className="h-5 w-5 text-white mr-3" />
                   <div>
-                    <p className="font-semibold text-lg text-white">9:00 AM</p>
+                    <p className="font-semibold text-base md:text-lg text-white">9:00 AM</p>
                     <p className="text-white">Modern Worship</p>
                   </div>
                 </div>
@@ -44,7 +45,7 @@ export async function SeeYouOnSunday() {
                 <div className="flex items-center">
                   <Users className="h-5 w-5 text-white mr-3" />
                   <div>
-                    <p className="font-semibold text-lg text-white">10:00 AM</p>
+                    <p className="font-semibold text-base md:text-lg text-white">10:00 AM</p>
                     <p className="text-white">Sunday School for All Ages</p>
                   </div>
                 </div>
@@ -66,23 +67,24 @@ export async function SeeYouOnSunday() {
                 </div>
               </div>
 
-              <div className="mt-6">
-                <p className="text-sm text-white">
-                  <strong>Next Service:</strong> {nextSunday.toLocaleDateString('en-US', {
-                    timeZone: 'America/Chicago', 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
+                <div className="mt-6">
+                  <p className="text-sm text-white">
+                    <strong>Next Service:</strong> {nextSunday.toLocaleDateString('en-US', {
+                      timeZone: 'America/Chicago', 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Sermon Series */}
-          <Card className="p-0 overflow-hidden !bg-red-600 border-0 shadow-none text-white" style={{ backgroundColor: 'rgb(220 38 38)' }}>
-            <CardContent className="p-0 text-white">
+          <Card className="p-4 md:p-6 lg:p-8 overflow-hidden !bg-red-600 border-0 shadow-none text-white h-full flex flex-col" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+            <CardContent className="!px-0 text-white flex flex-col h-full">
               {sermonSeries?.imageUrl && (
                 <div className="w-full">
                   <img
@@ -92,7 +94,7 @@ export async function SeeYouOnSunday() {
                   />
                 </div>
               )}
-              <div className="px-8 py-8">
+              <div className="px-8 py-8 flex-1 flex flex-col">
               <div className="mb-4 text-center">
                 <h3 className="text-2xl font-bold text-white">Current Sermon Series</h3>
               </div>

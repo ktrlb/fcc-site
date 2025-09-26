@@ -31,9 +31,9 @@ export async function SpecialEvents() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* Seasonal Guide */}
-          <Card className="lg:col-span-2 p-8 !bg-red-600 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+          <Card className="md:col-span-2 lg:col-span-2 p-8 !bg-red-600 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
             <CardContent className="p-0">
               <div className="flex items-center mb-6">
                 <FileText className="h-8 w-8 text-white mr-3" />
@@ -47,7 +47,7 @@ export async function SpecialEvents() {
                 </p>
                 
                 <div className="bg-white/10 p-6 rounded-lg border border-white/20" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
-                  <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <div className="flex flex-col md:flex-row items-start gap-4">
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg mb-2 text-white">What&apos;s Inside:</h4>
                       <ul className="space-y-2 text-white">
@@ -59,8 +59,8 @@ export async function SpecialEvents() {
                       </ul>
                     </div>
                     {seasonalGuide?.coverImageUrl && (
-                      <div className="flex-shrink-0 w-full sm:w-auto">
-                        <div className="relative w-48 h-64 rounded-lg overflow-hidden shadow-md mx-auto sm:mx-0">
+                      <div className="flex-shrink-0 w-full md:w-auto">
+                        <div className="relative w-48 h-64 rounded-lg overflow-hidden shadow-md mx-auto md:mx-0">
                           <Image
                             src={seasonalGuide.coverImageUrl}
                             alt={seasonalGuide.title}

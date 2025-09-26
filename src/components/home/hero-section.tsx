@@ -37,7 +37,7 @@ export function HeroSection() {
 
       {/* Content */}
       <div className="relative z-20 flex items-center justify-center h-full">
-        <div className="text-center text-white px-6 max-w-4xl mx-auto">
+        <div className="text-center text-white px-6 max-w-5xl mx-auto">
           <div className="mb-6 flex justify-center">
             <Image
               src="/images/Basic FCC Logo Assets-White Circle.png"
@@ -47,7 +47,7 @@ export function HeroSection() {
               className="h-24 w-24 object-contain drop-shadow-lg"
             />
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold font-serif text-white drop-shadow-2xl">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold font-serif text-white drop-shadow-2xl">
             Welcome to First Christian Church <br />
             Whoever you are, <em>you</em> are welcome here
           </h1>

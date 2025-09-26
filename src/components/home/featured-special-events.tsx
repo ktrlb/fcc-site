@@ -46,7 +46,7 @@ export async function FeaturedSpecialEvents() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {featuredEvents.map((event, index) => {
             // Cycle through signature colors
             const colors = [
@@ -57,7 +57,7 @@ export async function FeaturedSpecialEvents() {
             const colorScheme = colors[index % colors.length];
             
             return (
-            <Card key={event.id} className="p-6 hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: colorScheme.hex }}>
+            <Card key={event.id} className="p-6 hover:shadow-lg transition-shadow border-0 shadow-none max-w-md mx-auto lg:max-w-none lg:mx-0" style={{ backgroundColor: colorScheme.hex }}>
               <CardContent className="p-0">
                 {event.specialEventImage && event.specialEventImage.trim() !== '' && (
                   <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">

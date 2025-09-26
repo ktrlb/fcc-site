@@ -52,7 +52,7 @@ export function ChildrenYouthMinistries() {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {ministries.map((ministry, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: ministry.cardColor === 'red-600' ? 'rgb(220 38 38)' : ministry.cardColor === 'teal-800' ? 'rgb(17 94 89)' : 'rgb(49 46 129)' }}>
+            <Card key={index} className="hover:shadow-lg transition-shadow border-0 shadow-none max-w-md mx-auto md:max-w-none md:mx-0" style={{ backgroundColor: ministry.cardColor === 'red-600' ? 'rgb(220 38 38)' : ministry.cardColor === 'teal-800' ? 'rgb(17 94 89)' : 'rgb(49 46 129)' }}>
               <CardContent className="p-8">
                 <div className="flex items-center mb-6">
                   <div className="p-4 rounded-full bg-white mr-4">

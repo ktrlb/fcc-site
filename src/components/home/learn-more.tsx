@@ -39,15 +39,21 @@ export function LearnMore() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Mission */}
           <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-white mb-6">Our Mission</h3>
+              <h3 className="text-2xl font-bold text-white mb-6">Our Mission is...</h3>
               
-              <div className="space-y-6">
-                <p className="text-white text-lg">
-                  To share with ALL people the unconditional love of God that we experience in Jesus Christ our Lord.
+              <div className="space-y-4 text-center flex flex-col justify-center h-full py-8">
+                <p className="text-white text-2xl font-bold animate-pulse">
+                  to share with <em className="text-3xl font-black">ALL people</em>
+                </p>
+                <p className="text-white text-2xl font-bold">
+                  the unconditional love of God
+                </p>
+                <p className="text-white text-2xl font-bold">
+                  that we experience in <i>Jesus Christ</i> our Lord.
                 </p>
               </div>
             </CardContent>
@@ -56,11 +62,11 @@ export function LearnMore() {
           {/* Vision */}
           <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-white mb-6">Our Vision</h3>
+              <h3 className="text-2xl font-bold text-white mb-6">Our Vision is...</h3>
               
               <div className="space-y-6">
                 <p className="text-white text-lg">
-                  Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
+                  to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
                 </p>
                 <div className="text-white space-y-4">
                   <p>
@@ -80,7 +86,7 @@ export function LearnMore() {
 
         {/* Core Values */}
         <div className="mb-12">
-          <h3 className="text-2xl font-bold text-white mb-8 text-center">Our Core Values</h3>
+          <h3 className="text-2xl font-bold text-white mb-8 text-center">Our Core Values Are...</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {coreValues.map((value, index) => {
