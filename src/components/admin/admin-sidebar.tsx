@@ -14,10 +14,12 @@ import {
   Upload, 
   Settings,
   LogOut,
-  Star
+  Star,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface AdminSidebarProps {
   onLogout: () => void;
@@ -25,109 +27,154 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ onLogout }: AdminSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   const menuItems = [
-    {
-      name: 'Dashboard',
-      href: '/admin',
-      icon: Home,
-      description: 'Overview and main dashboard'
-    },
-    {
-      name: 'Assets',
-      href: '/admin/assets',
-      icon: Upload,
-      description: 'Manage files and media'
-    },
     {
       name: 'Staff',
       href: '/admin/staff',
       icon: Users,
-      description: 'Manage staff members'
     },
     {
       name: 'Ministries',
       href: '/admin/ministries',
       icon: Users,
-      description: 'Manage ministry teams'
     },
     {
-      name: 'Sermon Series',
+      name: 'Sermon Series & Sundays',
       href: '/admin/sermon-series',
       icon: FileText,
-      description: 'Manage sermon series'
     },
     {
       name: 'Seasonal Guides',
       href: '/admin/seasonal-guides',
       icon: FileText,
-      description: 'Manage seasonal guides'
     },
-        {
-          name: 'Calendar Admin',
-          href: '/admin/calendar',
-          icon: Calendar,
-          description: 'Manage calendar events'
-        },
-        {
-          name: 'Special Events',
-          href: '/admin/special-events',
-          icon: Settings,
-          description: 'Manage special event types'
-        },
-        {
-          name: 'Special Events List',
-          href: '/admin/special-events-list',
-          icon: Star,
-          description: 'View and manage special events'
-        }
+    {
+      name: 'Calendar Admin',
+      href: '/admin/calendar',
+      icon: Calendar,
+    },
+    {
+      name: 'Special Events List',
+      href: '/admin/special-events-list',
+      icon: Star,
+    },
+    {
+      name: 'All Assets',
+      href: '/admin/assets',
+      icon: Upload,
+    }
   ];
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center space-x-3">
-          <Image
-            src="/images/Basic FCC Logo Assets-Transparent.png"
-            alt="First Christian Church Granbury"
-            width={1080}
-            height={1080}
-            className="h-6 w-6 object-contain"
-          />
-          <h2 className="text-lg font-semibold">Admin Panel</h2>
+    <>
+      {/* Desktop Sidebar */}
+      <div className="w-64 border-r bg-muted/40 flex-shrink-0">
+        <div className="flex h-full flex-col gap-2">
+          <div className="flex h-[60px] items-center border-b px-6">
+            <Link className="flex items-center gap-2 font-semibold" href="/admin">
+              <Image
+                src="/images/Basic FCC Logo Assets-Transparent.png"
+                alt="First Christian Church Granbury"
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
+              <span className="sr-only">FCC Admin</span>
+              <span>FCC Admin</span>
+            </Link>
+          </div>
+          <div className="flex-1 overflow-auto py-2">
+            <nav className="grid items-start px-4 text-sm font-medium">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                      isActive && "bg-muted text-primary"
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.name}
+                    {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+          <div className="mt-auto p-4">
+            <Button
+              variant="outline"
+              onClick={onLogout}
+              className="w-full justify-start gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
       </div>
-      
-      <nav className="flex-1 p-4 space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
-            >
-              <Icon className="h-4 w-4" />
-              <div className="flex-1">
-                <div className="font-medium">{item.name}</div>
-                <div className="text-xs text-gray-500">{item.description}</div>
-              </div>
-            </Link>
-          );
-        })}
-      </nav>
-      
-      <div className="p-4 border-t">
-        <Button
-          variant="outline"
-          onClick={onLogout}
-          className="w-full justify-start gap-2"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </Button>
-      </div>
-    </div>
+
+      {/* Mobile Sidebar */}
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetContent side="left" className="w-64 p-0">
+          <div className="flex h-full max-h-screen flex-col gap-2">
+            <div className="flex h-[60px] items-center border-b px-6">
+              <Link className="flex items-center gap-2 font-semibold" href="/admin">
+                <Image
+                  src="/images/Basic FCC Logo Assets-Transparent.png"
+                  alt="First Christian Church Granbury"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8"
+                />
+                <span className="sr-only">FCC Admin</span>
+                <span>FCC Admin</span>
+              </Link>
+            </div>
+            <div className="flex-1 overflow-auto py-2">
+              <nav className="grid items-start px-4 text-sm font-medium">
+                {menuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                        isActive && "bg-muted text-primary"
+                      )}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {item.name}
+                      {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+            <div className="mt-auto p-4">
+              <Button
+                variant="outline"
+                onClick={onLogout}
+                className="w-full justify-start gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

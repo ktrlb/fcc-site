@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { StaffDashboard } from "@/components/admin/staff-dashboard";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminLayout } from "@/components/admin/admin-layout";
 
 export default function StaffAdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,19 +58,12 @@ export default function StaffAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
-      <div className="flex h-screen">
-        <AdminSidebar onLogout={handleLogout} />
-        <div className="flex-1 flex flex-col">
-          <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
-            <p className="text-gray-600">Manage church staff members and their information</p>
-          </div>
-          <div className="flex-1 p-6 overflow-auto">
-            <StaffDashboard />
-          </div>
-        </div>
-      </div>
-    </div>
+    <AdminLayout 
+      title="Staff Management" 
+      description="Manage church staff members and their information"
+      onLogout={handleLogout}
+    >
+      <StaffDashboard />
+    </AdminLayout>
   );
 }

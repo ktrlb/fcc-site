@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
-import { AssetDashboard } from "@/components/admin/asset-dashboard";
-import { StaffDashboard } from "@/components/admin/staff-dashboard";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminDashboard } from "@/components/admin/admin-dashboard";
+import { AdminLayout } from "@/components/admin/admin-layout";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -59,20 +58,13 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
-      <div className="flex h-screen">
-        <AdminSidebar onLogout={handleLogout} />
-        <div className="flex-1 flex flex-col">
-          <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600">Manage your church content and staff</p>
-          </div>
-          <div className="flex-1 p-6 overflow-auto">
-            <AssetDashboard onLogout={handleLogout} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <AdminLayout 
+      title="Admin Dashboard" 
+      description="Manage your church content and staff"
+      onLogout={handleLogout}
+    >
+      <AdminDashboard />
+    </AdminLayout>
   );
 }
 
