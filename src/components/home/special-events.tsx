@@ -20,37 +20,37 @@ export async function SpecialEvents() {
   ];
 
   return (
-    <section className="py-16" style={{ background: 'linear-gradient(135deg, #4338ca 0%, #1e1b4b 100%)' }}>
+    <section className="py-16 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4 font-serif">
+          <h2 className="text-4xl font-bold text-black mb-4 font-serif">
             Special Events & Seasonal Guide
           </h2>
-          <p className="text-xl text-white max-w-3xl mx-auto">
+          <p className="text-xl text-black max-w-3xl mx-auto">
             Stay connected with our community through special events and regular fellowship opportunities.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           {/* Seasonal Guide */}
-          <Card className="lg:col-span-2 p-8">
+          <Card className="lg:col-span-2 p-8 !bg-red-600 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
             <CardContent className="p-0">
               <div className="flex items-center mb-6">
-                <FileText className="h-8 w-8 text-blue-600 mr-3" />
-                <h3 className="text-2xl font-bold text-indigo-900">Seasonal Guide</h3>
+                <FileText className="h-8 w-8 text-white mr-3" />
+                <h3 className="text-2xl font-bold text-white">Seasonal Guide</h3>
               </div>
               
               <div className="space-y-4">
-                <p className="text-stone-900 text-lg">
+                <p className="text-white text-lg">
                   Download our comprehensive seasonal guide to stay informed about upcoming events, 
                   special services, and community activities throughout the year.
                 </p>
                 
-                <div className="bg-sky-50 p-6 rounded-lg">
+                <div className="bg-white/10 p-6 rounded-lg border border-white/20" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
                   <div className="flex flex-col sm:flex-row items-start gap-4">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-lg mb-2">What&apos;s Inside:</h4>
-                      <ul className="space-y-2 text-stone-700">
+                      <h4 className="font-semibold text-lg mb-2 text-white">What&apos;s Inside:</h4>
+                      <ul className="space-y-2 text-white">
                         <li>• Special service schedules</li>
                         <li>• Community outreach opportunities</li>
                         <li>• Fellowship events</li>
@@ -76,7 +76,7 @@ export async function SpecialEvents() {
                 
                 <Button 
                   asChild
-                  className="w-full bg-indigo-900 hover:bg-indigo-800 text-white"
+                  className="w-full bg-white text-red-600 hover:bg-white/10 hover:text-white border border-white transition-colors"
                 >
                   <a 
                     href={seasonalGuide?.pdfUrl || '#'}
@@ -93,22 +93,22 @@ export async function SpecialEvents() {
           </Card>
 
           {/* Regular Groups */}
-          <Card className="p-8">
+          <Card className="p-8 !bg-teal-800 border-0 shadow-none" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <CardContent className="p-0">
               <div className="flex items-center mb-6">
-                <Users className="h-8 w-8 text-blue-600 mr-3" />
-                <h3 className="text-2xl font-bold text-indigo-900">Regular Groups</h3>
+                <Users className="h-8 w-8 text-white mr-3" />
+                <h3 className="text-2xl font-bold text-white">Regular Groups</h3>
               </div>
               
               <div className="space-y-4">
-                <p className="text-stone-900">
+                <p className="text-white">
                   Join one of our many regular groups that meet throughout the week.
                 </p>
                 
                 <ul className="space-y-3">
                   {regularGroups.map((group, index) => (
-                    <li key={index} className="flex items-center text-stone-700">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                    <li key={index} className="flex items-center text-white">
+                      <div className="w-2 h-2 bg-white rounded-full mr-3"></div>
                       {group}
                     </li>
                   ))}
@@ -118,14 +118,14 @@ export async function SpecialEvents() {
                   <GroupsModalWrapper>
                     <Button 
                       variant="outline" 
-                      className="w-full"
+                      className="w-full bg-white text-teal-800 hover:bg-white/10 hover:text-white border border-white transition-colors"
                     >
                       View Weekly Groups
                     </Button>
                   </GroupsModalWrapper>
                   <Button 
                     variant="outline" 
-                    className="w-full"
+                    className="w-full bg-white text-teal-800 hover:bg-white/10 hover:text-white border border-white transition-colors"
                     asChild
                   >
                     <a href="/calendar">View Full Calendar</a>
@@ -138,10 +138,10 @@ export async function SpecialEvents() {
 
 
         <div className="text-center">
-          <Button size="lg" variant="outline" className="mr-4" asChild>
+          <Button size="lg" variant="outline" className="mr-4 bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
             <a href="/calendar">View Full Calendar</a>
           </Button>
-          <Button size="lg" variant="outline" asChild>
+          <Button size="lg" variant="outline" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
             <a href="/ministry-database">Explore Ministries at FCC</a>
           </Button>
         </div>

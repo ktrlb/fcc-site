@@ -148,6 +148,67 @@ npm run db:studio    # Open Drizzle Studio
 - Some special events not linking properly (check `specialEventId`)
 - Calendar cache may need manual refresh occasionally
 
+## Button Styling Guidelines
+
+### Standard Button Patterns
+
+#### Buttons on Colored Cards (White Background with Card Color Text)
+For buttons placed on colored card backgrounds (red-600, teal-800, indigo-900, etc.):
+
+```tsx
+// Data structure should include textColor property
+const items = [
+  {
+    cardColor: "red-600",
+    textColor: "text-red-600",  // Tailwind class, not inline style
+    // ... other properties
+  }
+];
+
+// Button implementation
+<Button 
+  asChild 
+  variant="outline" 
+  className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${item.textColor}`}
+>
+  <Link href={item.href} className="transition-colors">
+    Button Text
+    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+  </Link>
+</Button>
+```
+
+**Key Points:**
+- Use `textColor` as Tailwind class (e.g., `text-red-600`) in data, not inline styles
+- Apply color via `${item.textColor}` in className, not `style={{ color: ... }}`
+- `hover:text-white` works because Tailwind classes can override each other
+- `hover:bg-white/10` creates subtle white overlay effect
+- White border (`border-white`) remains consistent in both states
+
+#### Buttons on Light Backgrounds (Dark Background with White Text)
+For buttons on light backgrounds (stone-50, white, etc.):
+
+```tsx
+<Button 
+  asChild 
+  size="lg" 
+  className="bg-indigo-900 text-white hover:bg-indigo-900/80 hover:text-lg border-0 transition-all"
+>
+  <Link href="/path">Button Text</Link>
+</Button>
+```
+
+**Key Points:**
+- Dark background (`bg-indigo-900`) with white text
+- Hover reduces opacity (`hover:bg-indigo-900/80`) and increases text size (`hover:text-lg`)
+- No border needed (`border-0`)
+
+### Why This Approach Works
+- **Tailwind classes** can override each other based on CSS specificity
+- **Inline styles** have higher specificity and prevent hover states from working
+- **CSS custom properties** can work but add complexity
+- **Consistent patterns** make maintenance easier across the site
+
 ## Future Improvements
 - Better error handling for calendar API failures
 - Improved mobile responsiveness

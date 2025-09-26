@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Baby, Users, Heart, ArrowRight } from "lucide-react";
@@ -10,7 +12,8 @@ export function ChildrenYouthMinistries() {
       description: "We provide a warm, safe, and nurturing environment for our youngest members. Our staffed nursery is available for children 3 and under. We also have a private mothers room if you need a quiet space with your little one.",
       icon: Baby,
       href: "/children/infants-toddlers",
-      color: "bg-red-100 text-red-600",
+      cardColor: "red-600",
+      textColor: "text-red-600",
       ageRange: "Birth - 3 years"
     },
     {
@@ -18,7 +21,8 @@ export function ChildrenYouthMinistries() {
       description: "Children are welcome to worship along with the congregation. They may sit in the front left pews or with their families. After communion, we encourage the children to join us in the Children's Worship Center for a child-focused way to engage our theme for the day. For the Sunday School hour, our Pathfinders Kids Club encourages play and creativity.",
       icon: Users,
       href: "/children/children",
-      color: "bg-sky-50 text-indigo-900",
+      cardColor: "teal-800",
+      textColor: "text-teal-800",
       ageRange: "Age 4 through 2nd grade"
     },
     {
@@ -26,19 +30,20 @@ export function ChildrenYouthMinistries() {
       description: "Our Chi-Rho program for middle schoolers and CYF program for high schoolers are where young disciples grow through love and service.",
       icon: Heart,
       href: "/children/youth",
-      color: "bg-orange-200 text-amber-500",
+      cardColor: "indigo-900",
+      textColor: "text-indigo-900",
       ageRange: "6th through 12th grade"
     }
   ];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Children & Youth Ministries
           </h2>
-          <p className="text-xl text-stone-700 max-w-3xl mx-auto">
+          <p className="text-xl text-white max-w-3xl mx-auto">
             We believe that children and youth are not just the future of the church, 
             but an integral part of our community today. Our ministries are designed 
             to nurture faith at every stage of development.
@@ -47,26 +52,26 @@ export function ChildrenYouthMinistries() {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {ministries.map((ministry, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
+            <Card key={index} className="hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: ministry.cardColor === 'red-600' ? 'rgb(220 38 38)' : ministry.cardColor === 'teal-800' ? 'rgb(17 94 89)' : 'rgb(49 46 129)' }}>
               <CardContent className="p-8">
                 <div className="flex items-center mb-6">
-                  <div className={`p-4 rounded-full ${ministry.color} mr-4`}>
-                    <ministry.icon className="h-8 w-8" />
+                  <div className="p-4 rounded-full bg-white mr-4">
+                    <ministry.icon className="h-8 w-8" style={{ color: ministry.textColor === 'text-red-600' ? '#dc2626' : ministry.textColor === 'text-teal-800' ? '#115e59' : '#312e81' }} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-stone-900">{ministry.title}</h3>
-                    <p className="text-sm text-stone-600">{ministry.ageRange}</p>
+                    <h3 className="text-xl font-bold text-white">{ministry.title}</h3>
+                    <p className="text-sm text-white/80">{ministry.ageRange}</p>
                   </div>
                 </div>
                 
-                <p className="text-stone-600 mb-6 leading-relaxed">
+                <p className="text-white mb-6 leading-relaxed">
                   {ministry.description}
                 </p>
                 
-                <Button asChild variant="outline" className="w-full group">
-                  <Link href={ministry.href}>
+                <Button asChild variant="outline" className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${ministry.textColor}`}>
+                  <Link href={ministry.href} className="transition-colors">
                     Learn More
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" style={{ color: ministry.textColor === 'text-red-600' ? '#dc2626' : ministry.textColor === 'text-teal-800' ? '#115e59' : '#312e81' }} />
                   </Link>
                 </Button>
               </CardContent>

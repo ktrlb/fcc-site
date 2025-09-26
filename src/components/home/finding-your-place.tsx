@@ -21,6 +21,7 @@ export function FindingYourPlace() {
       iconText: "text-red-600",
       iconHex: "#dc2626",
       bgInline: "#dc2626",
+      textColor: "text-red-600",
       buttonText: "Explore Prayer Ministries",
       features: [
         "Prayer Groups",
@@ -37,6 +38,7 @@ export function FindingYourPlace() {
       iconText: "text-indigo-900",
       iconHex: "#312e81",
       bgInline: "#312e81",
+      textColor: "text-indigo-900",
       buttonText: "Explore Study Opportunities",
       features: [
         "Sunday School Classes",
@@ -53,6 +55,7 @@ export function FindingYourPlace() {
       iconText: "text-amber-500",
       iconHex: "#f59e0b",
       bgInline: "#f59e0b",
+      textColor: "text-amber-500",
       buttonText: "Explore Opportunities to Serve",
       features: [
         "Community Partners",
@@ -69,6 +72,7 @@ export function FindingYourPlace() {
       iconText: "text-teal-800",
       iconHex: "#115e59",
       bgInline: "#115e59",
+      textColor: "text-teal-800",
       buttonText: "Explore Opportunities to Connect",
       features: [
         "Fellowship Events",
@@ -85,6 +89,7 @@ export function FindingYourPlace() {
       iconText: "!text-lime-700",
       iconHex: "#4d7c0f",
       bgInline: "#4d7c0f",
+      textColor: "text-lime-700",
       buttonText: "Learn More",
       features: [
         "Online Giving",
@@ -140,8 +145,8 @@ export function FindingYourPlace() {
                     ))}
                   </ul>
                   
-                  <Button asChild className="w-full group border border-white text-white hover:bg-white/10">
-                    <Link href={item.href}>
+                  <Button asChild className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${item.textColor}`}>
+                    <Link href={item.href} className="transition-colors">
                       {item.buttonText}
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
