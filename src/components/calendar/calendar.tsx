@@ -252,8 +252,8 @@ export function Calendar({ events = [] }: CalendarProps) {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-900 mx-auto mb-4"></div>
-          <p className="text-indigo-900">Loading calendar events...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Loading calendar events...</p>
         </div>
       </div>
     );
@@ -289,7 +289,7 @@ export function Calendar({ events = [] }: CalendarProps) {
           {/* Mini Calendar with Weekly Patterns */}
           <MiniCalendar events={allEvents} />
       
-      <Card className="p-6">
+      <Card className="p-6 bg-white">
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-indigo-900 font-serif">
@@ -322,11 +322,29 @@ export function Calendar({ events = [] }: CalendarProps) {
 
         {/* Calendar Grid */}
         <div className="grid grid-cols-7 gap-1 mb-4">
-          {DAYS.map(day => (
-            <div key={day} className="p-3 text-center text-sm font-medium text-indigo-900">
-              {day}
-            </div>
-          ))}
+          {DAYS.map((day, index) => {
+            // Cycle through our signature colors for day headers
+            const colorSchemes = [
+              { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
+              { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
+              { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
+              { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
+              { bg: 'rgb(77 124 15)', name: 'lime-700' },     // Thursday - Lime
+              { bg: 'rgb(113 78 145)', name: 'purple' },      // Friday - Purple
+              { bg: 'rgb(220 38 38)', name: 'red-600' }       // Saturday - Red
+            ];
+            const colorScheme = colorSchemes[index];
+            
+            return (
+              <div 
+                key={day} 
+                className="p-3 text-center text-sm font-medium text-white rounded-lg"
+                style={{ backgroundColor: colorScheme.bg }}
+              >
+                {day}
+              </div>
+            );
+          })}
         </div>
 
         <div className={`grid gap-1 ${isMobile ? 'grid-cols-7' : 'grid-cols-7'}`}>
@@ -340,12 +358,13 @@ export function Calendar({ events = [] }: CalendarProps) {
                 className={`
                   ${isMobile 
                     ? `p-3 border border-indigo-200 rounded-lg cursor-pointer transition-colors
-                       ${date ? 'hover:bg-indigo-50' : 'bg-stone-100'}
-                       ${isCurrentDay ? 'ring-2 ring-red-500' : ''}
-                       ${eventsForDate.length > 0 ? 'bg-red-50' : 'bg-white'}`
+                       ${date ? 'hover:bg-indigo-50' : ''}
+                       ${date ? 'bg-stone-700' : 'bg-stone-100'}
+                       ${isCurrentDay ? 'ring-2 ring-red-500' : ''}`
                     : `p-2 border border-indigo-200 rounded-lg
-                       ${date ? 'bg-white hover:bg-indigo-50' : 'bg-stone-100'}
-                       ${isCurrentDay ? 'ring-2 ring-red-500 bg-red-50' : ''}
+                       ${date ? 'hover:bg-indigo-50' : ''}
+                       ${date ? 'bg-stone-700' : 'bg-stone-100'}
+                       ${isCurrentDay ? 'ring-2 ring-red-500' : ''}
                        ${eventsForDate.length > 0 ? 'min-h-[120px]' : 'min-h-[60px]'}`
                   }
                 `}
@@ -363,33 +382,41 @@ export function Calendar({ events = [] }: CalendarProps) {
                 {date && (
                   <>
                     <div className={`
-                      text-sm font-medium mb-1
-                      ${isCurrentDay ? 'text-red-600' : 'text-indigo-900'}
+                      text-lg font-bold mb-1
+                      ${isCurrentDay ? 'text-red-500' : 'text-white'}
                     `}>
                       {date.getDate()}
                     </div>
                     {!isMobile && (
                       <div className="space-y-1">
-                        {eventsForDate.map(event => (
-                          <div
-                            key={event.id}
-                            className="text-xs p-1 bg-red-100 text-red-800 rounded break-words cursor-pointer hover:bg-red-200 transition-colors"
-                            title={event.title}
-                            onClick={() => handleEventClick(event)}
-                          >
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="flex-1">{event.title}</span>
-                              {event.ministryConnection && (
-                                <Badge 
-                                  variant="secondary" 
-                                  className="text-[10px] px-1 py-0 h-4 bg-teal-100 text-teal-700 border-teal-300"
-                                >
-                                  {event.ministryConnection}
-                                </Badge>
-                              )}
+                        {eventsForDate.map(event => {
+                          // Get the day of week for this event to determine color
+                          const eventDate = new Date(event.start);
+                          const dayOfWeek = eventDate.getDay();
+                          const colorSchemes = [
+                            { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
+                            { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
+                            { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
+                            { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
+                            { bg: 'rgb(77 124 15)', name: 'lime-700' },     // Thursday - Lime
+                            { bg: 'rgb(113 78 145)', name: 'purple' },      // Friday - Purple
+                            { bg: 'rgb(220 38 38)', name: 'red-600' }       // Saturday - Red
+                          ];
+                          const colorScheme = colorSchemes[dayOfWeek];
+                          
+                          return (
+                            <div
+                              key={event.id}
+                              className="text-sm p-2 bg-white rounded break-words cursor-pointer hover:bg-gray-50 transition-colors border"
+                              title={event.title}
+                              onClick={() => handleEventClick(event)}
+                            >
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="flex-1 font-bold" style={{ color: colorScheme.bg }}>{event.title}</span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </>
@@ -400,37 +427,6 @@ export function Calendar({ events = [] }: CalendarProps) {
         </div>
 
         {/* Events List */}
-        {calendarEvents.length > 0 && (
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold text-indigo-900 mb-4">Upcoming Events</h3>
-            <div className="space-y-3">
-              {calendarEvents
-                .filter(event => event.start >= new Date())
-                .sort((a, b) => a.start.getTime() - b.start.getTime())
-                .slice(0, 10)
-                .map(event => (
-                  <div 
-                    key={event.id} 
-                    className="flex items-center justify-between p-3 bg-stone-50 rounded-lg cursor-pointer hover:bg-stone-100 transition-colors"
-                    onClick={() => handleEventClick(event)}
-                  >
-                    <div>
-                      <h4 className="font-medium text-indigo-900">{event.title}</h4>
-                      <p className="text-sm text-indigo-700">
-                        {event.start.toLocaleDateString('en-US', { timeZone: 'America/Chicago' })} at {event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'America/Chicago' })}
-                      </p>
-                      {event.location && (
-                        <p className="text-sm text-indigo-600">{event.location}</p>
-                      )}
-                    </div>
-                    {event.recurring && (
-                      <Badge variant="secondary" className="bg-teal-100 text-teal-700 border-teal-300">Recurring</Badge>
-                    )}
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
       </Card>
       
       {/* Event Details Modal */}
@@ -443,7 +439,7 @@ export function Calendar({ events = [] }: CalendarProps) {
       }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-indigo-900">
+            <DialogTitle className="flex items-center gap-2 text-indigo-900 font-serif">
               <CalendarIcon className="h-5 w-5" />
               {selectedEvent ? 'Event Details' : 'Events for ' + (selectedDate?.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' }) || '')}
             </DialogTitle>
@@ -452,7 +448,7 @@ export function Calendar({ events = [] }: CalendarProps) {
           {selectedEvent ? (
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-lg text-indigo-900">{selectedEvent.title}</h3>
+                <h3 className="font-bold text-xl text-indigo-900">{selectedEvent.title}</h3>
               </div>
               
               <div className="space-y-2">
@@ -500,6 +496,7 @@ export function Calendar({ events = [] }: CalendarProps) {
            
            {selectedEvent.ministryInfo && (
              <div className="bg-teal-50 p-4 rounded-lg">
+               <h4 className="font-bold text-lg text-indigo-900 mb-3">Ministry Connection</h4>
                {selectedEvent.ministryInfo.imageUrl && (
                  <div className="mb-3">
                    <img
@@ -535,6 +532,7 @@ export function Calendar({ events = [] }: CalendarProps) {
            
            {selectedEvent.specialEventInfo && (
              <div className="bg-red-50 p-4 rounded-lg">
+               <h4 className="font-bold text-lg text-indigo-900 mb-3">Special Event</h4>
                {selectedEvent.specialEventInfo.imageUrl && (
                  <div className="mb-3">
                    <img
@@ -571,53 +569,58 @@ export function Calendar({ events = [] }: CalendarProps) {
             </div>
           ) : selectedDate && (
             <div className="space-y-3">
-              {getEventsForDate(selectedDate).map(event => (
-                <div
-                  key={event.id}
-                  className="p-3 border border-indigo-200 rounded-lg cursor-pointer hover:bg-indigo-50 transition-colors"
-                  onClick={() => {
-                    setSelectedEvent(event);
-                    setSelectedDate(null);
-                  }}
-                >
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-indigo-900">{event.title}</h3>
-                    <div className="flex items-center gap-2 text-indigo-700">
-                      <Clock className="h-4 w-4" />
-                      <span className="text-sm">
-                        {event.start.toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                          timeZone: 'America/Chicago'
-                        })} - {event.end.toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                          timeZone: 'America/Chicago'
-                        })}
-                      </span>
-                    </div>
-                    {event.location && (
+              {getEventsForDate(selectedDate).map(event => {
+                // Get the day of week for this event to determine color
+                const eventDate = new Date(event.start);
+                const dayOfWeek = eventDate.getDay();
+                const colorSchemes = [
+                  { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
+                  { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
+                  { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
+                  { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
+                  { bg: 'rgb(77 124 15)', name: 'lime-700' },     // Thursday - Lime
+                  { bg: 'rgb(113 78 145)', name: 'purple' },      // Friday - Purple
+                  { bg: 'rgb(220 38 38)', name: 'red-600' }       // Saturday - Red
+                ];
+                const colorScheme = colorSchemes[dayOfWeek];
+                
+                return (
+                  <div
+                    key={event.id}
+                    className="p-3 border border-indigo-200 rounded-lg cursor-pointer hover:bg-indigo-50 transition-colors bg-white"
+                    onClick={() => {
+                      setSelectedEvent(event);
+                      setSelectedDate(null);
+                    }}
+                  >
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-bold" style={{ color: colorScheme.bg }}>{event.title}</h3>
                       <div className="flex items-center gap-2 text-indigo-700">
-                        <MapPin className="h-4 w-4" />
-                        <span className="text-sm">{event.location}</span>
+                        <Clock className="h-4 w-4" />
+                        <span className="text-sm">
+                          {event.start.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true,
+                            timeZone: 'America/Chicago'
+                          })} - {event.end.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true,
+                            timeZone: 'America/Chicago'
+                          })}
+                        </span>
                       </div>
-                    )}
-                    {event.ministryConnection && (
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-teal-600" />
-                        <Badge 
-                          variant="secondary" 
-                          className="text-xs bg-teal-100 text-teal-700 border-teal-300"
-                        >
-                          {event.ministryConnection}
-                        </Badge>
-                      </div>
-                    )}
+                      {event.location && (
+                        <div className="flex items-center gap-2 text-indigo-700">
+                          <MapPin className="h-4 w-4" />
+                          <span className="text-sm">{event.location}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </DialogContent>

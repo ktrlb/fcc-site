@@ -15,7 +15,7 @@ export function GiveHero() {
       {/* Overlay */}
       <div 
         className="absolute inset-0" 
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
+        style={{ backgroundColor: 'rgba(68 64 60, 0.7)' }}
       />
 
       {/* Content */}

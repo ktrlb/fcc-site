@@ -449,20 +449,28 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
               const hasEvents = dayEvents.length > 0;
               const isSunday = index === 0;
               
+              // Cycle through our signature colors for day headers
+              const colorSchemes = [
+                { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
+                { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
+                { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
+                { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
+                { bg: 'rgb(77 124 15)', name: 'lime-700' },     // Thursday - Lime
+                { bg: 'rgb(113 78 145)', name: 'purple' },      // Friday - Purple
+                { bg: 'rgb(220 38 38)', name: 'red-600' }       // Saturday - Red
+              ];
+              const colorScheme = colorSchemes[index];
               
               return (
                 <div
                   key={day}
-                  className={`p-3 rounded-lg border-2 transition-all min-h-[120px] md:min-h-[200px] ${
-                    hasEvents 
-                      ? 'border-blue-200 bg-blue-50' 
-                      : 'border-gray-200 bg-gray-50'
-                  } ${isSunday ? 'border-gold-300 bg-yellow-50' : ''}`}
+                  className="p-3 rounded-lg transition-all min-h-[120px] md:min-h-[200px]"
+                  style={{ backgroundColor: colorScheme.bg }}
                 >
-                  <div className="text-sm font-semibold text-gray-700 mb-3 text-center">
+                  <div className="text-sm font-semibold text-white mb-3 text-center">
                     {day}
                     {isSunday && (
-                      <div className="text-xs text-blue-600 font-normal mt-1">
+                      <div className="text-xs text-white font-normal mt-1">
                         <Music className="inline h-4 w-4 mr-1" /> Worship Services
                       </div>
                     )}
@@ -472,34 +480,34 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                       <>
                         {/* Standard Sunday Schedule */}
                         <div className="space-y-1">
-                          <div className="p-1 rounded border bg-blue-100 border-blue-300 text-xs">
-                            <span className="font-medium text-xs">9am Worship</span>
+                          <div className="p-2 rounded bg-white text-sm">
+                            <span className="font-bold text-sm" style={{ color: colorScheme.bg }}>9am Worship</span>
                           </div>
                           
-                          <div className="p-1 rounded border bg-green-100 border-green-300 text-xs">
-                            <span className="font-medium text-xs">10am Sunday School</span>
+                          <div className="p-2 rounded bg-white text-sm">
+                            <span className="font-bold text-sm" style={{ color: colorScheme.bg }}>10am Sunday School</span>
                           </div>
                           
-                          <div className="p-1 rounded border bg-blue-100 border-blue-300 text-xs">
-                            <span className="font-medium text-xs">11am Worship</span>
+                          <div className="p-2 rounded bg-white text-sm">
+                            <span className="font-bold text-sm" style={{ color: colorScheme.bg }}>11am Worship</span>
                           </div>
                         </div>
                         
                         {/* Other Sunday Events */}
                         {dayEvents.length > 0 && (
-                          <div className="mt-2 pt-2 border-t border-yellow-300">
-                            <div className="text-xs font-medium text-gray-600 mb-1">Other Events:</div>
+                          <div className="mt-2 pt-2 border-t border-white/30">
+                            <div className="text-xs font-medium mb-1 text-white">Other Events:</div>
                             {dayEvents
                               .sort((a: RecurringEvent, b: RecurringEvent) => a.time.localeCompare(b.time))
                               .map((event: RecurringEvent, eventIndex: number) => (
                                 <div
                                   key={eventIndex}
-                                  className={`p-1 rounded border text-xs cursor-pointer hover:shadow-sm transition-shadow ${getEventColor(event)}`}
+                                  className="p-2 rounded text-sm cursor-pointer hover:shadow-sm transition-shadow bg-white"
                                   onClick={() => handleEventClick(event)}
                                 >
-                                  <div className="flex items-center gap-1">
-                                    <span className="text-xs text-gray-500 font-mono">{formatTime(event.time)}</span>
-                                    <span className="font-medium text-xs break-words">{event.title}</span>
+                                  <div className="space-y-1">
+                                    <div className="text-xs font-mono" style={{ color: colorScheme.bg }}>{formatTime(event.time)}</div>
+                                    <div className="font-bold text-sm break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
                                   </div>
                                 </div>
                               ))}
@@ -512,17 +520,17 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                         .map((event: RecurringEvent, eventIndex: number) => (
                           <div
                             key={eventIndex}
-                            className={`p-1 rounded border text-xs cursor-pointer hover:shadow-sm transition-shadow ${getEventColor(event)}`}
+                            className="p-2 rounded text-sm cursor-pointer hover:shadow-sm transition-shadow bg-white"
                             onClick={() => handleEventClick(event)}
                           >
-                            <div className="flex items-center gap-1">
-                              <span className="text-xs text-gray-500 font-mono">{formatTime(event.time)}</span>
-                              <span className="font-medium text-xs break-words">{event.title}</span>
+                            <div className="space-y-1">
+                              <div className="text-xs font-mono" style={{ color: colorScheme.bg }}>{formatTime(event.time)}</div>
+                              <div className="font-bold text-sm break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
                             </div>
                           </div>
                         ))
                     ) : (
-                      <div className="text-center text-gray-400 text-xs py-4">
+                      <div className="text-center text-white text-xs py-4">
                         No recurring events
                       </div>
                     )}
@@ -540,7 +548,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className={isAdminMode ? "max-w-2xl max-h-[90vh] overflow-y-auto" : "max-w-md max-h-[90vh] overflow-y-auto"}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-indigo-900 font-serif">
               {isAdminMode ? (
                 <>
                   <Settings className="h-5 w-5" />
@@ -567,7 +575,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
             ) : (
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-lg text-gray-900">{selectedEvent.title}</h3>
+                  <h3 className="font-bold text-xl text-stone-700">{selectedEvent.title}</h3>
                 </div>
                 
                 <div className="space-y-2">
@@ -604,7 +612,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                     
                     if (isRecurring) {
                       return (
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-stone-700">
                           <Calendar className="h-4 w-4" />
                           <span className="text-sm">
                             Every {days[dayOfWeek]} at {new Date(selectedEvent.start).toLocaleTimeString('en-US', {
@@ -619,7 +627,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                     } else {
                       return (
                         <>
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-stone-700">
                             <Clock className="h-4 w-4" />
                             <span className="text-sm">
                               {new Date(selectedEvent.start).toLocaleDateString('en-US', {
@@ -632,7 +640,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                             </span>
                           </div>
                           
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-stone-700">
                             <Clock className="h-4 w-4" />
                             <span className="text-sm">
                               {new Date(selectedEvent.start).toLocaleTimeString('en-US', {
@@ -654,7 +662,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                   })()}
                   
                   {selectedEvent.location && (
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-stone-700">
                       <MapPin className="h-4 w-4" />
                       <span className="text-sm">{selectedEvent.location}</span>
                     </div>
@@ -663,36 +671,51 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                 
                 
                 {(selectedEvent.ministryInfo || selectedEvent.specialEventInfo || selectedEvent.specialEventNote || selectedEvent.specialEventImage) && (
-                  <div className="pt-4 border-t border-gray-200">
+                  <div className="pt-4 border-t border-indigo-200">
                     
                     {selectedEvent.ministryInfo && (
-                      <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="p-4 rounded-lg" style={{ 
+                        backgroundColor: (() => {
+                          const eventDate = new Date(selectedEvent.start);
+                          const dayOfWeek = eventDate.getDay();
+                          const colorSchemes = [
+                            'rgb(220 38 38)',      // Sunday - Red
+                            'rgb(17 94 89)',       // Monday - Teal
+                            'rgb(49 46 129)',      // Tuesday - Indigo
+                            'rgb(245 158 11)',     // Wednesday - Amber
+                            'rgb(77 124 15)',      // Thursday - Lime
+                            'rgb(113 78 145)',     // Friday - Purple
+                            'rgb(220 38 38)'       // Saturday - Red
+                          ];
+                          return colorSchemes[dayOfWeek];
+                        })()
+                      }}>
                         {selectedEvent.ministryInfo.imageUrl && (
-                          <div className="mb-3">
+                          <div className="mb-3 -mx-4 -mt-4">
                             <img
                               src={selectedEvent.ministryInfo.imageUrl}
                               alt={selectedEvent.ministryInfo.name}
-                              className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                              className="w-full aspect-[1200/630] object-cover rounded-t-lg"
                             />
                           </div>
                         )}
                         {selectedEvent.ministryInfo.description && (
-                          <p className="text-sm text-gray-600 mb-3">{selectedEvent.ministryInfo.description}</p>
+                          <p className="text-sm text-white mb-3">{selectedEvent.ministryInfo.description}</p>
                         )}
                         {selectedEvent.ministryInfo.contactPerson && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2 text-sm text-white">
                             <Users className="h-4 w-4" />
                             <span>Contact: {selectedEvent.ministryInfo.contactPerson}</span>
                           </div>
                         )}
                         {selectedEvent.ministryInfo.contactEmail && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                          <div className="flex items-center gap-2 text-sm text-white mt-1">
                             <Mail className="h-3 w-3" />
                             <span>{selectedEvent.ministryInfo.contactEmail}</span>
                           </div>
                         )}
                         {selectedEvent.ministryInfo.contactPhone && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                          <div className="flex items-center gap-2 text-sm text-white mt-1">
                             <Phone className="h-3 w-3" />
                             <span>{selectedEvent.ministryInfo.contactPhone}</span>
                           </div>
@@ -701,21 +724,36 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                     )}
                     
                     {selectedEvent.specialEventInfo && (
-                      <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="p-4 rounded-lg" style={{ 
+                        backgroundColor: (() => {
+                          const eventDate = new Date(selectedEvent.start);
+                          const dayOfWeek = eventDate.getDay();
+                          const colorSchemes = [
+                            'rgb(220 38 38)',      // Sunday - Red
+                            'rgb(17 94 89)',       // Monday - Teal
+                            'rgb(49 46 129)',      // Tuesday - Indigo
+                            'rgb(245 158 11)',     // Wednesday - Amber
+                            'rgb(77 124 15)',      // Thursday - Lime
+                            'rgb(113 78 145)',     // Friday - Purple
+                            'rgb(220 38 38)'       // Saturday - Red
+                          ];
+                          return colorSchemes[dayOfWeek];
+                        })()
+                      }}>
                         {selectedEvent.specialEventInfo.imageUrl && (
-                          <div className="mb-3">
+                          <div className="mb-3 -mx-4 -mt-4">
                             <img
                               src={selectedEvent.specialEventInfo.imageUrl}
                               alt={selectedEvent.specialEventInfo.name}
-                              className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                              className="w-full aspect-[1200/630] object-cover rounded-t-lg"
                             />
                           </div>
                         )}
                         {selectedEvent.specialEventInfo.description && (
-                          <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventInfo.description}</p>
+                          <p className="text-sm text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
                         )}
                         {selectedEvent.specialEventInfo.contactPerson && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2 text-sm text-white">
                             <Users className="h-4 w-4" />
                             <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
                           </div>
@@ -725,21 +763,36 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
 
                     {/* Fallback render for special event data saved on the event (no specialEventInfo object) */}
                     {!selectedEvent.specialEventInfo && (selectedEvent.specialEventImage || selectedEvent.specialEventNote) && (
-                      <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="p-4 rounded-lg" style={{ 
+                        backgroundColor: (() => {
+                          const eventDate = new Date(selectedEvent.start);
+                          const dayOfWeek = eventDate.getDay();
+                          const colorSchemes = [
+                            'rgb(220 38 38)',      // Sunday - Red
+                            'rgb(17 94 89)',       // Monday - Teal
+                            'rgb(49 46 129)',      // Tuesday - Indigo
+                            'rgb(245 158 11)',     // Wednesday - Amber
+                            'rgb(77 124 15)',      // Thursday - Lime
+                            'rgb(113 78 145)',     // Friday - Purple
+                            'rgb(220 38 38)'       // Saturday - Red
+                          ];
+                          return colorSchemes[dayOfWeek];
+                        })()
+                      }}>
                         {selectedEvent.specialEventImage && (
-                          <div className="mb-3">
+                          <div className="mb-3 -mx-4 -mt-4">
                             <img
                               src={selectedEvent.specialEventImage}
                               alt={selectedEvent.title}
-                              className="w-full aspect-[1200/630] object-cover rounded-lg border"
+                              className="w-full aspect-[1200/630] object-cover rounded-t-lg"
                             />
                           </div>
                         )}
                         {selectedEvent.specialEventNote && (
-                          <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventNote}</p>
+                          <p className="text-sm text-white mb-3">{selectedEvent.specialEventNote}</p>
                         )}
                         {selectedEvent.contactPerson && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2 text-sm text-white">
                             <Users className="h-4 w-4" />
                             <span>Contact: {selectedEvent.contactPerson}</span>
                           </div>
@@ -749,11 +802,11 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                   </div>
                 )}
                 
-                <div className="flex justify-end pt-4 border-t border-gray-200">
+                <div className="flex justify-end pt-4 border-t border-stone-200">
                   <Button 
                     variant="outline" 
                     onClick={() => setIsModalOpen(false)}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 border-stone-300 text-stone-700 hover:bg-stone-50"
                   >
                     <X className="h-4 w-4" />
                     Close

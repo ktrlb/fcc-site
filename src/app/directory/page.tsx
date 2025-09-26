@@ -61,24 +61,24 @@ export default function DirectoryPage() {
 
   if (isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-24">
+      <div className="min-h-screen pt-24" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <Users className="h-8 w-8 text-green-600" />
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                <Users className="h-8 w-8" style={{ color: 'rgb(17 94 89)' }} />
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 font-serif mb-4">Church Directory</h1>
-            <p className="text-xl text-gray-600">
+            <h1 className="text-4xl font-bold text-white font-serif mb-4">Church Directory</h1>
+            <p className="text-xl text-white/80">
               Access our church family directory
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+          <div className="p-8 rounded-lg mb-8" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Download Directory PDF</h2>
-              <p className="text-gray-700 mb-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Download Directory PDF</h2>
+              <p className="text-white/90 mb-6">
                 You can now download the church directory PDF. This directory contains contact 
                 information for our church family members.
               </p>
@@ -86,13 +86,13 @@ export default function DirectoryPage() {
               <Button 
                 onClick={handleDownload}
                 size="lg"
-                className="inline-flex items-center mb-4"
+                className="inline-flex items-center mb-4 bg-white text-teal-800 hover:bg-white/10 hover:text-white border border-white"
               >
                 <Download className="h-5 w-5 mr-2" />
                 Download Directory PDF
               </Button>
               
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white/80">
                 Note: This directory is for church family use only. Please respect the privacy 
                 of our members and do not share this information outside our church community.
               </p>
@@ -103,6 +103,7 @@ export default function DirectoryPage() {
             <Button 
               onClick={() => setIsAuthenticated(false)}
               variant="outline"
+              className="bg-white text-indigo-900 hover:bg-white/10 hover:text-white border border-white"
             >
               Back to Directory Options
             </Button>
@@ -113,22 +114,22 @@ export default function DirectoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen pt-24" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 font-serif mb-4">Church Directory</h1>
-          <p className="text-xl text-gray-600">Access our family directory</p>
+          <h1 className="text-4xl font-bold text-white font-serif mb-4">Church Directory</h1>
+          <p className="text-xl text-white/80">Access our family directory</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-8">
           {/* Breeze Directory */}
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="p-8 rounded-lg" style={{ backgroundColor: 'rgb(49 46 129)' }}>
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-blue-600" />
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8" style={{ color: 'rgb(49 46 129)' }} />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Live Directory (Breeze)</h2>
-              <p className="text-gray-700 mb-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Live Directory (Breeze)</h2>
+              <p className="text-white/90 mb-6">
                 Access our always up-to-date digital directory through Breeze. 
                 Request an account to view current member information.
               </p>
@@ -136,33 +137,33 @@ export default function DirectoryPage() {
 
             <div className="space-y-4 mb-6">
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
                   1
                 </div>
-                <p className="text-gray-700 text-sm">
+                <p className="text-white/90 text-sm">
                   Click &quot;Request Breeze Access&quot; to fill out the signup form
                 </p>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
                   2
                 </div>
-                <p className="text-gray-700 text-sm">
+                <p className="text-white/90 text-sm">
                   Receive an email within 24-48 hours with account setup instructions
                 </p>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
                   3
                 </div>
-                <p className="text-gray-700 text-sm">
+                <p className="text-white/90 text-sm">
                   Access the complete, always-current directory
                 </p>
               </div>
             </div>
 
             <div className="space-y-3">
-              <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <Button asChild className="w-full bg-white text-indigo-900 hover:bg-white/10 hover:text-white border border-white">
                 <a 
                   href="https://fccgranbury.breezechms.com/form/breeze-signup" 
                   target="_blank" 
@@ -173,7 +174,7 @@ export default function DirectoryPage() {
                   <ExternalLink className="h-4 w-4 ml-2" />
                 </a>
               </Button>
-              <Button asChild variant="outline" className="w-full">
+              <Button asChild variant="outline" className="w-full bg-white/10 text-white hover:bg-white/20 border border-white/30">
                 <a 
                   href="https://fccgranbury.breezechms.com" 
                   target="_blank" 
@@ -188,13 +189,13 @@ export default function DirectoryPage() {
           </div>
 
           {/* PDF Directory */}
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="p-8 rounded-lg" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Download className="h-8 w-8 text-green-600" />
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <Download className="h-8 w-8" style={{ color: 'rgb(17 94 89)' }} />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">PDF Directory</h2>
-              <p className="text-gray-700 mb-6">
+              <h2 className="text-2xl font-bold text-white mb-4">PDF Directory</h2>
+              <p className="text-white/90 mb-6">
                 Download a static PDF version of our church directory. 
                 Contact the office for the password.
               </p>
@@ -202,7 +203,7 @@ export default function DirectoryPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
                   Directory Password
                 </label>
                 <div className="relative">
@@ -212,7 +213,8 @@ export default function DirectoryPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter password"
-                    className="pr-10"
+                    className="pr-10 bg-white/10 border-white/30 text-white placeholder:text-white/70 focus:border-white focus:ring-white/50"
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.3)', color: 'white' }}
                     required
                   />
                   <button
@@ -221,29 +223,29 @@ export default function DirectoryPage() {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
+                      <EyeOff className="h-4 w-4 text-white/70" />
                     ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
+                      <Eye className="h-4 w-4 text-white/70" />
                     )}
                   </button>
                 </div>
                 {error && (
-                  <p className="mt-2 text-sm text-red-600">{error}</p>
+                  <p className="mt-2 text-sm text-white/90">{error}</p>
                 )}
               </div>
               
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-white text-teal-800 hover:bg-white/10 hover:text-white border border-white">
                 <Lock className="h-4 w-4 mr-2" />
                 Access PDF Directory
               </Button>
             </form>
             
             <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white/90">
                 Need the password? Contact the church office at{" "}
                 <a 
                   href="mailto:office@fccgranbury.org" 
-                  className="text-blue-600 hover:text-blue-800 underline"
+                  className="text-white hover:text-white/80 underline"
                 >
                   office@fccgranbury.org
                 </a>
@@ -252,12 +254,12 @@ export default function DirectoryPage() {
           </div>
         </div>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-yellow-800 mb-2">Need Help?</h3>
-          <p className="text-yellow-700">
+        <div className="p-6 rounded-lg" style={{ backgroundColor: 'rgb(245 158 11)' }}>
+          <h3 className="text-lg font-semibold text-white mb-2">Need Help?</h3>
+          <p className="text-white/90">
             If you have questions about accessing the directory or need assistance with your Breeze account, 
-            please contact the church office at <a href="mailto:office@fccgranbury.org" className="text-yellow-800 hover:underline font-medium">office@fccgranbury.org</a> 
-            or call <a href="tel:+18175735431" className="text-yellow-800 hover:underline font-medium">(817) 573-5431</a>.
+            please contact the church office at <a href="mailto:office@fccgranbury.org" className="text-white hover:text-white/80 underline font-medium">office@fccgranbury.org</a> 
+            or call <a href="tel:+18175735431" className="text-white hover:text-white/80 underline font-medium">(817) 573-5431</a>.
           </p>
         </div>
       </div>

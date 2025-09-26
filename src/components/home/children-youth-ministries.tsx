@@ -11,7 +11,7 @@ export function ChildrenYouthMinistries() {
       title: "Infants & Toddlers",
       description: "We provide a warm, safe, and nurturing environment for our youngest members. Our staffed nursery is available for children 3 and under. We also have a private mothers room if you need a quiet space with your little one.",
       icon: Baby,
-      href: "/children/infants-toddlers",
+      href: "/infants-toddlers",
       cardColor: "red-600",
       textColor: "text-red-600",
       ageRange: "Birth - 3 years"
@@ -20,7 +20,7 @@ export function ChildrenYouthMinistries() {
       title: "Children",
       description: "Children are welcome to worship along with the congregation. They may sit in the front left pews or with their families. After communion, we encourage the children to join us in the Children's Worship Center for a child-focused way to engage our theme for the day. For the Sunday School hour, our Pathfinders Kids Club encourages play and creativity.",
       icon: Users,
-      href: "/children/children",
+      href: "/children",
       cardColor: "teal-800",
       textColor: "text-teal-800",
       ageRange: "Age 4 through 2nd grade"
@@ -29,7 +29,7 @@ export function ChildrenYouthMinistries() {
       title: "Students",
       description: "Our Chi-Rho program for middle schoolers and CYF program for high schoolers are where young disciples grow through love and service.",
       icon: Heart,
-      href: "/children/youth",
+      href: "/youth",
       cardColor: "indigo-900",
       textColor: "text-indigo-900",
       ageRange: "6th through 12th grade"
