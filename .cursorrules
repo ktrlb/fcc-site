@@ -209,6 +209,68 @@ For buttons on light backgrounds (stone-50, white, etc.):
 - **CSS custom properties** can work but add complexity
 - **Consistent patterns** make maintenance easier across the site
 
+## Design Principles & Color Palette
+
+### Core Design Philosophy
+- **No black text on white backgrounds** - Creates harsh contrast and poor readability
+- **No white text on dark backgrounds** - Maintains accessibility and visual hierarchy
+- **Consistent color integration** - Use signature colors throughout to avoid "rainbow-y" appearance
+- **Professional iconography** - Use Lucide React icons instead of emojis for consistency
+
+### Signature Color Palette
+The site uses a carefully curated color palette to maintain visual cohesion:
+
+#### Primary Colors (Used for cards and accents)
+- **Red-600**: `#dc2626` - `rgb(220 38 38)` - Primary action color, featured content
+- **Teal-800**: `#115e59` - `rgb(17 94 89)` - Secondary accent, complementary content  
+- **Indigo-900**: `#312e81` - `rgb(49 46 129)` - Tertiary accent, supporting content
+- **Amber-500**: `#f59e0b` - `rgb(245 158 11)` - Accent color for variety
+- **Lime-700**: `#4d7c0f` - `rgb(77 124 15)` - Additional accent color for variety
+
+#### Seasonal Colors (Reserved for Advent/Lent promotions)
+- **Purple**: `#714E91` - `rgb(113 78 145)` - Limited use for special content, or when an additional accent value is needed (like Dignity value)
+- **Rose**: `#DB6E9A` - `rgb(219 110 154)` - Advent/Lent seasonal use
+
+#### Background Colors
+- **Stone-700**: `#44403c` - `rgb(68 64 60)` - Dark section backgrounds
+- **Stone-50**: `#fafaf9` - `rgb(250 250 249)` - Light section backgrounds
+- **White**: `#ffffff` - `rgb(255 255 255)` - Card backgrounds and text
+
+### Section Background Patterns
+- **Dark Sections** (stone-700): Featured Special Events, Learn More About FCC, Children & Youth Ministries, Finding Your Place, Featured Resources
+- **Light Sections** (stone-50): Special Events & Seasonal Guide, Stay Connected
+
+### Card Styling Patterns
+- **Colored Cards**: Use signature colors with white text and white icon badges
+- **Icon Badges**: White circular background with colored icons matching card color
+- **Text**: Always white on colored cards for maximum contrast and readability
+
+### Inline Styling Approach
+Due to the dynamic nature of color cycling and Tailwind CSS purging, we use inline styles for:
+- **Background colors**: `style={{ backgroundColor: 'rgb(220 38 38)' }}`
+- **Icon colors**: `style={{ color: '#dc2626' }}`
+- **Dynamic color application**: When colors are determined at runtime
+
+### Button Styling Hierarchy
+1. **Buttons on Colored Cards**: White background, card color text, hover reveals card color with transparency
+2. **Buttons on Light Backgrounds**: Dark background (indigo-900), white text, lighter on hover
+3. **Large Action Buttons**: H1-sized text for maximum impact (newsletter signup)
+
+### Typography Scale
+- **Headings**: `text-4xl font-bold` for section titles, `text-3xl` for subsections
+- **Body Text**: `text-lg` for primary content, `text-sm` for secondary
+- **Button Text**: `text-3xl font-bold` for primary actions, standard sizing for others
+
+### Icon Usage
+- **Replace all emojis** with Lucide React icons for consistency
+- **Consistent sizing**: `h-4 w-4` for small icons, `h-6 w-6` for medium, `h-8 w-8` for large
+- **Color matching**: Icons should match their container's accent color
+
+### Responsive Design
+- **Mobile-first approach** with Tailwind CSS
+- **Grid layouts**: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` for responsive cards
+- **Consistent spacing**: `py-16` for section padding, `px-6` for container padding
+
 ## Future Improvements
 - Better error handling for calendar API failures
 - Improved mobile responsiveness

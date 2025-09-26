@@ -63,59 +63,70 @@ export function WhatToExpect() {
   ];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 font-serif">What To Expect</h2>
-          <p className="mt-4 text-lg text-gray-600">Common questions from first-time visitors</p>
+          <h2 className="text-3xl font-bold text-white font-serif">What To Expect</h2>
+          <p className="mt-4 text-lg text-white">Common questions from first-time visitors</p>
         </div>
 
         <div className="max-w-4xl mx-auto">
           <div className="space-y-8">
-            {faqs.map((faq, index) => (
-              <Card key={index} className="p-4 hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <faq.icon className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                        {faq.question}
-                      </h3>
-                      <div className="text-gray-700 leading-relaxed">
-                        {faq.answer}
+            {faqs.map((faq, index) => {
+              // Cycle through signature colors
+              const colors = [
+                { bg: 'red-600', text: 'text-red-600', hex: '#dc2626' },
+                { bg: 'teal-800', text: 'text-teal-800', hex: '#115e59' },
+                { bg: 'indigo-900', text: 'text-indigo-900', hex: '#312e81' },
+                { bg: 'amber-500', text: 'text-amber-500', hex: '#f59e0b' }
+              ];
+              const colorScheme = colors[index % colors.length];
+              
+              return (
+                <Card key={index} className="p-4 hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: colorScheme.hex }}>
+                  <CardContent className="p-0">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                        <faq.icon className="h-6 w-6" style={{ color: colorScheme.hex }} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white mb-3">
+                          {faq.question}
+                        </h3>
+                        <div className="text-white leading-relaxed">
+                          {faq.answer}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
 
         {/* Call to Action */}
         <div className="mt-16 text-center">
-          <div className="bg-blue-50 rounded-lg p-8">
-            <h3 className="text-2xl font-bold text-gray-900 font-serif mb-4">
+          <div className="rounded-lg p-8" style={{ backgroundColor: 'rgb(17 94 89)' }}>
+            <h3 className="text-2xl font-bold text-white font-serif mb-4">
               Still Have Questions?
             </h3>
-            <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
+            <p className="text-white mb-6 max-w-2xl mx-auto">
               We&apos;d love to answer any other questions you might have. 
               Feel free to reach out to us or just come visit - we&apos;re here to help!
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-center">
               <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-900 mb-1">Call Us</h4>
-                <p className="text-sm text-gray-600">(817) 573-5431</p>
+                <h4 className="font-semibold text-indigo-900 mb-1">Call Us</h4>
+                <p className="text-sm text-indigo-900">(817) 573-5431</p>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-900 mb-1">Email Us</h4>
-                <p className="text-sm text-gray-600">office@fccgranbury.org</p>
+                <h4 className="font-semibold text-indigo-900 mb-1">Email Us</h4>
+                <p className="text-sm text-indigo-900">office@fccgranbury.org</p>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
-                <h4 className="font-semibold text-gray-900 mb-1">Office Hours</h4>
-                <p className="text-sm text-gray-600">Monday-Thursday<br />9am-5pm</p>
+                <h4 className="font-semibold text-indigo-900 mb-1">Office Hours</h4>
+                <p className="text-sm text-indigo-900">Monday-Thursday<br />9am-5pm</p>
               </div>
             </div>
           </div>

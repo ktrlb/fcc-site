@@ -61,6 +61,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
   } | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [selectedEventColor, setSelectedEventColor] = useState<string>('rgb(220 38 38)');
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
@@ -130,11 +131,24 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
     }
   };
 
-  const handleEventClick = async (recurringEvent: RecurringEvent) => {
+  const handleEventClick = async (recurringEvent: RecurringEvent, dayIndex: number) => {
     console.log('=== EVENT CLICKED ===');
     console.log('Clicked recurring event:', recurringEvent);
     console.log('Available events count:', events.length);
     console.log('Events with same title:', events.filter(e => e.title === recurringEvent.title).map(e => ({ id: e.id, title: e.title, start: e.start })));
+    
+    // Get the color scheme for this day
+    const colorSchemes = [
+      { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
+      { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
+      { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
+      { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
+      { bg: 'rgb(77 124 15)', name: 'lime-700' },     // Thursday - Lime
+      { bg: 'rgb(113 78 145)', name: 'purple' },      // Friday - Purple
+      { bg: 'rgb(220 38 38)', name: 'red-600' }       // Saturday - Red
+    ];
+    const colorScheme = colorSchemes[dayIndex];
+    setSelectedEventColor(colorScheme.bg);
     
     function getNextOccurrenceDate(dayOfWeek: number, timeHHmm: string): Date {
       const now = new Date();
@@ -466,14 +480,14 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
 
   const getEventColor = (ministryConnection?: string): string => {
     const colors = {
-      'worship': 'bg-blue-100 text-blue-800 border-blue-200',
-      'children': 'bg-green-100 text-green-800 border-green-200',
-      'youth': 'bg-purple-100 text-purple-800 border-purple-200',
-      'bible study': 'bg-orange-100 text-orange-800 border-orange-200',
-      'prayer': 'bg-red-100 text-red-800 border-red-200',
-      'fellowship': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'missions': 'bg-indigo-100 text-indigo-800 border-indigo-200',
-      'default': 'bg-gray-100 text-gray-800 border-gray-200'
+      'worship': 'bg-red-100 text-red-800 border-red-200',
+      'children': 'bg-teal-100 text-teal-800 border-teal-200',
+      'youth': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+      'bible study': 'bg-amber-100 text-amber-800 border-amber-200',
+      'prayer': 'bg-lime-100 text-lime-800 border-lime-200',
+      'fellowship': 'bg-purple-100 text-purple-800 border-purple-200',
+      'missions': 'bg-teal-100 text-teal-800 border-teal-200',
+      'default': 'bg-stone-100 text-stone-800 border-stone-200'
     };
     
     return colors[ministryConnection as keyof typeof colors] || colors.default;
@@ -484,10 +498,10 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Weekly Groups & Activities</DialogTitle>
+            <DialogTitle className="text-indigo-900 font-serif">Weekly Groups & Activities</DialogTitle>
           </DialogHeader>
           <div className="flex items-center justify-center py-8">
-            <div className="text-gray-500">Loading events...</div>
+            <div className="text-indigo-700">Loading events...</div>
           </div>
         </DialogContent>
       </Dialog>
@@ -499,10 +513,10 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Weekly Groups & Activities</DialogTitle>
+            <DialogTitle className="text-indigo-900 font-serif">Weekly Groups & Activities</DialogTitle>
           </DialogHeader>
           <div className="flex items-center justify-center py-8">
-            <div className="text-gray-500">No recurring events found.</div>
+            <div className="text-indigo-700">No recurring events found.</div>
           </div>
         </DialogContent>
       </Dialog>
@@ -515,7 +529,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-indigo-900 font-serif">
               <Calendar className="h-5 w-5" />
               Weekly Groups & Activities
             </DialogTitle>
@@ -529,23 +543,27 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                 const hasEvents = dayEvents.length > 0;
                 const isSunday = index === 0;
                 
+                // Cycle through our signature colors
+                const colorSchemes = [
+                  { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
+                  { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
+                  { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
+                  { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
+                  { bg: 'rgb(77 124 15)', name: 'lime-700' },     // Thursday - Lime
+                  { bg: 'rgb(113 78 145)', name: 'purple' },      // Friday - Purple
+                  { bg: 'rgb(220 38 38)', name: 'red-600' }       // Saturday - Red
+                ];
+                const colorScheme = colorSchemes[index];
+                
                 return (
                   <div
                     key={dayName}
-                    className={`p-4 rounded-lg border-2 transition-all ${
-                      hasEvents 
-                        ? 'border-blue-200 bg-blue-50' 
-                        : 'border-gray-200 bg-gray-50'
-                    } ${isSunday ? 'border-yellow-300 bg-yellow-50' : ''}`}
+                    className="p-4 rounded-lg transition-all"
+                    style={{ backgroundColor: colorScheme.bg }}
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                         {dayName}
-                        {isSunday && (
-                          <Badge variant="secondary" className="text-xs bg-yellow-200 text-yellow-800">
-                            <Music className="inline h-4 w-4 mr-1" /> Worship Services
-                          </Badge>
-                        )}
                       </h3>
                     </div>
                     
@@ -556,12 +574,12 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                           .map((event, eventIndex) => (
                             <div
                               key={eventIndex}
-                              className={`p-3 rounded border text-sm cursor-pointer hover:shadow-sm transition-shadow w-full ${getEventColor(event.ministryConnection)}`}
-                              onClick={() => handleEventClick(event)}
+                              className="p-3 rounded bg-white text-sm cursor-pointer hover:shadow-sm transition-shadow w-full"
+                              onClick={() => handleEventClick(event, index)}
                             >
                               <div className="flex items-center gap-2">
-                                <Clock className="h-3 w-3" />
-                                <span className="text-xs text-gray-500 font-mono">
+                                <Clock className="h-3 w-3" style={{ color: colorScheme.bg }} />
+                                <span className="text-xs font-mono" style={{ color: colorScheme.bg }}>
                                   {(() => {
                                     const [hours, minutes] = event.time.split(':');
                                     const hour = parseInt(hours);
@@ -571,18 +589,18 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                                     return minute > 0 ? `${displayHour}:${minutes}${ampm}` : `${displayHour}${ampm}`;
                                   })()}
                                 </span>
-                                <span className="font-medium text-sm">{event.title}</span>
+                                <span className="font-medium text-sm" style={{ color: colorScheme.bg }}>{event.title}</span>
                               </div>
                               {event.location && (
                                 <div className="flex items-center gap-1 mt-1">
-                                  <MapPin className="h-3 w-3" />
-                                  <span className="text-xs text-gray-600">{event.location}</span>
+                                  <MapPin className="h-3 w-3" style={{ color: colorScheme.bg }} />
+                                  <span className="text-xs" style={{ color: colorScheme.bg }}>{event.location}</span>
                                 </div>
                               )}
                             </div>
                           ))
                       ) : (
-                        <div className={`text-center py-6 w-full ${isSunday ? 'text-gray-600 text-base font-medium' : 'text-gray-400 text-sm'}`}>
+                        <div className={`text-center py-6 w-full text-white ${isSunday ? 'text-base font-medium' : 'text-sm'}`}>
                           {isSunday ? (
                             "In addition to Sunday worship, we have these regular groups throughout the week"
                           ) : (
@@ -597,8 +615,8 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
             </div>
           </div>
           
-          <div className="flex justify-end pt-4 border-t border-gray-200">
-            <Button variant="outline" onClick={onClose}>
+          <div className="flex justify-end pt-4 border-t border-indigo-200">
+            <Button variant="outline" onClick={onClose} className="border-indigo-300 text-indigo-700 hover:bg-indigo-50">
               Close
             </Button>
           </div>
@@ -607,9 +625,9 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
 
       {/* Event Details Modal */}
       <Dialog open={isEventModalOpen} onOpenChange={setIsEventModalOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" style={{ backgroundColor: selectedEventColor }}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-white font-serif">
               <Calendar className="h-5 w-5" />
               Event Details
             </DialogTitle>
@@ -618,11 +636,11 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
           {selectedEvent && (
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-lg text-gray-900">{selectedEvent.title}</h3>
+                <h3 className="font-semibold text-lg text-white">{selectedEvent.title}</h3>
               </div>
               
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-white">
                   <Calendar className="h-4 w-4" />
                   <span className="text-sm">
                     Every {FULL_DAYS[new Date(selectedEvent.start).getDay()]} at {new Intl.DateTimeFormat('en-US', {
@@ -635,15 +653,15 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                 </div>
                 
                 {selectedEvent.location && (
-                  <div className="flex items-center gap-2 text-gray-600">
+                  <div className="flex items-center gap-2 text-white">
                     <MapPin className="h-4 w-4" />
                     <span className="text-sm">{selectedEvent.location}</span>
                   </div>
                 )}
                 
                 {selectedEvent.ministryConnection && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Badge variant="outline" className="text-xs capitalize">
+                  <div className="flex items-center gap-2 text-white">
+                    <Badge variant="outline" className="text-xs capitalize border-white text-white">
                       {selectedEvent.ministryConnection}
                     </Badge>
                   </div>
@@ -652,10 +670,10 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
               
               
               {(selectedEvent.ministryInfo || selectedEvent.specialEventInfo || selectedEvent.specialEventImage || selectedEvent.specialEventNote) && (
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-white/30">
                   
                   {selectedEvent.ministryInfo && (
-                    <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="bg-white/10 p-4 rounded-lg">
                       {selectedEvent.ministryInfo.imageUrl && (
                         <div className="mb-3">
                           <img
@@ -666,22 +684,22 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         </div>
                       )}
                       {selectedEvent.ministryInfo.description && (
-                        <p className="text-sm text-gray-600 mb-3">{selectedEvent.ministryInfo.description}</p>
+                        <p className="text-sm text-white mb-3">{selectedEvent.ministryInfo.description}</p>
                       )}
                       {selectedEvent.ministryInfo.contactPerson && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2 text-sm text-white">
                           <Users className="h-4 w-4" />
                           <span>Contact: {selectedEvent.ministryInfo.contactPerson}</span>
                         </div>
                       )}
                       {selectedEvent.ministryInfo.contactEmail && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                        <div className="flex items-center gap-2 text-sm text-white mt-1">
                           <Mail className="h-3 w-3" />
                           <span>{selectedEvent.ministryInfo.contactEmail}</span>
                         </div>
                       )}
                       {selectedEvent.ministryInfo.contactPhone && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                        <div className="flex items-center gap-2 text-sm text-white mt-1">
                           <Phone className="h-3 w-3" />
                           <span>{selectedEvent.ministryInfo.contactPhone}</span>
                         </div>
@@ -690,7 +708,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                   )}
                   
                   {selectedEvent.specialEventInfo && (
-                    <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="bg-white/10 p-4 rounded-lg">
                       {selectedEvent.specialEventInfo.imageUrl && (
                         <div className="mb-3">
                           <img
@@ -701,10 +719,10 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         </div>
                       )}
                       {selectedEvent.specialEventInfo.description && (
-                        <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventInfo.description}</p>
+                        <p className="text-sm text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
                       )}
                       {selectedEvent.specialEventInfo.contactPerson && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2 text-sm text-white">
                           <Users className="h-4 w-4" />
                           <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
                         </div>
@@ -714,7 +732,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
 
                   {/* Fallback render for special event data saved directly on the event when specialEventInfo is not available */}
                   {!selectedEvent.specialEventInfo && (selectedEvent.specialEventImage || selectedEvent.specialEventNote) && (
-                    <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="bg-white/10 p-4 rounded-lg">
                       {selectedEvent.specialEventImage && (
                         <div className="mb-3">
                           <img
@@ -725,10 +743,10 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         </div>
                       )}
                       {selectedEvent.specialEventNote && (
-                        <p className="text-sm text-gray-600 mb-3">{selectedEvent.specialEventNote}</p>
+                        <p className="text-sm text-white mb-3">{selectedEvent.specialEventNote}</p>
                       )}
                       {selectedEvent.contactPerson && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2 text-sm text-white">
                           <Users className="h-4 w-4" />
                           <span>Contact: {selectedEvent.contactPerson}</span>
                         </div>
@@ -738,11 +756,11 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                 </div>
               )}
               
-              <div className="flex justify-end pt-4 border-t border-gray-200">
+              <div className="flex justify-end pt-4 border-t border-white/30">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsEventModalOpen(false)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 border-white text-white hover:bg-white/10"
                 >
                   <X className="h-4 w-4" />
                   Close
