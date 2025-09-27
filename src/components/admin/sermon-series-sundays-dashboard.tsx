@@ -13,11 +13,11 @@ import {
   Upload,
   Clock,
   MapPin,
-  Users,
-  Star
+  Users
 } from 'lucide-react';
 import { SermonSeries, Sunday } from '@/lib/schema';
 import { SermonSeriesUploadModal } from './sermon-series-upload-modal';
+import { SermonSeriesEditModal } from './sermon-series-edit-modal';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -84,7 +84,10 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
       });
       console.log(`Generated date: ${dateString} -> ${dayName}`);
       
-      weeks.push(dateString);
+      weeks.push({
+        date: dateString,
+        weekNumber: i + 1
+      });
     }
     return weeks;
   };
@@ -96,8 +99,29 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
       const response = await fetch('/api/calendar/events?forceRefresh=true');
       if (response.ok) {
         const data = await response.json();
-        console.log(`Fetched ${data.events?.length || 0} events from calendar cache`);
-        return data.events || [];
+        const events = data.events || [];
+        console.log(`Fetched ${events.length} events from calendar cache`);
+        
+        // Debug: Check the date range of events
+        if (events.length > 0) {
+          const sortedEvents = events.sort((a: CalendarEvent, b: CalendarEvent) => 
+            new Date(a.start).getTime() - new Date(b.start).getTime()
+          );
+          const earliestEvent = sortedEvents[0];
+          const latestEvent = sortedEvents[sortedEvents.length - 1];
+          console.log(`Events date range: ${earliestEvent.start} to ${latestEvent.start}`);
+          console.log(`Total events: ${events.length}`);
+          
+          // Check if we have events beyond November 9th, 2025
+          const nov9_2025 = new Date('2025-11-09');
+          const eventsAfterNov9 = events.filter((event: CalendarEvent) => new Date(event.start) > nov9_2025);
+          console.log(`Events after Nov 9, 2025: ${eventsAfterNov9.length}`);
+          if (eventsAfterNov9.length > 0) {
+            console.log(`Latest events after Nov 9:`, eventsAfterNov9.slice(0, 3).map((e: CalendarEvent) => ({ title: e.title, start: e.start })));
+          }
+        }
+        
+        return events;
       }
       return [];
     } catch (error) {
@@ -121,11 +145,13 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
       const isInRange = eventDate >= startOfDay && eventDate <= endOfDay;
       
       if (isInRange) {
-        console.log(`Found event: ${event.title} at ${event.start}`);
+        console.log(`Found event for ${targetDate}: ${event.title} at ${event.start}`);
       }
       
       return isInRange;
     });
+    
+    console.log(`Total events found for ${targetDate}: ${eventsForDate.length}`);
 
     // More specific worship event filtering
     const worshipKeywords = ['worship', 'service', 'sunday school', 'bible study', 'sermon', 'church service'];
@@ -165,10 +191,10 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
 
         // Process each week using cached data
         weeks.forEach((week, index) => {
-          const events = filterEventsForDate(allEvents, week);
-          const existingSunday = existingSundays.find((s: any) => s.date === week);
+          const events = filterEventsForDate(allEvents, week.date);
+          const existingSunday = existingSundays.find((s: any) => s.date === week.date);
           
-          newWeekData[week] = {
+          newWeekData[week.date] = {
             ...events,
             sermonSeriesId: existingSunday?.sermonSeriesId || null,
             sundayId: existingSunday?.id || null
@@ -193,6 +219,8 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
   // Handle sermon series selection
   const handleSermonSeriesChange = async (date: string, sermonSeriesId: string) => {
     try {
+      console.log('🔄 Changing sermon series for', date, 'to', sermonSeriesId);
+      
       // Check if Sunday already exists
       const existingResponse = await fetch(`/api/admin/sundays?date=${date}`);
       let sundayId = null;
@@ -201,18 +229,30 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
         const data = await existingResponse.json();
         const existingSunday = data.sundays?.find((s: any) => s.date === date);
         sundayId = existingSunday?.id;
+        console.log('📅 Found existing Sunday:', sundayId);
       }
 
       if (sundayId) {
         // Update existing Sunday
-        await fetch(`/api/admin/sundays/${sundayId}`, {
+        console.log('✏️ Updating existing Sunday...');
+        const updateResponse = await fetch(`/api/admin/sundays/${sundayId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sermonSeriesId })
+          body: JSON.stringify({ 
+            date,
+            sermonSeriesId 
+          })
         });
+        
+        if (updateResponse.ok) {
+          console.log('✅ Successfully updated Sunday');
+        } else {
+          console.error('❌ Failed to update Sunday:', await updateResponse.text());
+        }
       } else {
         // Create new Sunday
-        await fetch('/api/admin/sundays', {
+        console.log('➕ Creating new Sunday...');
+        const createResponse = await fetch('/api/admin/sundays', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -221,6 +261,12 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
             isActive: true 
           })
         });
+        
+        if (createResponse.ok) {
+          console.log('✅ Successfully created Sunday');
+        } else {
+          console.error('❌ Failed to create Sunday:', await createResponse.text());
+        }
       }
 
       // Update local state
@@ -232,9 +278,10 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
         }
       }));
 
+      console.log('🔄 Calling onSundayUpdate...');
       onSundayUpdate();
     } catch (error) {
-      console.error('Failed to update sermon series:', error);
+      console.error('❌ Failed to update sermon series:', error);
     }
   };
 
@@ -305,21 +352,21 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
         </thead>
         <tbody>
           {weeks.map((week, index) => {
-            const weekDataForDate = weekData[week] || { worshipEvents: [], nonWorshipEvents: [], sermonSeriesId: null };
+            const weekDataForDate = weekData[week.date] || { worshipEvents: [], nonWorshipEvents: [], sermonSeriesId: null };
             const selectedSeries = sermonSeries.find(s => s.id === weekDataForDate.sermonSeriesId);
             
             return (
-              <tr key={week} className="hover:bg-gray-50">
+              <tr key={week.date} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-3">
                   <div>
-                    <div className="font-medium">{formatDate(week)}</div>
+                    <div className="font-medium">{formatDate(week.date)}</div>
                     <div className="text-sm text-gray-500">Week {index + 1}</div>
                   </div>
                 </td>
                 <td className="border border-gray-300 px-4 py-3">
                   <Select
                     value={weekDataForDate.sermonSeriesId || ''}
-                    onValueChange={(value) => handleSermonSeriesChange(week, value)}
+                    onValueChange={(value) => handleSermonSeriesChange(week.date, value)}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select series" />
@@ -404,6 +451,8 @@ export function SermonSeriesSundaysDashboard() {
   const [sundays, setSundays] = useState<Sunday[]>([]);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingSermonSeries, setEditingSermonSeries] = useState<SermonSeries | null>(null);
   const [showSundayModal, setShowSundayModal] = useState(false);
   const [selectedSunday, setSelectedSunday] = useState<Sunday | null>(null);
   const [sundayEvents, setSundayEvents] = useState<CalendarEvent[]>([]);
@@ -514,6 +563,31 @@ export function SermonSeriesSundaysDashboard() {
     }
   };
 
+  const handleEditSermonSeries = (series: SermonSeries) => {
+    setEditingSermonSeries(series);
+    setShowEditModal(true);
+  };
+
+  const handleSaveSermonSeries = async (updatedSeries: Partial<SermonSeries>) => {
+    if (!editingSermonSeries) return;
+
+    try {
+      const response = await fetch(`/api/admin/sermon-series/${editingSermonSeries.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedSeries)
+      });
+
+      if (response.ok) {
+        await fetchSermonSeries();
+        setShowEditModal(false);
+        setEditingSermonSeries(null);
+      }
+    } catch (error) {
+      console.error('Failed to update sermon series:', error);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -578,12 +652,6 @@ export function SermonSeriesSundaysDashboard() {
                         <BookOpen className="h-12 w-12 text-gray-400" />
                       </div>
                     )}
-                    {series.isFeatured && (
-                      <Badge className="absolute top-2 right-2 bg-yellow-500">
-                        <Star className="h-3 w-3 mr-1" />
-                        Featured
-                      </Badge>
-                    )}
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg mb-2">{series.title}</h3>
@@ -597,7 +665,11 @@ export function SermonSeriesSundaysDashboard() {
                         {series.isActive ? "Active" : "Inactive"}
                       </Badge>
                       <div className="flex gap-1">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleEditSermonSeries(series)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="outline" className="text-red-600">
@@ -641,6 +713,76 @@ export function SermonSeriesSundaysDashboard() {
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-semibold">Sundays Planning - Next 12 Weeks</h3>
+          <Button 
+            onClick={async (event) => {
+              try {
+                console.log('Refreshing calendar cache...');
+                console.log('=== CALENDAR CACHE REFRESH STARTED ===');
+                
+                // Show loading state
+                const button = event.target as HTMLButtonElement;
+                const originalText = button.textContent;
+                button.textContent = 'Refreshing...';
+                button.disabled = true;
+                
+                const response = await fetch('/api/admin/calendar/refresh', { method: 'POST' });
+                const data = await response.json();
+                
+                console.log('=== CALENDAR CACHE REFRESH RESPONSE ===');
+                console.log('Response status:', response.status);
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                  console.log('Calendar cache refreshed successfully:', data);
+                  console.log('=== CALENDAR CACHE REFRESH SUCCESS ===');
+                  
+                  // Show success message
+                  button.textContent = 'Success! Reloading...';
+                  button.className = 'bg-green-500 text-white';
+                  
+                  // Wait a moment then reload
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
+                } else {
+                  console.error('Failed to refresh calendar cache:', data);
+                  console.log('=== CALENDAR CACHE REFRESH FAILED ===');
+                  
+                  button.textContent = 'Failed!';
+                  button.className = 'bg-red-500 text-white';
+                  
+                  alert('Failed to refresh calendar cache: ' + (data.error || 'Unknown error'));
+                  
+                  // Reset button after 3 seconds
+                  setTimeout(() => {
+                    button.textContent = originalText;
+                    button.className = 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
+                    button.disabled = false;
+                  }, 3000);
+                }
+              } catch (error) {
+                console.error('Error refreshing calendar cache:', error);
+                console.log('=== CALENDAR CACHE REFRESH ERROR ===');
+                
+                const button = (event?.target as HTMLButtonElement) || document.createElement('button');
+                button.textContent = 'Error!';
+                button.className = 'bg-red-500 text-white';
+                
+                alert('Error refreshing calendar cache: ' + error);
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                  button.textContent = 'Refresh Calendar Cache';
+                  button.className = 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50';
+                  button.disabled = false;
+                }, 3000);
+              }
+            }}
+            variant="outline"
+            size="sm"
+          >
+            Refresh Calendar Cache
+          </Button>
         </div>
         <WeeklyPlanningGrid 
           sermonSeries={sermonSeries}
@@ -795,6 +937,17 @@ export function SermonSeriesSundaysDashboard() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Sermon Series Edit Modal */}
+      <SermonSeriesEditModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingSermonSeries(null);
+        }}
+        sermonSeries={editingSermonSeries}
+        onSave={handleSaveSermonSeries}
+      />
     </div>
   );
 }

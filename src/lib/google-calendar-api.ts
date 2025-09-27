@@ -100,27 +100,93 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
       throw authError;
     }
 
-    // Get first day of current month and end of next year to capture all special events
+    // Get events from today to about 18 months out (should be around 500 events)
     const now = new Date();
-    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfNextYear = new Date(now.getFullYear() + 1, 11, 31, 23, 59, 59); // December 31st of next year
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfNext18Months = new Date(now.getFullYear() + 1, now.getMonth() + 6, 31, 23, 59, 59); // 18 months from now
 
     console.log('Fetching events from calendar:', calendarId);
-    console.log('Time range:', startOfCurrentMonth.toISOString(), 'to', endOfNextYear.toISOString());
+    console.log('Time range:', startOfToday.toISOString(), 'to', endOfNext18Months.toISOString());
+    console.log('Current date:', now.toISOString());
+    console.log('End of 18 months date:', endOfNext18Months.toISOString());
 
     // Fetch events
-    const response = await calendar.events.list({
+    const requestParams = {
       calendarId: calendarId,
-      timeMin: startOfCurrentMonth.toISOString(),
-      timeMax: endOfNextYear.toISOString(),
+      timeMin: startOfToday.toISOString(),
+      timeMax: endOfNext18Months.toISOString(),
       singleEvents: true, // This expands recurring events
       orderBy: 'startTime',
-    });
+      maxResults: 500, // Limit to 500 events for efficiency
+    };
+    
+    console.log('Google Calendar API request parameters:', requestParams);
+    
+    // Fetch all events with pagination
+    let allEvents: any[] = [];
+    let pageToken: string | undefined = undefined;
+    let pageCount = 0;
+    
+    do {
+      pageCount++;
+      console.log(`Fetching page ${pageCount}...`);
+      
+      const response: any = await calendar.events.list({
+        ...requestParams,
+        pageToken: pageToken
+      });
 
-    console.log('Google Calendar API response status:', response.status);
-    console.log('Number of events returned:', response.data.items?.length || 0);
+      console.log(`Page ${pageCount} - Status:`, response.status);
+      console.log(`Page ${pageCount} - Events returned:`, response.data.items?.length || 0);
+      console.log(`Page ${pageCount} - Next page token:`, response.data.nextPageToken);
 
-    const events = response.data.items || [];
+      if (response.data.items) {
+        allEvents = allEvents.concat(response.data.items);
+        console.log(`Total events so far: ${allEvents.length}`);
+      }
+
+      pageToken = response.data.nextPageToken || undefined;
+      
+      // Safety check to prevent infinite loops
+      if (pageCount > 10) {
+        console.log('Reached maximum page limit (10), stopping pagination');
+        break;
+      }
+    } while (pageToken);
+
+    console.log(`Fetched ${allEvents.length} events across ${pageCount} pages`);
+    const events = allEvents;
+    
+    // Debug: Check the date range of events returned by Google Calendar
+    if (events.length > 0) {
+      const sortedEvents = events.sort((a, b) => {
+        const aStart = a.start?.dateTime || a.start?.date;
+        const bStart = b.start?.dateTime || b.start?.date;
+        return new Date(aStart || '').getTime() - new Date(bStart || '').getTime();
+      });
+      
+      const earliestEvent = sortedEvents[0];
+      const latestEvent = sortedEvents[sortedEvents.length - 1];
+      const earliestStart = earliestEvent.start?.dateTime || earliestEvent.start?.date;
+      const latestStart = latestEvent.start?.dateTime || latestEvent.start?.date;
+      
+      console.log(`Google Calendar events date range: ${earliestStart} to ${latestStart}`);
+      
+      // Check specifically for events after November 9th, 2025
+      const nov9_2025 = new Date('2025-11-09');
+      const eventsAfterNov9 = events.filter(event => {
+        const start = event.start?.dateTime || event.start?.date;
+        return start && new Date(start) > nov9_2025;
+      });
+      
+      console.log(`Events after Nov 9, 2025 from Google Calendar: ${eventsAfterNov9.length}`);
+      if (eventsAfterNov9.length > 0) {
+        console.log(`Latest events after Nov 9:`, eventsAfterNov9.slice(0, 3).map(e => ({
+          title: e.summary,
+          start: e.start?.dateTime || e.start?.date
+        })));
+      }
+    }
 
     // Transform events to our format
     const transformedEvents: CalendarEvent[] = events.map(event => {

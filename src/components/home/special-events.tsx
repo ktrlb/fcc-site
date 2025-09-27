@@ -137,11 +137,11 @@ export async function SpecialEvents() {
         </div>
 
 
-        <div className="text-center">
-          <Button size="lg" variant="outline" className="mr-4 bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Button size="lg" variant="outline" className="w-full sm:w-auto bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
             <a href="/calendar">View Full Calendar</a>
           </Button>
-          <Button size="lg" variant="outline" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
+          <Button size="lg" variant="outline" className="w-full sm:w-auto bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
             <a href="/ministry-database">Explore Ministries at FCC</a>
           </Button>
         </div>

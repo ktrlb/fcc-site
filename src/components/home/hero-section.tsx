@@ -47,7 +47,13 @@ export function HeroSection() {
               className="h-24 w-24 object-contain drop-shadow-lg"
             />
           </div>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold font-serif text-white drop-shadow-2xl">
+          <h1 
+            className="font-bold font-serif text-white drop-shadow-2xl leading-tight"
+            style={{ 
+              fontSize: 'clamp(1.25rem, 5vw, 3.25rem)',
+              lineHeight: '1.1'
+            }}
+          >
             Welcome to First Christian Church <br />
             Whoever you are, <em>you</em> are welcome here
           </h1>

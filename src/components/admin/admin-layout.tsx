@@ -4,6 +4,7 @@ import { ReactNode, useState } from 'react';
 import { AdminSidebar } from './admin-sidebar';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Menu } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -17,8 +18,8 @@ export function AdminLayout({ children, title, description, onLogout }: AdminLay
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background pt-24">
-      {/* Mobile Header */}
+    <div className="min-h-screen bg-background">
+      {/* Mobile Header - Fixed positioning for consistency */}
       <header className="flex h-16 items-center gap-4 border-b bg-muted/40 px-4 lg:hidden fixed top-24 left-0 right-0 z-40">
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
@@ -28,6 +29,9 @@ export function AdminLayout({ children, title, description, onLogout }: AdminLay
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col">
+            <VisuallyHidden>
+              <h2>Admin Navigation Menu</h2>
+            </VisuallyHidden>
             <AdminSidebar onLogout={onLogout} />
           </SheetContent>
         </Sheet>
@@ -52,8 +56,8 @@ export function AdminLayout({ children, title, description, onLogout }: AdminLay
         </div>
       </div>
 
-      {/* Mobile Content */}
-      <div className="lg:hidden pt-16">
+      {/* Mobile Content - Always has proper spacing */}
+      <div className="lg:hidden pt-40">
         <div className="flex-1 p-4">
           {children}
         </div>

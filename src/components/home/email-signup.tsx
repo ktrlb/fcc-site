@@ -28,16 +28,16 @@ export function EmailSignup() {
               <Button 
                 asChild
                 size="lg"
-                className="bg-white text-red-600 hover:bg-white/10 hover:text-white border border-white transition-colors px-12 py-6 text-3xl font-bold"
+                className="bg-white text-red-600 hover:bg-white/10 hover:text-white border border-white transition-colors px-6 sm:px-8 md:px-12 py-3 sm:py-4 text-xl sm:text-2xl font-bold whitespace-normal text-center h-auto"
               >
                 <a 
                   href="https://visitor.r20.constantcontact.com/manage/optin/ea?v=001VrJa7-wsPDsF5rztjUfffA%3D%3D"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3"
+                  className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap text-center w-full h-full"
                 >
-                  Subscribe to Our Newsletter
-                  <ExternalLink className="h-6 w-6" />
+                  <span>Subscribe to Our Newsletter</span>
+                  <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 </a>
               </Button>
               <p className="text-sm text-white mt-4">

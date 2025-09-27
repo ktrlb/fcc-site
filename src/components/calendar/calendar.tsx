@@ -149,6 +149,23 @@ export function Calendar({ events = [] }: CalendarProps) {
           const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
           const location = event.location || '';
           
+          // Special handling for Sunday events
+          if (dayOfWeek === 0) { // Sunday
+            const title = event.title.toLowerCase();
+            const isStandardSundayEvent = (
+              (title.includes('modern worship') && time === '09:00') ||
+              (title.includes('sunday school') && time === '10:00') ||
+              (title.includes('traditional worship') && time === '11:00')
+            );
+            
+            // Debug logging
+            if (isStandardSundayEvent) {
+              console.log('Hiding standard Sunday event:', event.title, 'at', time);
+            }
+            
+            // Hide standard Sunday events, show everything else
+            return !isStandardSundayEvent;
+          }
           
           // Check if this event matches any recurring pattern
           const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => {

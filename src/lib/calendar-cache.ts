@@ -118,9 +118,9 @@ export class CalendarCacheService {
       const cachePromises = googleEvents.map(event => 
         db.insert(calendarCache).values({
           googleEventId: event.id,
-          title: event.title,
+          title: event.title.length > 500 ? event.title.substring(0, 497) + '...' : event.title,
           description: event.description,
-          location: event.location,
+          location: event.location && event.location.length > 500 ? event.location.substring(0, 497) + '...' : event.location,
           startTime: new Date(event.start),
           endTime: new Date(event.end),
           allDay: event.allDay,
@@ -130,8 +130,19 @@ export class CalendarCacheService {
         })
       );
 
-      await Promise.all(cachePromises);
-      console.log(`Cached ${googleEvents.length} events`);
+      try {
+        await Promise.all(cachePromises);
+        console.log(`Cached ${googleEvents.length} events`);
+      } catch (insertError) {
+        console.error('Error inserting events into cache:', insertError);
+        console.error('First few events being inserted:', googleEvents.slice(0, 3).map(e => ({
+          id: e.id,
+          title: e.title.substring(0, 100),
+          start: e.start,
+          end: e.end
+        })));
+        throw insertError;
+      }
 
       // Also refresh the recurring events analysis cache
       console.log('Refreshing recurring events analysis...');
