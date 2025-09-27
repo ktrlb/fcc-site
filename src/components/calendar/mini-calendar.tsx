@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, MapPin, Users, Calendar, X, Settings, Star, Music, Mail, Phone, Baby, User2, BookOpen, Heart, Coffee, Globe } from 'lucide-react';
-import { RecurringEvent, analyzeEvents, getWeeklySchedule } from '@/lib/event-analyzer';
+import { RecurringEvent, analyzeEvents, getWeeklySchedule, analyzeWorshipServices } from '@/lib/event-analyzer';
 
 interface CalendarEvent {
   id: string;
@@ -55,16 +55,22 @@ interface MiniCalendarProps {
   events: CalendarEvent[];
   isAdminMode?: boolean;
   onEventUpdated?: () => void;
+  currentMonth: Date;
 }
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const FULL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: MiniCalendarProps) {
+export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, currentMonth }: MiniCalendarProps) {
   const [analysis, setAnalysis] = useState<{
     recurringEvents: RecurringEvent[];
     uniqueEvents: CalendarEvent[];
     weeklyPatterns: { [dayOfWeek: number]: RecurringEvent[] };
+  } | null>(null);
+  const [worshipAnalysis, setWorshipAnalysis] = useState<{
+    regularServices: CalendarEvent[];
+    exceptions: CalendarEvent[];
+    schedule: string;
   } | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -105,11 +111,58 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
   };
 
   useEffect(() => {
-    if (events.length > 0) {
-      const eventAnalysis = analyzeEvents(events);
-      setAnalysis(eventAnalysis);
+    // Fetch recurring patterns for the current month from cache
+    if (currentMonth) {
+      const fetchRecurringPatterns = async () => {
+        try {
+          const month = currentMonth.getMonth();
+          const year = currentMonth.getFullYear();
+          
+          const response = await fetch(`/api/recurring-events?month=${month}&year=${year}`);
+          if (response.ok) {
+            const data = await response.json();
+            const cachedEvents = data.recurringEvents || [];
+            
+            // Convert cached events to analysis format
+            const analysisData = {
+              recurringEvents: cachedEvents,
+              uniqueEvents: [],
+              weeklyPatterns: data.weeklyPatterns || {}
+            };
+            setAnalysis(analysisData);
+            
+            console.log(`Loaded ${cachedEvents.length} cached recurring patterns for ${currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
+          } else {
+            console.warn('Failed to fetch recurring patterns, falling back to live analysis');
+            // Fallback to live analysis if cache fails
+            if (events.length > 0) {
+              const currentMonthEvents = events.filter(event => {
+                const eventDate = new Date(event.start);
+                const eventMonth = eventDate.getMonth();
+                const eventYear = eventDate.getFullYear();
+                const currentMonthNum = currentMonth.getMonth();
+                const currentYear = currentMonth.getFullYear();
+                return eventMonth === currentMonthNum && eventYear === currentYear;
+              });
+
+              const eventAnalysis = analyzeEvents(currentMonthEvents);
+              setAnalysis(eventAnalysis);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching recurring patterns:', error);
+        }
+      };
+
+      fetchRecurringPatterns();
+
+      // Always analyze worship services for Sunday exceptions (use all events, not just current month)
+      if (events.length > 0) {
+        const worshipAnalysisResult = analyzeWorshipServices(events);
+        setWorshipAnalysis(worshipAnalysisResult);
+      }
     }
-  }, [events]);
+  }, [events, currentMonth]);
 
   useEffect(() => {
     if (isAdminMode) {
@@ -493,24 +546,42 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated }: Mi
                           </div>
                         </div>
                         
-                        {/* Other Sunday Events */}
-                        {dayEvents.length > 0 && (
+                        {/* Worship Service Exceptions */}
+                        {worshipAnalysis && worshipAnalysis.exceptions.length > 0 && (
                           <div className="mt-2 pt-2 border-t border-white/30">
-                            <div className="text-xs font-medium mb-1 text-white">Other Events:</div>
-                            {dayEvents
-                              .sort((a: RecurringEvent, b: RecurringEvent) => a.time.localeCompare(b.time))
-                              .map((event: RecurringEvent, eventIndex: number) => (
-                                <div
-                                  key={eventIndex}
-                                  className="p-2 rounded text-sm cursor-pointer hover:shadow-sm transition-shadow bg-white"
-                                  onClick={() => handleEventClick(event)}
-                                >
-                                  <div className="space-y-1">
-                                    <div className="text-xs font-mono" style={{ color: colorScheme.bg }}>{formatTime(event.time)}</div>
-                                    <div className="font-bold text-sm break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
+                            <div className="text-xs font-medium mb-1 text-white">Exceptions:</div>
+                            <div className="space-y-1">
+                              {worshipAnalysis.exceptions
+                                .filter((event: CalendarEvent) => {
+                                  // Only show future exceptions
+                                  const eventDate = new Date(event.start);
+                                  const now = new Date();
+                                  return eventDate > now;
+                                })
+                                .sort((a: CalendarEvent, b: CalendarEvent) => new Date(a.start).getTime() - new Date(b.start).getTime())
+                                .slice(0, 3) // Show only the next 3 exceptions
+                                .map((event: CalendarEvent, eventIndex: number) => (
+                                  <div
+                                    key={eventIndex}
+                                    className="p-2 rounded text-sm cursor-pointer hover:shadow-sm transition-shadow bg-white"
+                                    onClick={() => {
+                                      setSelectedEvent(event);
+                                      setIsModalOpen(true);
+                                    }}
+                                  >
+                                    <div className="space-y-1">
+                                      <div className="text-xs font-mono" style={{ color: colorScheme.bg }}>
+                                        {new Date(event.start).toLocaleDateString('en-US', {
+                                          month: 'short',
+                                          day: 'numeric',
+                                          timeZone: 'America/Chicago'
+                                        })}
+                                      </div>
+                                      <div className="font-bold text-sm break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
+                            </div>
                           </div>
                         )}
                       </>

@@ -35,15 +35,15 @@ export function WhatToExpect() {
       answer: (
         <>
           You bet! FCC Granbury is dedicated to fostering the faith of our children and youth, and to providing meaningful spiritual opportunities for families. On Sundays, our staffed Nursery is available for our youngest, and we welcome our kids into worship to sit with their families or in the front row on the left with our children&apos;s leaders. After communion, kids are invited to the Childrens Worship Center for child-centered worship activities. We also have a &quot;prayground&quot; available in the gathering area with things to keep kids entertained. You can learn more about our{" "}
-          <Link href="/children/infants-toddlers" className="text-blue-600 hover:text-blue-800 underline">
+          <Link href="/infants-toddlers" className="text-stone-200 hover:text-white underline hover:no-underline transition-colors">
             nursery
           </Link>
           ,{" "}
-          <Link href="/children/children" className="text-blue-600 hover:text-blue-800 underline">
+          <Link href="/children" className="text-stone-200 hover:text-white underline hover:no-underline transition-colors">
             childrens programs
           </Link>
           , or{" "}
-          <Link href="/children/youth" className="text-blue-600 hover:text-blue-800 underline">
+          <Link href="/youth" className="text-stone-200 hover:text-white underline hover:no-underline transition-colors">
             student ministries
           </Link>
           .

@@ -119,8 +119,41 @@ export function Calendar({ events = [] }: CalendarProps) {
           console.log('Sample event with ministry info:', eventsWithMinistry[0]);
         }
         
-        // Use the analysis from the API response if available, otherwise analyze locally
-        const analysis = data.analysis || analyzeEvents(events);
+        // Get recurring patterns for the displayed month from cache
+        const month = currentDate.getMonth();
+        const year = currentDate.getFullYear();
+        
+        let recurringPatterns: any[] = [];
+        try {
+          const recurringResponse = await fetch(`/api/recurring-events?month=${month}&year=${year}`);
+          if (recurringResponse.ok) {
+            const recurringData = await recurringResponse.json();
+            recurringPatterns = recurringData.recurringEvents || [];
+            console.log(`Using ${recurringPatterns.length} cached recurring patterns for filtering`);
+          } else {
+            console.warn('Failed to fetch recurring patterns, falling back to live analysis');
+            // Fallback to live analysis
+            const currentMonthEvents = events.filter((event: CalendarEvent) => {
+              const eventDate = new Date(event.start);
+              const eventMonth = eventDate.getMonth();
+              const eventYear = eventDate.getFullYear();
+              return eventMonth === month && eventYear === year;
+            });
+            const analysis = analyzeEvents(currentMonthEvents);
+            recurringPatterns = analysis.recurringEvents;
+          }
+        } catch (error) {
+          console.error('Error fetching recurring patterns:', error);
+          // Fallback to live analysis
+          const currentMonthEvents = events.filter((event: CalendarEvent) => {
+            const eventDate = new Date(event.start);
+            const eventMonth = eventDate.getMonth();
+            const eventYear = eventDate.getFullYear();
+            return eventMonth === month && eventYear === year;
+          });
+          const analysis = analyzeEvents(currentMonthEvents);
+          recurringPatterns = analysis.recurringEvents;
+        }
         
         
         
@@ -168,11 +201,11 @@ export function Calendar({ events = [] }: CalendarProps) {
           }
           
           // Check if this event matches any recurring pattern
-          const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => {
+          const isRecurring = recurringPatterns.some((recurring: any) => {
             const titleMatch = recurring.title === event.title;
             const dayMatch = recurring.dayOfWeek === dayOfWeek;
             const timeMatch = recurring.time === time;
-            const locationMatch = (recurring.location || '') === location;
+            const locationMatch = (recurring.location || '') === (location || '');
             
             
             return titleMatch && dayMatch && timeMatch && locationMatch;
@@ -304,7 +337,7 @@ export function Calendar({ events = [] }: CalendarProps) {
   return (
     <div className="max-w-6xl mx-auto">
           {/* Mini Calendar with Weekly Patterns */}
-          <MiniCalendar events={allEvents} />
+          <MiniCalendar events={allEvents} currentMonth={currentDate} />
       
       <Card className="p-6 bg-white">
         {/* Calendar Header */}

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, timestamp, integer } from 'drizzle-orm/pg-core';
 
 export const ministryCategories = pgTable('ministry_categories', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -190,6 +190,8 @@ export const recurringEventsCache = pgTable('recurring_events_cache', {
   featuredOnHomePage: boolean('featured_on_home_page').default(false).notNull(),
   eventIds: text('event_ids').array(), // Array of Google event IDs that match this pattern
   isExternal: boolean('is_external').default(false).notNull(),
+  month: integer('month').notNull(), // 0-11 for January-December
+  year: integer('year').notNull(), // Full year (e.g., 2025)
   lastAnalyzed: timestamp('last_analyzed').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

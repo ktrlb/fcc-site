@@ -3,7 +3,7 @@ import { db } from './db';
 import { recurringEventsCache } from './schema';
 import { CalendarCacheService } from './calendar-cache';
 import { analyzeEvents } from './event-analyzer';
-import { desc } from 'drizzle-orm';
+import { desc, and, eq } from 'drizzle-orm';
 
 export interface CachedRecurringEvent {
   id: string;
@@ -32,12 +32,22 @@ export interface CachedRecurringEvent {
 
 export class RecurringEventsCacheService {
   /**
-   * Get cached recurring events analysis
+   * Get cached recurring events analysis for a specific month
    */
-  static async getRecurringEvents(): Promise<CachedRecurringEvent[]> {
+  static async getRecurringEvents(month?: number, year?: number): Promise<CachedRecurringEvent[]> {
+    const now = new Date();
+    const targetMonth = month ?? now.getMonth();
+    const targetYear = year ?? now.getFullYear();
+
     const cachedEvents = await db
       .select()
       .from(recurringEventsCache)
+      .where(
+        and(
+          eq(recurringEventsCache.month, targetMonth),
+          eq(recurringEventsCache.year, targetYear)
+        )
+      )
       .orderBy(desc(recurringEventsCache.dayOfWeek), recurringEventsCache.time);
 
     return cachedEvents.map(event => ({
@@ -66,11 +76,11 @@ export class RecurringEventsCacheService {
   }
 
   /**
-   * Refresh the recurring events cache by analyzing current calendar events
+   * Refresh the recurring events cache by analyzing calendar events for multiple months
    */
   static async refreshRecurringEventsCache(): Promise<CachedRecurringEvent[]> {
     try {
-      console.log('Analyzing calendar events for recurring patterns...');
+      console.log('Analyzing calendar events for monthly recurring patterns...');
       
       // Get current calendar events
       const calendarEvents = await CalendarCacheService.getCalendarEvents();
@@ -87,10 +97,20 @@ export class RecurringEventsCacheService {
         recurring: event.recurring,
       }));
 
-      // Analyze events for recurring patterns
-      const analysis = analyzeEvents(eventsForAnalysis as any);
+      // Group events by month and analyze each month separately
+      const eventsByMonth = new Map<string, any[]>();
       
-      console.log(`Found ${analysis.recurringEvents.length} recurring event patterns`);
+      eventsForAnalysis.forEach(event => {
+        const eventDate = new Date(event.start);
+        const monthKey = `${eventDate.getFullYear()}-${eventDate.getMonth()}`;
+        
+        if (!eventsByMonth.has(monthKey)) {
+          eventsByMonth.set(monthKey, []);
+        }
+        eventsByMonth.get(monthKey)!.push(event);
+      });
+
+      console.log(`Analyzing ${eventsByMonth.size} months of events`);
 
       // Clear existing recurring events cache
       await db.delete(recurringEventsCache);
@@ -99,93 +119,108 @@ export class RecurringEventsCacheService {
       // External series keys are computed upstream; keep empty set here
       const externalSeriesKeys = new Set<string>();
 
-      // Insert new recurring events into cache
-      if (analysis.recurringEvents.length > 0) {
-        const cachePromises = analysis.recurringEvents.map(async (recurringEvent) => {
-          const seriesKey = [
-            (recurringEvent.title || '').trim(),
-            recurringEvent.dayOfWeek,
-            recurringEvent.time,
-            (recurringEvent.location || '').trim(),
-          ].join('|');
-          const isExternal = externalSeriesKeys.has(seriesKey);
-          
-          // Look up ministry connections from calendar_events table
-          let ministryConnection = recurringEvent.ministryConnection;
-          let ministryTeamId = null;
-          let specialEventId = null;
-          let isSpecialEvent = false;
-          let specialEventNote = null;
-          let specialEventImage = null;
-          let contactPerson = null;
-          let recurringDescription = null;
-          let endsBy = null;
-          let featuredOnHomePage = false;
+      // Process each month separately
+      const allCachePromises: Promise<any>[] = [];
+      
+      for (const [monthKey, monthEvents] of eventsByMonth) {
+        const [year, month] = monthKey.split('-').map(Number);
+        
+        // Analyze events for this month
+        const analysis = analyzeEvents(monthEvents as any);
+        
+        console.log(`Month ${month + 1}/${year}: Found ${analysis.recurringEvents.length} recurring patterns`);
+        
+        if (analysis.recurringEvents.length > 0) {
+          const monthCachePromises = analysis.recurringEvents.map(async (recurringEvent) => {
+            const seriesKey = [
+              (recurringEvent.title || '').trim(),
+              recurringEvent.dayOfWeek,
+              recurringEvent.time,
+              (recurringEvent.location || '').trim(),
+            ].join('|');
+            const isExternal = externalSeriesKeys.has(seriesKey);
+            
+            // Look up ministry connections from calendar_events table
+            let ministryConnection = recurringEvent.ministryConnection;
+            let ministryTeamId = null;
+            let specialEventId = null;
+            let isSpecialEvent = false;
+            let specialEventNote = null;
+            let specialEventImage = null;
+            let contactPerson = null;
+            let recurringDescription = null;
+            let endsBy = null;
+            let featuredOnHomePage = false;
 
-          // Try to find a matching calendar event with ministry connections
-          if (recurringEvent.eventIds && recurringEvent.eventIds.length > 0) {
-            try {
-              const { calendarEvents } = await import('./schema');
-              const { eq, or } = await import('drizzle-orm');
-              
-              const matchingEvent = await db
-                .select()
-                .from(calendarEvents)
-                .where(
-                  or(
-                    ...recurringEvent.eventIds.map(eventId => 
-                      eq(calendarEvents.googleEventId, eventId)
+            // Try to find a matching calendar event with ministry connections
+            if (recurringEvent.eventIds && recurringEvent.eventIds.length > 0) {
+              try {
+                const { calendarEvents } = await import('./schema');
+                const { eq, or } = await import('drizzle-orm');
+                
+                const matchingEvent = await db
+                  .select()
+                  .from(calendarEvents)
+                  .where(
+                    or(
+                      ...recurringEvent.eventIds.map(eventId => 
+                        eq(calendarEvents.googleEventId, eventId)
+                      )
                     )
                   )
-                )
-                .limit(1);
+                  .limit(1);
 
-              if (matchingEvent.length > 0) {
-                const event = matchingEvent[0];
-                ministryTeamId = event.ministryTeamId;
-                specialEventId = event.specialEventId;
-                isSpecialEvent = event.isSpecialEvent || false;
-                specialEventNote = event.specialEventNote;
-                specialEventImage = event.specialEventImage;
-                contactPerson = event.contactPerson;
-                recurringDescription = event.recurringDescription;
-                endsBy = event.endsBy;
-                featuredOnHomePage = event.featuredOnHomePage || false;
+                if (matchingEvent.length > 0) {
+                  const event = matchingEvent[0];
+                  ministryTeamId = event.ministryTeamId;
+                  specialEventId = event.specialEventId;
+                  isSpecialEvent = event.isSpecialEvent || false;
+                  specialEventNote = event.specialEventNote;
+                  specialEventImage = event.specialEventImage;
+                  contactPerson = event.contactPerson;
+                  recurringDescription = event.recurringDescription;
+                  endsBy = event.endsBy;
+                  featuredOnHomePage = event.featuredOnHomePage || false;
+                }
+              } catch (error) {
+                console.warn('Failed to lookup ministry connections for recurring event:', error);
               }
-            } catch (error) {
-              console.warn('Failed to lookup ministry connections for recurring event:', error);
             }
-          }
 
-          return db.insert(recurringEventsCache).values({
-            title: recurringEvent.title,
-            dayOfWeek: recurringEvent.dayOfWeek.toString(),
-            time: recurringEvent.time,
-            location: recurringEvent.location,
-            description: recurringEvent.description,
-            frequency: recurringEvent.frequency,
-            confidence: recurringEvent.confidence.toString(),
-            ministryConnection,
-            ministryTeamId,
-            specialEventId,
-            isSpecialEvent,
-            specialEventNote,
-            specialEventImage,
-            contactPerson,
-            recurringDescription,
-            endsBy,
-            featuredOnHomePage,
-            eventIds: recurringEvent.eventIds,
-            isExternal,
-            lastAnalyzed: new Date(),
+            return db.insert(recurringEventsCache).values({
+              title: recurringEvent.title,
+              dayOfWeek: recurringEvent.dayOfWeek.toString(),
+              time: recurringEvent.time,
+              location: recurringEvent.location,
+              description: recurringEvent.description,
+              frequency: recurringEvent.frequency,
+              confidence: recurringEvent.confidence.toString(),
+              ministryConnection,
+              ministryTeamId,
+              specialEventId,
+              isSpecialEvent,
+              specialEventNote,
+              specialEventImage,
+              contactPerson,
+              recurringDescription,
+              endsBy,
+              featuredOnHomePage,
+              eventIds: recurringEvent.eventIds,
+              isExternal,
+              month,
+              year,
+              lastAnalyzed: new Date(),
+            });
           });
-        });
 
-        await Promise.all(cachePromises);
-        console.log(`Cached ${analysis.recurringEvents.length} recurring event patterns with ministry connections`);
+          allCachePromises.push(...monthCachePromises);
+        }
       }
 
-      // Return the cached events
+      await Promise.all(allCachePromises);
+      console.log(`Cached recurring event patterns for ${eventsByMonth.size} months`);
+
+      // Return the cached events for current month
       return await this.getRecurringEvents();
     } catch (error) {
       console.error('Error refreshing recurring events cache:', error);
@@ -198,8 +233,8 @@ export class RecurringEventsCacheService {
   /**
    * Get recurring events organized by day of week for easy display
    */
-  static async getWeeklyPatterns(): Promise<{ [dayOfWeek: number]: CachedRecurringEvent[] }> {
-    const events = await this.getRecurringEvents();
+  static async getWeeklyPatterns(month?: number, year?: number): Promise<{ [dayOfWeek: number]: CachedRecurringEvent[] }> {
+    const events = await this.getRecurringEvents(month, year);
     const patterns: { [dayOfWeek: number]: CachedRecurringEvent[] } = {
       0: [], // Sunday
       1: [], // Monday

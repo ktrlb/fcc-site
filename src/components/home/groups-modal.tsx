@@ -51,7 +51,7 @@ interface GroupsModalProps {
   onClose: () => void;
 }
 
-const FULL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const FULL_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
   const [analysis, setAnalysis] = useState<{
@@ -137,9 +137,8 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
     console.log('Available events count:', events.length);
     console.log('Events with same title:', events.filter(e => e.title === recurringEvent.title).map(e => ({ id: e.id, title: e.title, start: e.start })));
     
-    // Get the color scheme for this day
+    // Get the color scheme for this day (excluding Sunday)
     const colorSchemes = [
-      { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
       { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
       { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
       { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
@@ -533,19 +532,22 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
               <Calendar className="h-5 w-5" />
               Weekly Groups & Activities
             </DialogTitle>
+            <p className="text-indigo-700 text-sm mt-2">
+              In addition to Sunday worship services, these groups meet regularly throughout the week.
+            </p>
           </DialogHeader>
           
           <div className="space-y-6">
             {/* Stacked days layout */}
             <div className="space-y-4">
               {FULL_DAYS.map((dayName, index) => {
-                const dayEvents = analysis.weeklyPatterns?.[index] || [];
+                // Map array index to dayOfWeek (0=Sunday, 1=Monday, etc.)
+                const dayOfWeek = index + 1; // Monday=1, Tuesday=2, etc.
+                const dayEvents = analysis.weeklyPatterns?.[dayOfWeek] || [];
                 const hasEvents = dayEvents.length > 0;
-                const isSunday = index === 0;
                 
-                // Cycle through our signature colors
+                // Cycle through our signature colors (excluding Sunday)
                 const colorSchemes = [
-                  { bg: 'rgb(220 38 38)', name: 'red-600' },      // Sunday - Red
                   { bg: 'rgb(17 94 89)', name: 'teal-800' },      // Monday - Teal
                   { bg: 'rgb(49 46 129)', name: 'indigo-900' },   // Tuesday - Indigo
                   { bg: 'rgb(245 158 11)', name: 'amber-500' },   // Wednesday - Amber
@@ -600,12 +602,8 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                             </div>
                           ))
                       ) : (
-                        <div className={`text-center py-6 w-full text-white ${isSunday ? 'text-base font-medium' : 'text-sm'}`}>
-                          {isSunday ? (
-                            "In addition to Sunday worship, we have these regular groups throughout the week"
-                          ) : (
-                            "No recurring events"
-                          )}
+                        <div className="text-center py-6 w-full text-white text-sm">
+                          No recurring events
                         </div>
                       )}
                     </div>

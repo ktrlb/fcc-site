@@ -99,7 +99,7 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
 
   // Analyze each group to determine if it's recurring
   eventGroups.forEach((groupEvents, key) => {
-    if (groupEvents.length >= 3) { // At least 3 occurrences to consider it recurring
+    if (groupEvents.length >= 2) { // At least 2 occurrences to consider it recurring (reduced from 3)
       const firstEvent = groupEvents[0];
       const eventDate = new Date(firstEvent.start);
       
@@ -125,7 +125,7 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
       // Calculate confidence based on consistency
       const confidence = calculateConfidence(groupEvents);
       
-      if (confidence > 0.7) { // High confidence threshold
+      if (confidence > 0.5) { // Confidence threshold for monthly weekly patterns
         const recurringEvent: RecurringEvent = {
           title: firstEvent.title,
           dayOfWeek,
@@ -175,26 +175,37 @@ function normalizeEventTitle(title: string): string {
 }
 
 function calculateConfidence(events: CalendarEvent[]): number {
-  if (events.length < 3) return 0;
+  if (events.length < 2) return 0;
   
   const dates = events.map(e => new Date(e.start)).sort();
-  const intervals = [];
   
-  // Calculate intervals between events
-  for (let i = 1; i < dates.length; i++) {
-    const interval = dates[i].getTime() - dates[i-1].getTime();
-    intervals.push(interval);
+  // For monthly recurring patterns, check if events occur every week within the month
+  const firstDate = dates[0];
+  const lastDate = dates[dates.length - 1];
+  const monthSpan = lastDate.getTime() - firstDate.getTime();
+  const weeksInSpan = Math.ceil(monthSpan / (7 * 24 * 60 * 60 * 1000));
+  
+  // If we have events spanning multiple weeks, check for weekly consistency
+  if (weeksInSpan >= 2) {
+    const intervals = [];
+    for (let i = 1; i < dates.length; i++) {
+      const interval = dates[i].getTime() - dates[i-1].getTime();
+      intervals.push(interval);
+    }
+    
+    // Check if intervals are consistent (around 7 days for weekly)
+    const expectedInterval = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+    const tolerance = 2 * 24 * 60 * 60 * 1000; // 2 days tolerance
+    
+    const consistentIntervals = intervals.filter(interval => 
+      Math.abs(interval - expectedInterval) < tolerance
+    ).length;
+    
+    return consistentIntervals / intervals.length;
   }
   
-  // Check if intervals are consistent (around 7 days for weekly)
-  const expectedInterval = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-  const tolerance = 2 * 24 * 60 * 60 * 1000; // 2 days tolerance
-  
-  const consistentIntervals = intervals.filter(interval => 
-    Math.abs(interval - expectedInterval) < tolerance
-  ).length;
-  
-  return consistentIntervals / intervals.length;
+  // For events within a single week, consider them as potential weekly patterns
+  return events.length >= 2 ? 0.8 : 0;
 }
 
 function detectMinistryConnection(title: string, description?: string): string | undefined {
@@ -246,10 +257,7 @@ export function analyzeWorshipServices(events: CalendarEvent[]): {
 
   const worshipServices = sundayEvents.filter(event => {
     const title = event.title.toLowerCase();
-    return title.includes('service') || 
-           title.includes('worship') || 
-           title.includes('sunday') ||
-           (title.includes('church') && !title.includes('school'));
+    return title.includes('worship');
   });
 
   // Check for regular 9 AM and 11 AM services using Chicago timezone

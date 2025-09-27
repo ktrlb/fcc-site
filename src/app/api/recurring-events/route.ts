@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { RecurringEventsCacheService } from '@/lib/recurring-events-cache';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const month = searchParams.get('month') ? parseInt(searchParams.get('month')!) : undefined;
+    const year = searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined;
+
     // Check if we need to refresh the cache
     const needsRefresh = await RecurringEventsCacheService.needsRefresh();
     
@@ -11,14 +15,16 @@ export async function GET() {
       await RecurringEventsCacheService.refreshRecurringEventsCache();
     }
 
-    // Get the cached recurring events
-    const recurringEvents = await RecurringEventsCacheService.getRecurringEvents();
-    const weeklyPatterns = await RecurringEventsCacheService.getWeeklyPatterns();
+    // Get the cached recurring events for the specified month/year
+    const recurringEvents = await RecurringEventsCacheService.getRecurringEvents(month, year);
+    const weeklyPatterns = await RecurringEventsCacheService.getWeeklyPatterns(month, year);
 
     return NextResponse.json({
       recurringEvents,
       weeklyPatterns,
       totalEvents: recurringEvents.length,
+      month: month ?? new Date().getMonth(),
+      year: year ?? new Date().getFullYear(),
       lastRefreshed: recurringEvents.length > 0 ? recurringEvents[0].lastAnalyzed : null,
     });
   } catch (error) {

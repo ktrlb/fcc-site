@@ -100,20 +100,20 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
       throw authError;
     }
 
-    // Get events from today to about 18 months out (should be around 500 events)
+    // Get events from the first of the current month to about 18 months out (should be around 500 events)
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1); // First day of current month
     const endOfNext18Months = new Date(now.getFullYear() + 1, now.getMonth() + 6, 31, 23, 59, 59); // 18 months from now
 
     console.log('Fetching events from calendar:', calendarId);
-    console.log('Time range:', startOfToday.toISOString(), 'to', endOfNext18Months.toISOString());
+    console.log('Time range:', startOfCurrentMonth.toISOString(), 'to', endOfNext18Months.toISOString());
     console.log('Current date:', now.toISOString());
     console.log('End of 18 months date:', endOfNext18Months.toISOString());
 
     // Fetch events
     const requestParams = {
       calendarId: calendarId,
-      timeMin: startOfToday.toISOString(),
+      timeMin: startOfCurrentMonth.toISOString(),
       timeMax: endOfNext18Months.toISOString(),
       singleEvents: true, // This expands recurring events
       orderBy: 'startTime',
