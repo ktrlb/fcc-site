@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Baby, Users, Heart, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function ChildrenYouthMinistries() {
   const ministries = [
@@ -14,7 +15,8 @@ export function ChildrenYouthMinistries() {
       href: "/infants-toddlers",
       cardColor: "red-600",
       textColor: "text-red-600",
-      ageRange: "Birth - 3 years"
+      ageRange: "Birth - 3 years",
+      image: "/images/assorted-images/fcc-childrens-ministry-asset-a.png"
     },
     {
       title: "Children",
@@ -23,7 +25,8 @@ export function ChildrenYouthMinistries() {
       href: "/children",
       cardColor: "teal-800",
       textColor: "text-teal-800",
-      ageRange: "Age 4 through 2nd grade"
+      ageRange: "Age 4 through 2nd grade",
+      image: "/images/assorted-images/fcc-kids.jpg"
     },
     {
       title: "Students",
@@ -32,7 +35,8 @@ export function ChildrenYouthMinistries() {
       href: "/youth",
       cardColor: "indigo-900",
       textColor: "text-indigo-900",
-      ageRange: "6th through 12th grade"
+      ageRange: "6th through 12th grade",
+      image: "/images/assorted-images/fcc-youth-mission.jpg"
     }
   ];
 
@@ -52,8 +56,8 @@ export function ChildrenYouthMinistries() {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {ministries.map((ministry, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow border-0 shadow-none max-w-md mx-auto md:max-w-none md:mx-0" style={{ backgroundColor: ministry.cardColor === 'red-600' ? 'rgb(220 38 38)' : ministry.cardColor === 'teal-800' ? 'rgb(17 94 89)' : 'rgb(49 46 129)' }}>
-              <CardContent className="p-8">
+            <Card key={index} className="hover:shadow-lg transition-shadow border-0 shadow-none max-w-md mx-auto md:max-w-none md:mx-0 overflow-hidden p-0 flex flex-col h-full" style={{ backgroundColor: ministry.cardColor === 'red-600' ? 'rgb(220 38 38)' : ministry.cardColor === 'teal-800' ? 'rgb(17 94 89)' : 'rgb(49 46 129)' }}>
+              <CardContent className="p-8 flex-1 flex flex-col">
                 <div className="flex items-center mb-6">
                   <div className="p-4 rounded-full bg-white mr-4">
                     <ministry.icon className="h-8 w-8" style={{ color: ministry.textColor === 'text-red-600' ? '#dc2626' : ministry.textColor === 'text-teal-800' ? '#115e59' : '#312e81' }} />
@@ -75,6 +79,17 @@ export function ChildrenYouthMinistries() {
                   </Link>
                 </Button>
               </CardContent>
+              
+              <div className="relative">
+                <Image
+                  src={ministry.image}
+                  alt={ministry.title}
+                  width={400}
+                  height={200}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="absolute inset-0 bg-black/30" />
+              </div>
             </Card>
           ))}
         </div>

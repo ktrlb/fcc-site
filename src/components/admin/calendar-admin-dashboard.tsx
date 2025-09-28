@@ -263,6 +263,12 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
       if (!createResponse.ok) {
         const errorData = await createResponse.json();
         console.error('Failed to save event:', errorData);
+        
+        // Handle specific error for events with missing time data
+        if (errorData.error === 'Event must have valid start and end times to be saved') {
+          throw new Error('This event cannot be saved because it is missing start or end time information. Please check the event in Google Calendar and ensure it has proper date/time settings.');
+        }
+        
         throw new Error(`Failed to save event in database: ${errorData.error || 'Unknown error'}`);
       }
 

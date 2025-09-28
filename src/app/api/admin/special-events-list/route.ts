@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { calendarEvents, specialEvents, ministryTeams } from '@/lib/schema';
+import { featuredSpecialEvents, specialEventTypes, ministryTeams } from '@/lib/schema';
 import { eq, and } from 'drizzle-orm';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
@@ -10,40 +10,36 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch all calendar events that are marked as special events
+    // Fetch all featured special events
     const events = await db
       .select({
-        id: calendarEvents.id,
-        googleEventId: calendarEvents.googleEventId,
-        title: calendarEvents.title,
-        description: calendarEvents.description,
-        location: calendarEvents.location,
-        startTime: calendarEvents.startTime,
-        endTime: calendarEvents.endTime,
-        specialEventNote: calendarEvents.specialEventNote,
-        specialEventImage: calendarEvents.specialEventImage,
-        contactPerson: calendarEvents.contactPerson,
-        featuredOnHomePage: calendarEvents.featuredOnHomePage,
+        id: featuredSpecialEvents.id,
+        title: featuredSpecialEvents.title,
+        description: featuredSpecialEvents.description,
+        location: featuredSpecialEvents.location,
+        startTime: featuredSpecialEvents.startTime,
+        endTime: featuredSpecialEvents.endTime,
+        allDay: featuredSpecialEvents.allDay,
+        specialEventNote: featuredSpecialEvents.specialEventNote,
+        specialEventImage: featuredSpecialEvents.specialEventImage,
+        contactPerson: featuredSpecialEvents.contactPerson,
+        isActive: featuredSpecialEvents.isActive,
+        sortOrder: featuredSpecialEvents.sortOrder,
         specialEventType: {
-          id: specialEvents.id,
-          name: specialEvents.name,
-          color: specialEvents.color,
+          id: specialEventTypes.id,
+          name: specialEventTypes.name,
+          color: specialEventTypes.color,
         },
         ministryTeam: {
           id: ministryTeams.id,
           name: ministryTeams.name,
         },
       })
-      .from(calendarEvents)
-      .leftJoin(specialEvents, eq(calendarEvents.specialEventId, specialEvents.id))
-      .leftJoin(ministryTeams, eq(calendarEvents.ministryTeamId, ministryTeams.id))
-      .where(
-        and(
-          eq(calendarEvents.isActive, true),
-          eq(calendarEvents.isSpecialEvent, true)
-        )
-      )
-      .orderBy(calendarEvents.startTime);
+      .from(featuredSpecialEvents)
+      .leftJoin(specialEventTypes, eq(featuredSpecialEvents.specialEventTypeId, specialEventTypes.id))
+      .leftJoin(ministryTeams, eq(featuredSpecialEvents.ministryTeamId, ministryTeams.id))
+      .where(eq(featuredSpecialEvents.isActive, true))
+      .orderBy(featuredSpecialEvents.startTime);
 
     return NextResponse.json({ events });
   } catch (error) {

@@ -1,5 +1,5 @@
 import { db } from '../src/lib/db';
-import { specialEvents } from '../src/lib/schema';
+import { specialEventTypes } from '../src/lib/schema';
 import { eq } from 'drizzle-orm';
 
 const defaultSpecialEvents = [
@@ -122,7 +122,7 @@ async function seedSpecialEvents() {
   
   try {
     // Check if special events already exist
-    const existingEvents = await db.select().from(specialEvents);
+    const existingEvents = await db.select().from(specialEventTypes);
     
     if (existingEvents.length > 0) {
       console.log(`✅ Special events already exist (${existingEvents.length} found)`);
@@ -130,7 +130,7 @@ async function seedSpecialEvents() {
     }
     
     // Insert default special events
-    const results = await db.insert(specialEvents).values(defaultSpecialEvents).returning();
+    const results = await db.insert(specialEventTypes).values(defaultSpecialEvents).returning();
     
     console.log(`✅ Successfully seeded ${results.length} special events:`);
     results.forEach((event, index) => {

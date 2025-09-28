@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { specialEvents } from '@/lib/schema';
+import { specialEventTypes } from '@/lib/schema';
 import { eq, desc } from 'drizzle-orm';
-import type { NewSpecialEvent } from '@/lib/schema';
+import type { NewSpecialEventType } from '@/lib/schema';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
 export async function GET() {
@@ -13,9 +13,9 @@ export async function GET() {
 
     const events = await db
       .select()
-      .from(specialEvents)
-      .where(eq(specialEvents.isActive, true))
-      .orderBy(desc(specialEvents.sortOrder), desc(specialEvents.createdAt));
+      .from(specialEventTypes)
+      .where(eq(specialEventTypes.isActive, true))
+      .orderBy(desc(specialEventTypes.sortOrder), desc(specialEventTypes.createdAt));
     
     return NextResponse.json({ events });
   } catch (error) {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     const data = await request.json();
     
-    const newEvent: NewSpecialEvent = {
+    const newEvent: NewSpecialEventType = {
       name: data.name,
       description: data.description,
       imageUrl: data.imageUrl,
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       sortOrder: data.sortOrder || '0',
     };
     
-    const result = await db.insert(specialEvents).values(newEvent).returning();
+    const result = await db.insert(specialEventTypes).values(newEvent).returning();
     
     return NextResponse.json({ event: result[0] });
   } catch (error) {

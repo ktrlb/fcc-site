@@ -216,10 +216,10 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                   key={category}
                   variant={selectedCategory === category ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category)}
-                  className={`capitalize ${selectedCategory === category ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2"}`}
+                  className={`capitalize ${selectedCategory === category ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2 border-white/50 bg-white/10"}`}
                   style={selectedCategory === category ? 
                     { backgroundColor: categoryColor.hex, borderColor: 'white' } : 
-                    { backgroundColor: categoryColor.hex, opacity: 0.6, borderColor: categoryColor.hex }
+                    { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.5)' }
                   }
                 >
                   {category}
@@ -256,7 +256,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                 console.log(`Ministry: ${ministry.name}, Category: ${primaryCategory}, Color: ${colorScheme.hex}`);
                 
                 return (
-                  <Card key={ministry.id} className="hover:shadow-lg transition-shadow overflow-hidden border-0" style={{ backgroundColor: colorScheme.hex }}>
+                  <Card key={ministry.id} className="hover:shadow-lg transition-shadow overflow-hidden bg-white" style={{ borderColor: colorScheme.hex, borderWidth: '2px' }}>
                     <div className="relative h-48 w-full">
                       {ministry.imageUrl || ministry.graphicImage ? (
                         <img
@@ -271,12 +271,12 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                         />
                       )}
                     </div>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
+                    <CardHeader className="px-6 py-4" style={{ backgroundColor: colorScheme.hex }}>
+                      <div className="space-y-3">
                         <CardTitle className="text-lg text-white">{ministry.name}</CardTitle>
                         <div className="flex flex-wrap gap-1">
                           {/* Show legacy category */}
-                          <Badge variant="secondary" className="bg-white text-indigo-900">{ministry.category}</Badge>
+                          <Badge variant="secondary" className="bg-white/20 text-white border-white/30">{ministry.category}</Badge>
                           {/* Show additional categories */}
                           {ministry.categories && ministry.categories.map((cat, index) => (
                             <Badge key={index} variant="outline" className="bg-white/20 text-white border-white/30">{cat}</Badge>
@@ -285,23 +285,23 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-white/90 text-sm">{ministry.description}</p>
+                      <p className="text-gray-700 text-sm">{ministry.description}</p>
                       
                       <div className="space-y-2">
                         {ministry.timeCommitment && (
-                          <div className="flex items-center text-sm text-white/80">
+                          <div className="flex items-center text-sm text-gray-600">
                             <Clock className="h-4 w-4 mr-2" />
                             {ministry.timeCommitment}
                           </div>
                         )}
                         {ministry.location && (
-                          <div className="flex items-center text-sm text-white/80">
+                          <div className="flex items-center text-sm text-gray-600">
                             <MapPin className="h-4 w-4 mr-2" />
                             {ministry.location}
                           </div>
                         )}
                         {ministry.meetingSchedule && (
-                          <div className="flex items-center text-sm text-white/80">
+                          <div className="flex items-center text-sm text-gray-600">
                             <Users className="h-4 w-4 mr-2" />
                             {ministry.meetingSchedule}
                           </div>
@@ -310,10 +310,10 @@ export function MinistryDatabase({ initialMinistries }: Props) {
 
                       {ministry.skillsNeeded && ministry.skillsNeeded.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm text-white mb-2">Skills Needed:</h4>
+                          <h4 className="font-medium text-sm text-gray-900 mb-2">Skills Needed:</h4>
                           <div className="flex flex-wrap gap-1">
                             {ministry.skillsNeeded.map((skill, index) => (
-                              <Badge key={index} variant="outline" className="text-xs bg-white/20 text-white border-white/30">
+                              <Badge key={index} variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-300">
                                 {skill}
                               </Badge>
                             ))}
@@ -321,13 +321,13 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                         </div>
                       )}
 
-                      <div className="pt-4 border-t border-white/20">
-                        <h4 className="font-medium text-sm text-white mb-2">Contact:</h4>
-                        <p className="text-sm text-white/90">{ministry.contactPerson}</p>
+                      <div className="pt-4 border-t border-gray-200">
+                        <h4 className="font-medium text-sm text-gray-900 mb-2">Contact:</h4>
+                        <p className="text-sm text-gray-700">{ministry.contactPerson}</p>
                         {ministry.contactPhone && (
-                          <div className="flex items-center text-sm text-white mt-1">
+                          <div className="flex items-center text-sm text-gray-700 mt-1">
                             <Phone className="h-4 w-4 mr-1" />
-                            <a href={`tel:${ministry.contactPhone}`} className="hover:text-white/80 transition-colors">
+                            <a href={`tel:${ministry.contactPhone}`} className="hover:text-gray-900 transition-colors">
                               {ministry.contactPhone}
                             </a>
                           </div>

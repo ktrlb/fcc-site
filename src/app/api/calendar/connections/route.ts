@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { calendarEvents, ministryTeams, specialEvents } from '@/lib/schema';
+import { calendarEvents, ministryTeams, specialEventTypes } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET() {
@@ -39,16 +39,16 @@ export async function GET() {
           categories: ministryTeams.categories,
         },
         specialEvent: {
-          id: specialEvents.id,
-          name: specialEvents.name,
-          description: specialEvents.description,
-          imageUrl: specialEvents.imageUrl,
-          color: specialEvents.color,
+          id: specialEventTypes.id,
+          name: specialEventTypes.name,
+          description: specialEventTypes.description,
+          imageUrl: specialEventTypes.imageUrl,
+          color: specialEventTypes.color,
         }
       })
       .from(calendarEvents)
       .leftJoin(ministryTeams, eq(calendarEvents.ministryTeamId, ministryTeams.id))
-      .leftJoin(specialEvents, eq(calendarEvents.specialEventId, specialEvents.id))
+      .leftJoin(specialEventTypes, eq(calendarEvents.specialEventId, specialEventTypes.id))
       .where(eq(calendarEvents.isActive, true));
 
     console.log(`Found ${connections.length} calendar event connections in database`);

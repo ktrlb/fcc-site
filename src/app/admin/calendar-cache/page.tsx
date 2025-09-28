@@ -61,10 +61,18 @@ export default function CalendarCacheAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <AdminSidebar onLogout={handleLogout} />
-      <div className="flex-1 p-8">
-        <CalendarCacheDashboard />
+    <div className="min-h-screen bg-gray-50 pt-24">
+      <div className="flex h-screen">
+        <AdminSidebar onLogout={handleLogout} />
+        <div className="flex-1 flex flex-col">
+          <div className="bg-white border-b border-gray-200 px-6 py-4">
+            <h1 className="text-2xl font-bold text-gray-900">Calendar Cache Management</h1>
+            <p className="text-gray-600">Monitor and manage calendar cache data</p>
+          </div>
+          <div className="flex-1 p-6 overflow-auto">
+            <CalendarCacheDashboard />
+          </div>
+        </div>
       </div>
     </div>
   );

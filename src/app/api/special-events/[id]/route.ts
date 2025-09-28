@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { specialEvents } from '@/lib/schema';
+import { specialEventTypes } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(
@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const rows = await db.select().from(specialEvents).where(eq(specialEvents.id, id)).limit(1);
+    const rows = await db.select().from(specialEventTypes).where(eq(specialEventTypes.id, id)).limit(1);
     const ev = rows[0] || null;
     if (!ev) return NextResponse.json({ event: null }, { status: 404 });
 

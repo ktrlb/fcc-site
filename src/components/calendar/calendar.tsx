@@ -409,7 +409,7 @@ export function Calendar({ events = [] }: CalendarProps) {
                   ${isMobile 
                     ? `p-3 border border-indigo-200 rounded-lg cursor-pointer transition-colors
                        ${date ? 'hover:bg-indigo-50' : ''}
-                       ${date ? 'bg-stone-700' : 'bg-stone-100'}
+                       ${date ? (eventsForDate.length > 0 ? 'bg-stone-700' : 'bg-stone-400') : 'bg-stone-100'}
                        ${isCurrentDay ? 'ring-2 ring-red-500' : ''}`
                     : `p-2 border border-indigo-200 rounded-lg
                        ${date ? 'hover:bg-indigo-50' : ''}

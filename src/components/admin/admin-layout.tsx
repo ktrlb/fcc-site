@@ -41,7 +41,7 @@ export function AdminLayout({ children, title, description, onLogout }: AdminLay
       </header>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:flex min-h-[calc(100vh-6rem)]">
+      <div className="hidden lg:flex min-h-[calc(100vh-6rem)] pt-20">
         {/* Desktop Sidebar */}
         <AdminSidebar onLogout={onLogout} />
         

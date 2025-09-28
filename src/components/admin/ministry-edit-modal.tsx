@@ -20,15 +20,7 @@ const RECURRING_TYPES = [
   { value: "as-needed", label: "As-needed" },
 ];
 
-const CATEGORIES = [
-  "Children & Youth",
-  "Worship & Music", 
-  "Outreach & Service",
-  "Administration",
-  "Hospitality",
-  "Education",
-  "Technology"
-];
+// Categories will be loaded dynamically from the database
 
 export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditModalProps) {
   const [formData, setFormData] = useState({
@@ -40,7 +32,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
     description: "",
     graphicImage: "",
     recurringType: "regular",
-    category: "Children & Youth",
+    category: "Children",
     categories: [] as string[],
     contactPerson: "",
     contactEmail: "",
@@ -58,6 +50,45 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+
+  // Load available categories from the database
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await fetch('/api/ministries');
+        if (response.ok) {
+          const data = await response.json();
+          const ministries = Array.isArray(data) ? data : [];
+          const categorySet = new Set<string>();
+          
+          ministries.forEach((ministry: any) => {
+            if (ministry.categories && Array.isArray(ministry.categories) && ministry.categories.length > 0) {
+              ministry.categories.forEach((cat: string) => categorySet.add(cat));
+            }
+            if (ministry.category) {
+              categorySet.add(ministry.category);
+            }
+          });
+          
+          const categoriesList = Array.from(categorySet).sort();
+          setAvailableCategories(categoriesList);
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        // Fallback to a basic list if API fails
+        setAvailableCategories([
+          "Worship", "Children", "Youth", "Service & Outreach", "Fellowship", 
+          "Prayer", "Education", "Missions", "Administration", "Music", 
+          "Hospitality", "Care", "Partner Organizations", "Creativity & Arts"
+        ]);
+      }
+    };
+    
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     if (ministry) {
@@ -70,7 +101,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         description: ministry.description || "",
         graphicImage: ministry.graphicImage || "",
         recurringType: ministry.recurringType || "regular",
-        category: ministry.category || "Children & Youth",
+        category: ministry.category || "Children",
         categories: ministry.categories || [],
         contactPerson: ministry.contactPerson || "",
         contactEmail: ministry.contactEmail || "",
@@ -261,7 +292,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 >
-                  {CATEGORIES.map(cat => (
+                  {availableCategories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
@@ -307,7 +338,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Add additional category...</option>
-                    {CATEGORIES.map(cat => (
+                    {availableCategories.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>

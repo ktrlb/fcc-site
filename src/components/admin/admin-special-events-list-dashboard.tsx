@@ -13,16 +13,17 @@ import { Star, Calendar, MapPin, User, Image as ImageIcon, Edit, Trash2, X } fro
 
 interface SpecialEvent {
   id: string;
-  googleEventId: string;
   title: string;
   description?: string;
   location?: string;
   startTime: string;
   endTime: string;
+  allDay: boolean;
   specialEventNote?: string;
   specialEventImage?: string;
   contactPerson?: string;
-  featuredOnHomePage: boolean;
+  isActive: boolean;
+  sortOrder: number;
   specialEventType?: {
     id: string;
     name: string;
@@ -44,11 +45,17 @@ export function AdminSpecialEventsListDashboard() {
   const [deletingEvent, setDeletingEvent] = useState<SpecialEvent | null>(null);
   const [specialEventTypes, setSpecialEventTypes] = useState<Array<{ id: string; name: string; color?: string }>>([]);
   const [ministries, setMinistries] = useState<Array<{ id: string; name: string }>>([]);
+  const [showPastEvents, setShowPastEvents] = useState(false);
   const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    location: '',
+    startTime: '',
+    endTime: '',
+    allDay: false,
     specialEventNote: '',
     contactPerson: '',
     specialEventImage: '',
-    featuredOnHomePage: false,
     specialEventId: 'none',
     ministryTeamId: 'none',
   });
@@ -101,43 +108,43 @@ export function AdminSpecialEventsListDashboard() {
     }
   };
 
-  const toggleFeatured = async (eventId: string, currentlyFeatured: boolean) => {
+  const handleSave = async () => {
     try {
-      const response = await fetch(`/api/admin/calendar-events/${eventId}`, {
+      if (!editingEvent) return;
+
+      const response = await fetch(`/api/admin/special-events-list/${editingEvent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          featuredOnHomePage: !currentlyFeatured,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update featured status');
+        throw new Error('Failed to update event');
       }
 
-      // Update local state
-      setSpecialEvents(prev => 
-        prev.map(event => 
-          event.id === eventId 
-            ? { ...event, featuredOnHomePage: !currentlyFeatured }
-            : event
-        )
-      );
+      await fetchSpecialEvents();
+      setIsEditModalOpen(false);
+      setEditingEvent(null);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update featured status');
-      console.error('Error updating featured status:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update event');
+      console.error('Error updating event:', err);
     }
   };
 
   const handleEdit = (event: SpecialEvent) => {
     setEditingEvent(event);
     setFormData({
+      title: event.title,
+      description: event.description || '',
+      location: event.location || '',
+      startTime: event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
+      endTime: event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',
+      allDay: event.allDay,
       specialEventNote: event.specialEventNote || '',
       contactPerson: event.contactPerson || '',
       specialEventImage: event.specialEventImage || '',
-      featuredOnHomePage: event.featuredOnHomePage,
       specialEventId: event.specialEventType?.id || 'none',
       ministryTeamId: event.ministryTeam?.id || 'none',
     });
@@ -153,16 +160,21 @@ export function AdminSpecialEventsListDashboard() {
     if (!editingEvent) return;
 
     try {
-      const response = await fetch(`/api/admin/calendar-events/${editingEvent.id}`, {
+      const response = await fetch(`/api/admin/special-events-list/${editingEvent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          location: formData.location,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          allDay: formData.allDay,
           specialEventNote: formData.specialEventNote,
           contactPerson: formData.contactPerson,
           specialEventImage: formData.specialEventImage,
-          featuredOnHomePage: formData.featuredOnHomePage,
           specialEventId: formData.specialEventId === 'none' ? null : formData.specialEventId,
           ministryTeamId: formData.ministryTeamId === 'none' ? null : formData.ministryTeamId,
         }),
@@ -178,10 +190,15 @@ export function AdminSpecialEventsListDashboard() {
           event.id === editingEvent.id 
             ? { 
                 ...event, 
+                title: formData.title,
+                description: formData.description,
+                location: formData.location,
+                startTime: formData.startTime,
+                endTime: formData.endTime,
+                allDay: formData.allDay,
                 specialEventNote: formData.specialEventNote,
                 contactPerson: formData.contactPerson,
                 specialEventImage: formData.specialEventImage,
-                featuredOnHomePage: formData.featuredOnHomePage,
                 specialEventType: formData.specialEventId !== 'none' 
                   ? specialEventTypes.find(t => t.id === formData.specialEventId)
                   : undefined,
@@ -205,7 +222,7 @@ export function AdminSpecialEventsListDashboard() {
     if (!deletingEvent) return;
 
     try {
-      const response = await fetch(`/api/admin/calendar-events/${deletingEvent.id}`, {
+      const response = await fetch(`/api/admin/special-events-list/${deletingEvent.id}`, {
         method: 'DELETE',
       });
 
@@ -236,6 +253,20 @@ export function AdminSpecialEventsListDashboard() {
     return <div className="text-center py-8 text-red-600">Error: {error}</div>;
   }
 
+  // Filter events based on past/future
+  const now = new Date();
+  const upcomingEvents = specialEvents.filter(event => {
+    const eventDate = new Date(event.startTime);
+    return eventDate >= now;
+  });
+  
+  const pastEvents = specialEvents.filter(event => {
+    const eventDate = new Date(event.startTime);
+    return eventDate < now;
+  });
+
+  const displayEvents = showPastEvents ? specialEvents : upcomingEvents;
+
   if (specialEvents.length === 0) {
     return (
       <div className="text-center py-8">
@@ -252,133 +283,167 @@ export function AdminSpecialEventsListDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Special Events ({specialEvents.length})</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Special Events ({displayEvents.length})
+            {!showPastEvents && pastEvents.length > 0 && (
+              <span className="text-sm font-normal text-gray-500 ml-2">
+                ({pastEvents.length} past events hidden)
+              </span>
+            )}
+          </h2>
           <p className="text-gray-600 mt-1">
             Events marked as special that can be featured on the homepage
           </p>
         </div>
-        <div className="text-sm text-gray-500">
-          {specialEvents.filter(e => e.featuredOnHomePage).length} featured on homepage
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-500">
+            {displayEvents.length} special events
+          </div>
+          {pastEvents.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPastEvents(!showPastEvents)}
+            >
+              {showPastEvents ? 'Hide Past Events' : `Show Past Events (${pastEvents.length})`}
+            </Button>
+          )}
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {specialEvents.map(event => (
-          <Card key={event.id} className="relative">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-lg font-medium line-clamp-2">
-                  {event.title}
-                </CardTitle>
-                <div className="flex gap-2 ml-2">
-                  {event.featuredOnHomePage && (
-                    <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
-                      <Star className="h-3 w-3 mr-1" />
-                      Featured
-                    </Badge>
-                  )}
-                  {event.specialEventType && (
-                    <Badge 
-                      variant="outline" 
-                      style={{ 
-                        borderColor: event.specialEventType.color,
-                        color: event.specialEventType.color 
-                      }}
-                    >
-                      {event.specialEventType.name}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="h-4 w-4" />
-                <span>
-                  {new Date(event.startTime).toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
+      <div className="space-y-4 max-w-6xl">
+        {displayEvents.map(event => {
+          const eventDate = new Date(event.startTime);
+          const isPastEvent = eventDate < now;
+          
+          return (
+            <Card key={event.id} className={`w-full transition-all duration-200 hover:shadow-lg ${isPastEvent ? 'opacity-75' : ''}`}>
+              <CardContent className="p-4">
+                <div className="flex items-start gap-4">
+                  {/* Event Image or Icon */}
+                  <div className="flex-shrink-0">
+                    {event.specialEventImage ? (
+                      <img
+                        src={event.specialEventImage}
+                        alt={event.title}
+                        className="w-16 h-16 rounded-lg object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                        <Calendar className="h-8 w-8 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
 
-              {event.location && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="h-4 w-4" />
-                  <span className="truncate">{event.location}</span>
-                </div>
-              )}
+                  {/* Event Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">
+                          {event.title}
+                        </h3>
+                        <div className="flex items-center gap-4 mt-1">
+                          <div className="flex items-center gap-1 text-sm text-gray-600">
+                            <Calendar className="h-4 w-4" />
+                            <span>
+                              {eventDate.toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                          {event.location && (
+                            <div className="flex items-center gap-1 text-sm text-gray-600">
+                              <MapPin className="h-4 w-4" />
+                              <span className="truncate">{event.location}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Badges */}
+                      <div className="flex gap-2 ml-4 flex-shrink-0">
+                        {event.specialEventType && (
+                          <Badge 
+                            variant="outline" 
+                            style={{ 
+                              borderColor: event.specialEventType.color,
+                              color: event.specialEventType.color 
+                            }}
+                          >
+                            {event.specialEventType.name}
+                          </Badge>
+                        )}
+                        {isPastEvent && (
+                          <Badge variant="outline" className="text-gray-500 border-gray-300">
+                            Past Event
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
 
-              {event.contactPerson && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <User className="h-4 w-4" />
-                  <span>{event.contactPerson}</span>
-                </div>
-              )}
+                    {/* Event Description */}
+                    {event.specialEventNote && (
+                      <p className="text-sm text-gray-700 mb-3 line-clamp-2">
+                        {event.specialEventNote}
+                      </p>
+                    )}
 
-              {event.specialEventNote && (
-                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
-                  {event.specialEventNote}
-                </div>
-              )}
+                    {/* Additional Info */}
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      {event.contactPerson && (
+                        <div className="flex items-center gap-1">
+                          <User className="h-4 w-4" />
+                          <span>{event.contactPerson}</span>
+                        </div>
+                      )}
+                      {event.ministryTeam && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-500">Ministry:</span>
+                          <span className="font-medium">{event.ministryTeam.name}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-              {event.specialEventImage && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <ImageIcon className="h-4 w-4" />
-                  <span className="truncate">{event.specialEventImage}</span>
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-2 flex-shrink-0">
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEdit(event)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDelete(event)}
+                        className="text-red-600 hover:text-red-700 hover:border-red-300"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              )}
-
-              {event.ministryTeam && (
-                <div className="text-sm">
-                  <span className="text-gray-500">Ministry: </span>
-                  <span className="font-medium">{event.ministryTeam.name}</span>
-                </div>
-              )}
-
-              <div className="flex justify-between items-center pt-3 border-t">
-                <Button
-                  variant={event.featuredOnHomePage ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleFeatured(event.id, event.featuredOnHomePage)}
-                  className={event.featuredOnHomePage ? "bg-yellow-500 hover:bg-yellow-600" : ""}
-                >
-                  <Star className="h-4 w-4 mr-2" />
-                  {event.featuredOnHomePage ? 'Featured' : 'Feature'}
-                </Button>
-                
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleEdit(event)}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDelete(event)}
-                    className="text-red-600 hover:text-red-700 hover:border-red-300"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit className="h-5 w-5" />
@@ -407,7 +472,73 @@ export function AdminSpecialEventsListDashboard() {
                 )}
               </div>
 
-              <form onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }} className="space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
+                <div>
+                  <Label htmlFor="title">Event Title</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Event title"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Event Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Brief description of the event"
+                    rows={2}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    placeholder="Event location"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startTime">Start Time</Label>
+                    <Input
+                      id="startTime"
+                      type="datetime-local"
+                      value={formData.startTime}
+                      onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="endTime">End Time</Label>
+                    <Input
+                      id="endTime"
+                      type="datetime-local"
+                      value={formData.endTime}
+                      onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="allDay"
+                    checked={formData.allDay}
+                    onChange={(e) => setFormData({ ...formData, allDay: e.target.checked })}
+                    className="rounded"
+                  />
+                  <Label htmlFor="allDay">All Day Event</Label>
+                </div>
+
                 <div>
                   <Label htmlFor="specialEventType">Special Event Type</Label>
                   <Select
@@ -492,16 +623,6 @@ export function AdminSpecialEventsListDashboard() {
                   )}
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="featuredOnHomePage"
-                    checked={formData.featuredOnHomePage}
-                    onChange={(e) => setFormData({ ...formData, featuredOnHomePage: e.target.checked })}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="featuredOnHomePage">Featured on Homepage</Label>
-                </div>
 
                 <div className="flex justify-end space-x-2 pt-4 border-t">
                   <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>

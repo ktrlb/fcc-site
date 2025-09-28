@@ -3,7 +3,7 @@ import { CalendarCacheService } from '@/lib/calendar-cache';
 import { getMinistryTeams } from '@/lib/ministry-queries';
 import { analyzeEvents } from '@/lib/event-analyzer';
 import { db } from '@/lib/db';
-import { calendarEvents, ministryTeams, specialEvents } from '@/lib/schema';
+import { calendarEvents, ministryTeams, specialEventTypes } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(request: Request) {
@@ -215,16 +215,16 @@ export async function GET(request: Request) {
             categories: ministryTeams.categories,
           },
           specialEvent: {
-            id: specialEvents.id,
-            name: specialEvents.name,
-            description: specialEvents.description,
-            imageUrl: specialEvents.imageUrl,
-            color: specialEvents.color,
+            id: specialEventTypes.id,
+            name: specialEventTypes.name,
+            description: specialEventTypes.description,
+            imageUrl: specialEventTypes.imageUrl,
+            color: specialEventTypes.color,
           }
         })
         .from(calendarEvents)
         .leftJoin(ministryTeams, eq(calendarEvents.ministryTeamId, ministryTeams.id))
-        .leftJoin(specialEvents, eq(calendarEvents.specialEventId, specialEvents.id))
+        .leftJoin(specialEventTypes, eq(calendarEvents.specialEventId, specialEventTypes.id))
         .where(eq(calendarEvents.isActive, true));
 
       calendarEventConnections = connections.filter(conn => conn.googleEventId !== null) as typeof calendarEventConnections;

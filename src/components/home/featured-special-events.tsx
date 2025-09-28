@@ -17,10 +17,15 @@ export async function FeaturedSpecialEvents() {
     specialEventImage?: string;
     specialEventNote?: string;
     contactPerson?: string;
-    specialEventColor?: string;
-    specialEventName?: string;
-    ministryTeamName?: string;
-    recurringDescription?: string;
+    specialEventType?: {
+      id: string;
+      name: string;
+      color?: string;
+    };
+    ministryTeam?: {
+      id: string;
+      name: string;
+    };
   }> = [];
   
   try {
@@ -87,21 +92,15 @@ export async function FeaturedSpecialEvents() {
                 />
                 
                 <div className="space-y-1 text-sm text-white">
-                  {event.recurringDescription ? (
-                    <p className="font-semibold">
-                      {event.recurringDescription}
-                    </p>
-                  ) : (
-                    <p className="font-semibold">
-                      {new Date(event.startTime).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        timeZone: 'America/Chicago'
-                      })}
-                    </p>
-                  )}
+                  <p className="font-semibold">
+                    {new Date(event.startTime).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      timeZone: 'America/Chicago'
+                    })}
+                  </p>
                   {!event.allDay && (
                     <p>
                       {new Date(event.startTime).toLocaleTimeString('en-US', {
@@ -132,10 +131,10 @@ export async function FeaturedSpecialEvents() {
                       Contact: {event.contactPerson}
                     </p>
                   )}
-                  {event.ministryTeamName && (
+                  {event.ministryTeam?.name && (
                     <p className="flex items-center">
                       <Building2 className="h-4 w-4 mr-2" />
-                      {event.ministryTeamName}
+                      {event.ministryTeam.name}
                     </p>
                   )}
                 </div>

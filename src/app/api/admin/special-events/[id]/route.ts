@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { specialEvents } from '@/lib/schema';
+import { specialEventTypes } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
-import type { NewSpecialEvent } from '@/lib/schema';
+import type { NewSpecialEventType } from '@/lib/schema';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
 export async function GET(
@@ -17,8 +17,8 @@ export async function GET(
     const { id } = await params;
     const event = await db
       .select()
-      .from(specialEvents)
-      .where(eq(specialEvents.id, id))
+      .from(specialEventTypes)
+      .where(eq(specialEventTypes.id, id))
       .limit(1);
     
     if (!event[0]) {
@@ -50,7 +50,7 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
     
-    const updateData: Partial<NewSpecialEvent> = {
+    const updateData: Partial<NewSpecialEventType> = {
       name: data.name,
       description: data.description,
       imageUrl: data.imageUrl,
@@ -61,9 +61,9 @@ export async function PUT(
     };
     
     const result = await db
-      .update(specialEvents)
+      .update(specialEventTypes)
       .set(updateData)
-      .where(eq(specialEvents.id, id))
+      .where(eq(specialEventTypes.id, id))
       .returning();
     
     if (!result[0]) {
@@ -97,8 +97,8 @@ export async function DELETE(
     // Check if this is a default event that shouldn't be deleted
     const event = await db
       .select()
-      .from(specialEvents)
-      .where(eq(specialEvents.id, id))
+      .from(specialEventTypes)
+      .where(eq(specialEventTypes.id, id))
       .limit(1);
     
     if (!event[0]) {
@@ -117,9 +117,9 @@ export async function DELETE(
     
     // Soft delete by setting isActive to false
     const result = await db
-      .update(specialEvents)
+      .update(specialEventTypes)
       .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(specialEvents.id, id))
+      .where(eq(specialEventTypes.id, id))
       .returning();
     
     return NextResponse.json({ message: 'Special event deleted successfully' });

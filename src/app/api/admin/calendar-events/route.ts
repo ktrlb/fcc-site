@@ -154,7 +154,14 @@ export async function POST(request: Request) {
       
       return NextResponse.json({ event: result[0] });
     } else {
-      // Create new event
+      // Create new event - handle null start/end times
+      if (!data.startTime || !data.endTime) {
+        return NextResponse.json(
+          { error: 'Event must have valid start and end times to be saved' },
+          { status: 400 }
+        );
+      }
+      
       const newEvent: NewCalendarEvent = {
         googleEventId: data.googleEventId,
         title: data.title,

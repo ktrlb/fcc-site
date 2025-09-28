@@ -110,8 +110,8 @@ export const staff = pgTable('staff', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Special events table for managing special event types with images and configurations
-export const specialEvents = pgTable('special_events', {
+// Special event types table for managing event type categories with images and configurations
+export const specialEventTypes = pgTable('special_event_types', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -120,6 +120,26 @@ export const specialEvents = pgTable('special_events', {
   isDefault: boolean('is_default').default(false).notNull(), // Whether this is a default/required option
   isActive: boolean('is_active').default(true).notNull(),
   sortOrder: varchar('sort_order', { length: 10 }).default('0'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Individual special events for homepage featuring
+export const featuredSpecialEvents = pgTable('featured_special_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  location: varchar('location', { length: 500 }),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  allDay: boolean('all_day').default(false).notNull(),
+  specialEventImage: varchar('special_event_image', { length: 500 }), // URL for special event image
+  contactPerson: varchar('contact_person', { length: 255 }),
+  specialEventNote: text('special_event_note'), // Additional details for special events
+  specialEventTypeId: uuid('special_event_type_id').references(() => specialEventTypes.id), // Link to special event type
+  ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id), // Link to specific ministry team
+  isActive: boolean('is_active').default(true).notNull(),
+  sortOrder: integer('sort_order').default(0), // For manual ordering
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -135,7 +155,7 @@ export const calendarEvents = pgTable('calendar_events', {
   endTime: timestamp('end_time').notNull(),
   allDay: boolean('all_day').default(false).notNull(),
   recurring: boolean('recurring').default(false).notNull(),
-  specialEventId: uuid('special_event_id').references(() => specialEvents.id), // Link to special event type
+  specialEventId: uuid('special_event_id').references(() => specialEventTypes.id), // Link to special event type
   ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id), // Link to specific ministry team
   isSpecialEvent: boolean('is_special_event').default(false).notNull(),
   // Flag for outside groups using the facility; hidden from public views when true
@@ -180,7 +200,7 @@ export const recurringEventsCache = pgTable('recurring_events_cache', {
   ministryConnection: varchar('ministry_connection', { length: 100 }),
   // Add ministry and special event ID fields for persistent connections
   ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id),
-  specialEventId: uuid('special_event_id').references(() => specialEvents.id),
+  specialEventId: uuid('special_event_id').references(() => specialEventTypes.id),
   isSpecialEvent: boolean('is_special_event').default(false).notNull(),
   specialEventNote: text('special_event_note'),
   specialEventImage: varchar('special_event_image', { length: 500 }),
@@ -254,8 +274,10 @@ export type NewSeasonalGuide = typeof seasonalGuides.$inferInsert;
 export type Staff = typeof staff.$inferSelect;
 export type NewStaff = typeof staff.$inferInsert;
 
-export type SpecialEvent = typeof specialEvents.$inferSelect;
-export type NewSpecialEvent = typeof specialEvents.$inferInsert;
+export type SpecialEventType = typeof specialEventTypes.$inferSelect;
+export type NewSpecialEventType = typeof specialEventTypes.$inferInsert;
+export type FeaturedSpecialEvent = typeof featuredSpecialEvents.$inferSelect;
+export type NewFeaturedSpecialEvent = typeof featuredSpecialEvents.$inferInsert;
 
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type NewCalendarEvent = typeof calendarEvents.$inferInsert;
