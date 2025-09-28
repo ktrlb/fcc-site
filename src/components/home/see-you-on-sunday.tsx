@@ -31,6 +31,7 @@ async function getUpcomingSundayEvents() {
     
     // Get all cached events
     const allEvents = await CalendarCacheService.getCalendarEvents();
+    console.log(`📅 Fetched ${allEvents.length} total events from calendar cache`);
     
     // Filter events for the target Sunday
     const startOfDay = new Date(targetSunday);
@@ -38,31 +39,88 @@ async function getUpcomingSundayEvents() {
     const endOfDay = new Date(targetSunday);
     endOfDay.setHours(23, 59, 59, 999);
     
+    console.log(`🔍 Looking for Sunday events between ${startOfDay.toISOString()} and ${endOfDay.toISOString()}`);
+    
     const sundayEvents = allEvents.filter(event => {
       const eventDate = new Date(event.startTime);
       const isOnSunday = eventDate >= startOfDay && eventDate <= endOfDay;
       const isSundaySchool = event.title.toLowerCase().includes('sunday school');
       const isWorship = event.title.toLowerCase().includes('worship');
       
-      return isOnSunday && (isSundaySchool || isWorship);
+      const isMatch = isOnSunday && (isSundaySchool || isWorship);
+      if (isMatch) {
+        console.log(`✅ Found Sunday event: ${event.title} at ${event.startTime}`);
+      }
+      
+      return isMatch;
     });
+    
+    console.log(`📋 Found ${sundayEvents.length} Sunday events for ${targetSunday.toDateString()}`);
     
     // Sort by start time
     sundayEvents.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
     
+    // If no events found, provide fallback service times
+    if (sundayEvents.length === 0) {
+      console.log('⚠️ No Sunday events found in calendar cache, using fallback service times');
+      const fallbackEvents = getFallbackSundayEvents(targetSunday);
+      return {
+        date: targetSunday,
+        events: fallbackEvents,
+        isToday: isSunday && isBeforeNoon,
+        isFallback: true
+      };
+    }
+    
     return {
       date: targetSunday,
       events: sundayEvents,
-      isToday: isSunday && isBeforeNoon
+      isToday: isSunday && isBeforeNoon,
+      isFallback: false
     };
   } catch (error) {
-    console.error('Error fetching upcoming Sunday events:', error);
+    console.error('❌ Error fetching upcoming Sunday events:', error);
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace available');
+    // Provide fallback even on error
+    const fallbackEvents = getFallbackSundayEvents(new Date());
+    console.log('🔄 Using fallback service times due to error');
     return {
       date: new Date(),
-      events: [],
-      isToday: false
+      events: fallbackEvents,
+      isToday: false,
+      isFallback: true
     };
   }
+}
+
+// Helper function to provide fallback Sunday service times
+function getFallbackSundayEvents(targetSunday: Date) {
+  console.log(`🔄 Creating fallback events for ${targetSunday.toDateString()}`);
+  
+  // Create fallback events for standard Sunday services
+  const fallbackEvents = [
+    {
+      title: 'Sunday School',
+      startTime: new Date(targetSunday.getFullYear(), targetSunday.getMonth(), targetSunday.getDate(), 9, 0).toISOString(),
+      endTime: new Date(targetSunday.getFullYear(), targetSunday.getMonth(), targetSunday.getDate(), 10, 0).toISOString(),
+      location: 'Various Classrooms'
+    },
+    {
+      title: 'Worship Service',
+      startTime: new Date(targetSunday.getFullYear(), targetSunday.getMonth(), targetSunday.getDate(), 10, 0).toISOString(),
+      endTime: new Date(targetSunday.getFullYear(), targetSunday.getMonth(), targetSunday.getDate(), 11, 0).toISOString(),
+      location: 'Sanctuary'
+    },
+    {
+      title: 'Worship Service',
+      startTime: new Date(targetSunday.getFullYear(), targetSunday.getMonth(), targetSunday.getDate(), 11, 0).toISOString(),
+      endTime: new Date(targetSunday.getFullYear(), targetSunday.getMonth(), targetSunday.getDate(), 12, 0).toISOString(),
+      location: 'Sanctuary'
+    }
+  ];
+  
+  console.log(`✅ Created ${fallbackEvents.length} fallback events`);
+  return fallbackEvents;
 }
 
 // Helper function to format time
@@ -145,42 +203,41 @@ export async function SeeYouOnSunday() {
               <div className="px-8 py-8 flex-1 flex flex-col">
                 <div className="mb-6">
                   <h3 className="text-xl md:text-2xl font-bold text-white text-center">
-                    {sundayData.isToday ? 'Today' : 'Upcoming Sunday'}: {sundayData.date.toLocaleDateString('en-US', {
-                      timeZone: 'America/Chicago', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
+                    {sundayData.isFallback 
+                      ? 'Regular Sunday Worship'
+                      : `${sundayData.isToday ? 'Today' : 'Upcoming Sunday'}: ${sundayData.date.toLocaleDateString('en-US', {
+                          timeZone: 'America/Chicago', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}`
+                    }
                   </h3>
+                  {sundayData.isFallback && (
+                    <p className="text-sm text-white/70 text-center mt-2">
+                      Standard service times shown
+                    </p>
+                  )}
                 </div>
                 
                 <div className="flex-1 flex flex-col">
                   <div className="space-y-8">
-                    {sundayData.events.length > 0 ? (
-                      sundayData.events.map((event, index) => {
-                        const IconComponent = getEventIcon(event.title);
-                        return (
-                          <div key={index} className="flex flex-col items-center text-center">
-                            <div className="bg-white rounded-full p-2 mb-4">
-                              <IconComponent className="h-6 w-6" style={{ color: 'rgb(220 38 38)' }} />
-                            </div>
-                            <p className="font-semibold text-base md:text-lg text-white">
-                              {formatTime(new Date(event.startTime))}
-                            </p>
-                            <p className="text-white">{event.title}</p>
-                            {event.location && (
-                              <p className="text-sm text-white/80">{event.location}</p>
-                            )}
+                    {sundayData.events.map((event, index) => {
+                      const IconComponent = getEventIcon(event.title);
+                      return (
+                        <div key={index} className="flex flex-col items-center text-center">
+                          <div className="bg-white rounded-full p-2 mb-4">
+                            <IconComponent className="h-6 w-6" style={{ color: 'rgb(220 38 38)' }} />
                           </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-white">No events scheduled for this Sunday</p>
-                        <p className="text-sm text-white/80 mt-2">
-                          Check back later for the upcoming schedule
-                        </p>
-                      </div>
-                    )}
+                          <p className="font-semibold text-base md:text-lg text-white">
+                            {formatTime(new Date(event.startTime))}
+                          </p>
+                          <p className="text-white">{event.title}</p>
+                          {event.location && (
+                            <p className="text-sm text-white/80">{event.location}</p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   
                   <div className="flex justify-center mt-8">

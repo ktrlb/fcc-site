@@ -91,11 +91,13 @@ This is a Next.js 14 church website for First Christian Church Granbury with a s
 - `featuredOnHomePage`: Show on homepage
 
 ### Recurring Events Cache (`recurring_events_cache`)
-- Stores analyzed weekly patterns
+- Stores analyzed weekly patterns by month
 - `dayOfWeek`: 0-6 (Sunday-Saturday)
 - `time`: HH:MM format in Chicago timezone
 - `confidence`: 0-1 pattern confidence score
 - `eventIds`: Array of Google event IDs matching pattern
+- `month`: 0-11 (January-December) - NEW: Monthly cache system
+- `year`: Full year (e.g., 2025) - NEW: Monthly cache system
 
 ## Development Workflow
 
@@ -142,6 +144,55 @@ npm run db:studio    # Open Drizzle Studio
 - Environment variables required: `GOOGLE_CALENDAR_ID`, `GOOGLE_SERVICE_ACCOUNT_KEY`
 - Database migrations run automatically
 - Test build locally before deploying
+
+## Calendar & Mini Calendar System - CRITICAL COMPONENTS
+
+### Component Architecture
+- **Main Calendar** (`/src/components/calendar/calendar.tsx`): Full monthly calendar view
+- **Mini Calendar** (`/src/components/calendar/mini-calendar.tsx`): Weekly recurring patterns display
+- **Admin Calendar** (`/src/components/admin/calendar-admin-dashboard.tsx`): Admin interface
+
+### Key Props & Dependencies
+- **MiniCalendar requires `currentMonth: Date` prop** - CRITICAL: Always pass this prop
+- **MiniCalendar uses monthly cache** - Fetches patterns for specific month/year
+- **Main calendar filters by displayed month** - Uses `currentDate` state, not `new Date()`
+
+### Monthly Cache System
+- **Cache is month-specific**: Each month has its own recurring patterns
+- **API endpoint**: `/api/recurring-events?month=8&year=2025` (month is 0-based)
+- **Cache refresh**: Analyzes events by month and stores separately
+- **Fallback logic**: If cache fails, falls back to live analysis for that month
+
+### Sunday vs Weekday Logic
+- **Sunday (dayOfWeek: 0)**: Shows standard worship times (9am, 10am, 11am) + exceptions
+- **Monday-Friday (dayOfWeek: 1-5)**: Shows recurring weekly patterns from cache
+- **Saturday (dayOfWeek: 6)**: Shows recurring weekly patterns from cache
+- **Worship exceptions**: Events with "worship" in title that aren't at standard times
+
+### Filtering Logic
+- **Main calendar filters out recurring events** to avoid duplicates
+- **Location matching**: `(recurring.location || '') === (location || '')` - handles null values
+- **Title, day, time, location must all match** for filtering
+- **Standard Sunday events**: Hard-coded filtering for 9am/10am/11am worship
+
+### Common Issues & Solutions
+- **Mini calendar stuck on "Analyzing..."**: Missing `currentMonth` prop or cache fetch failure
+- **Events not filtered from main calendar**: Check month/year parameters match displayed month
+- **Location filtering fails**: Ensure null/undefined handling in comparison
+- **Sunday events showing incorrectly**: Check worship analysis logic and exception filtering
+
+### Data Flow for Mini Calendar
+1. **Component receives `currentMonth` prop**
+2. **Fetches recurring patterns** for that specific month from `/api/recurring-events`
+3. **Sets analysis state** with cached data
+4. **Analyzes worship services** for Sunday exceptions (uses all events, not just current month)
+5. **Renders weekly patterns** for Monday-Friday, worship schedule for Sunday
+
+### Data Flow for Main Calendar
+1. **Uses `currentDate` state** (the displayed month, not current month)
+2. **Fetches recurring patterns** for the displayed month
+3. **Filters out recurring events** to prevent duplicates
+4. **Shows only unique/special events** in the main calendar grid
 
 ## Current Known Issues
 - Weekly groups modal needs proper scrolling on mobile

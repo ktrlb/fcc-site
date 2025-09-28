@@ -43,11 +43,11 @@ export function LearnMore() {
           {/* Mission */}
           <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-white mb-6">Our Mission is...</h3>
+              <h3 className="text-2xl font-bold text-white mb-3">Our Mission is...</h3>
               
               <div className="space-y-4 text-center flex flex-col justify-center h-full py-8">
-                <p className="text-white text-2xl font-bold animate-pulse">
-                  to share with <em className="text-3xl font-black">ALL people</em>
+                <p className="text-white text-2xl font-bold">
+                  to share with <em className="text-3xl font-black animate-pulse">ALL people</em>
                 </p>
                 <p className="text-white text-2xl font-bold">
                   the unconditional love of God
