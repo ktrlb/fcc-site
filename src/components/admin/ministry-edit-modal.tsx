@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X, Save } from "lucide-react";
 import type { MinistryTeam } from "@/lib/schema";
 // Removed direct database imports - using API routes instead
@@ -51,12 +52,14 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   // Load available categories from the database
   useEffect(() => {
     const loadCategories = async () => {
+      setLoadingCategories(true);
       try {
-        const response = await fetch('/api/ministries');
+        const response = await fetch('/api/admin/ministries');
         if (response.ok) {
           const data = await response.json();
           const ministries = Array.isArray(data) ? data : [];
@@ -84,6 +87,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
           "Prayer", "Education", "Missions", "Administration", "Music", 
           "Hospitality", "Care", "Partner Organizations", "Creativity & Arts"
         ]);
+      } finally {
+        setLoadingCategories(false);
       }
     };
     
@@ -190,11 +195,19 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
     setIsLoading(true);
 
     try {
+      // Preserve existing categories if user made no change
+      const payload = {
+        ...formData,
+        category: formData.category || ministry?.category || "",
+        categories: (formData.categories && formData.categories.length > 0)
+          ? formData.categories
+          : (ministry?.categories || []),
+      };
       if (ministry) {
         const response = await fetch(`/api/admin/ministries/${ministry.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
         if (!response.ok) {
           throw new Error('Failed to update ministry');
@@ -208,7 +221,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         const response = await fetch('/api/admin/ministries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
         if (!response.ok) {
           throw new Error('Failed to create ministry');
@@ -269,7 +282,10 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
           </Button>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off" data-lpignore="true" data-form-type="other">
+            {/* Hidden fields to confuse browser autofill heuristics (prevents WebKit errors) */}
+            <input type="text" name="fake-username" autoComplete="username" className="hidden" aria-hidden="true" tabIndex={-1} />
+            <input type="password" name="fake-password" autoComplete="new-password" className="hidden" aria-hidden="true" tabIndex={-1} />
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -277,28 +293,49 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   Ministry Name *
                 </label>
                 <Input
+                  name="ministryName"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  autoComplete="off"
+                  data-form-type="other"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label id="primaryCategoryLabel" className="block text-sm font-medium text-gray-700 mb-1">
                   Primary Category *
                 </label>
-                <select
+                <Select
+                  name="primaryCategory"
                   value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+                  onValueChange={(value) => {
+                    setFormData(prev => ({ ...prev, category: value }));
+                  }}
+                  disabled={loadingCategories}
+                  autoComplete="off"
+                  data-form-type="other"
                 >
-                  {availableCategories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                  {/* Hidden helpers for autofill sibling traversal and a text node */}
+                  <input type="text" tabIndex={-1} aria-hidden="true" className="hidden" name="_ignore_primary_category" autoComplete="off" />
+                  {'\u200B'}
+                  <span className="sr-only">Primary Category</span>
+                  <SelectTrigger aria-labelledby="primaryCategoryLabel" id="primaryCategoryTrigger" form="__none">
+                    <span className="sr-only">Primary Category</span>
+                    <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
+                  </SelectTrigger>
+                  <SelectContent className="z-[100] relative">
+                    {availableCategories.length > 0 ? (
+                      availableCategories.map(cat => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-categories" disabled>No categories available</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label id="additionalCategoriesLabel" className="block text-sm font-medium text-gray-700 mb-1">
                   Additional Categories
                 </label>
                 <div className="space-y-2">
@@ -324,24 +361,35 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                       </span>
                     ))}
                   </div>
-                  <select
-                    onChange={(e) => {
-                      const newCat = e.target.value;
-                      if (newCat && !formData.categories.includes(newCat) && newCat !== formData.category) {
-                        setFormData(prev => ({
-                          ...prev,
-                          categories: [...prev.categories, newCat]
-                        }));
-                      }
-                      e.target.value = '';
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Add additional category...</option>
-                    {availableCategories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                <Select
+                  onValueChange={(value) => {
+                    if (value && !formData.categories.includes(value) && value !== formData.category) {
+                      setFormData(prev => ({
+                        ...prev,
+                        categories: [...prev.categories, value]
+                      }));
+                    }
+                  }}
+                  disabled={loadingCategories}
+                  autoComplete="off"
+                  data-form-type="other"
+                >
+                    {/* Hidden helpers for autofill sibling traversal and a text node */}
+                    <input type="text" tabIndex={-1} aria-hidden="true" className="hidden" name="_ignore_additional_categories" autoComplete="off" />
+                    {'\u200B'}
+                    <span className="sr-only">Additional Categories</span>
+                    <SelectTrigger aria-labelledby="additionalCategoriesLabel" id="additionalCategoriesTrigger" form="__none">
+                      <span className="sr-only">Additional Categories</span>
+                      <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Add additional category..."} />
+                    </SelectTrigger>
+                    <SelectContent className="z-[100] relative">
+                      {availableCategories
+                        .filter(cat => !formData.categories.includes(cat) && cat !== formData.category)
+                        .map(cat => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -369,6 +417,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   value={formData.contactHeading}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactHeading: e.target.value }))}
                   placeholder="e.g., Outreach Chair, Team Lead"
+                  autoComplete="off"
+                  data-form-type="other"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Title/role of the contact person (e.g., &quot;Outreach Chair&quot; for partner organizations)
@@ -381,6 +431,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                 <Input
                   value={formData.contactPerson}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactPerson: e.target.value }))}
+                  autoComplete="off"
+                  data-form-type="other"
                   required
                 />
               </div>
@@ -396,6 +448,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
                   type="email"
                   placeholder="email@example.com (optional)"
+                  autoComplete="off"
+                  data-form-type="other"
                 />
               </div>
               <div>
@@ -406,6 +460,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   value={formData.contactPhone}
                   onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
                   placeholder="(555) 123-4567"
+                  autoComplete="off"
+                  data-form-type="other"
                 />
               </div>
             </div>
@@ -473,6 +529,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   value={formData.regularMeetingType}
                   onChange={(e) => setFormData(prev => ({ ...prev, regularMeetingType: e.target.value }))}
                   placeholder="e.g., Weekly Bible Study"
+                  autoComplete="off"
+                  data-form-type="other"
                 />
               </div>
               <div>
@@ -483,6 +541,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   value={formData.regularMeetingTime}
                   onChange={(e) => setFormData(prev => ({ ...prev, regularMeetingTime: e.target.value }))}
                   placeholder="e.g., Sundays 9:00 AM"
+                  autoComplete="off"
+                  data-form-type="other"
                 />
               </div>
             </div>
@@ -498,6 +558,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   onChange={(e) => setNewType(e.target.value)}
                   placeholder="Add a type tag"
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addType())}
+                  autoComplete="off"
+                  data-form-type="other"
                 />
                 <Button type="button" onClick={addType} variant="outline">
                   Add
@@ -533,6 +595,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   onChange={(e) => setNewSkill(e.target.value)}
                   placeholder="Add a skill"
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                  autoComplete="off"
+                  data-form-type="other"
                 />
                 <Button type="button" onClick={addSkill} variant="outline">
                   Add
@@ -565,20 +629,24 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Time Commitment
                   </label>
-                  <Input
+                <Input
                     value={formData.timeCommitment}
                     onChange={(e) => setFormData(prev => ({ ...prev, timeCommitment: e.target.value }))}
                     placeholder="e.g., 3-4 hours per week"
+                  autoComplete="off"
+                  data-form-type="other"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Location
                   </label>
-                  <Input
+                <Input
                     value={formData.location}
                     onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                     placeholder="e.g., Church, Community Center"
+                  autoComplete="off"
+                  data-form-type="other"
                   />
                 </div>
               </div>

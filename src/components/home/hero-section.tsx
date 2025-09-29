@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden pt-20" style={{ height: '450px' }}>
+    <section className="relative w-full overflow-hidden pt-20" style={{ height: '500px' }}>
       {/* YouTube Video Background - autoplay on load */}
         <iframe
           className="absolute z-0"
@@ -15,12 +15,12 @@ export function HeroSection() {
           frameBorder="0"
           style={{
             position: 'absolute',
-            top: '50%',
+            top: 'calc(50% + 110px)',
             left: '50%',
-            width: '100vw',
-            height: '56.25vw',
-            minHeight: '100%',
-            minWidth: '177.77vh',
+            width: '115vw',
+            height: 'calc(64.6875vw + 50px)',
+            minHeight: 'calc(115% + 50px)',
+            minWidth: '204.44vh',
             transform: 'translate(-50%, -50%)',
             border: 'none',
             pointerEvents: 'none'
