@@ -209,7 +209,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
             specialEventId: data.event.specialEventId,
             ministryTeamId: data.event.ministryTeamId,
             isSpecialEvent: data.event.isSpecialEvent,
-            isExternal: data.event.isExternal,
+            isExternal: typeof data.event.isExternal === 'boolean' ? data.event.isExternal : event.isExternal,
             specialEventNote: data.event.specialEventNote,
             specialEventImage: data.event.specialEventImage,
             contactPerson: data.event.contactPerson,
@@ -587,6 +587,10 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
               Event Admin Settings
             </DialogTitle>
           </DialogHeader>
+          {/* Accessible description for dialog content to satisfy aria-describedby */}
+          <p className="sr-only" id="admin-event-dialog-description">
+            Edit admin settings for the selected calendar event.
+          </p>
           
           {selectedEvent && (
             <AdminEventEditForm

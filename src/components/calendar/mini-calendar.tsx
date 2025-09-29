@@ -290,7 +290,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
           time: recurringEvent.time,
           location: recurringEvent.location || ''
         };
-        const resp = await fetch('/api/calendar/events/by-recurring', {
+        const resp = await fetch('/api/calendar/events/by-recurring?includeExternal=true', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -299,12 +299,13 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
           const data = await resp.json();
           effectiveMinistryTeamId = data?.event?.ministryTeamId || null;
           effectiveSpecialEventId = data?.event?.specialEventId || null;
-          if (effectiveMinistryTeamId || effectiveSpecialEventId) {
+          if (effectiveMinistryTeamId || effectiveSpecialEventId || typeof data?.event?.isExternal === 'boolean') {
             setSelectedEvent(prev => prev ? {
               ...prev,
               ministryTeamId: effectiveMinistryTeamId || undefined,
               specialEventId: effectiveSpecialEventId || undefined,
               isSpecialEvent: data?.event?.isSpecialEvent ?? prev.isSpecialEvent,
+              isExternal: typeof data?.event?.isExternal === 'boolean' ? data.event.isExternal : prev.isExternal,
               specialEventNote: data?.event?.specialEventNote ?? prev.specialEventNote,
               specialEventImage: data?.event?.specialEventImage ?? prev.specialEventImage,
               contactPerson: data?.event?.contactPerson ?? prev.contactPerson,
@@ -373,6 +374,9 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
     if (!selectedEvent) return;
 
     try {
+      // Ensure ISO strings for API
+      const startIso = new Date(selectedEvent.start as any).toISOString();
+      const endIso = new Date(selectedEvent.end as any).toISOString();
       
       // Make API call to save the event data
       const createResponse = await fetch('/api/admin/calendar-events', {
@@ -385,8 +389,8 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
           title: selectedEvent.title,
           description: selectedEvent.description,
           location: selectedEvent.location,
-          startTime: selectedEvent.start,
-          endTime: selectedEvent.end,
+          startTime: startIso,
+          endTime: endIso,
           allDay: selectedEvent.allDay,
           recurring: selectedEvent.recurring,
           specialEventId: eventData.specialEventId,
@@ -424,17 +428,22 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
       if (!createResponse.ok) {
         const errorData = await createResponse.json();
         console.error('Failed to save event:', errorData);
+        if (errorData?.error) alert(`Failed to save: ${errorData.error}`);
         return;
       }
 
       const savedEvent = await createResponse.json();
       
+      // Update current selection with persisted flags so reopening shows correct state
+      setSelectedEvent(prev => prev ? { ...prev, isExternal: !!eventData.isExternal } : prev);
       // Close the modal and refresh
       setIsModalOpen(false);
       setSelectedEvent(null);
       onEventUpdated?.();
+      console.log('Saved recurring event from mini calendar:', savedEvent);
     } catch (error) {
       console.error('Failed to save event:', error);
+      alert('Failed to save event. Please try again.');
     }
   };
 
@@ -463,9 +472,15 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
       'fellowship': 'bg-yellow-100 text-yellow-800 border-yellow-200',
       'missions': 'bg-indigo-100 text-indigo-800 border-indigo-200',
       'special': 'bg-pink-100 text-pink-800 border-pink-200',
+      'external': 'bg-stone-200 text-stone-600 border-stone-300',
       'default': 'bg-gray-100 text-gray-800 border-gray-200'
     };
     
+    // External groups should be visibly greyed in admin mini calendar
+    if ((event as any).isExternal) {
+      return colors.external;
+    }
+
     // Check if it's a special event first
     if (event.isSpecialEvent) {
       return colors.special;
@@ -499,7 +514,9 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
           <div className={`grid gap-2 ${isMobile ? 'grid-cols-1' : 'grid-cols-7'}`}>
             {DAYS.map((day, index) => {
               const dayEvents = analysis.weeklyPatterns[index] || [];
-              const hasEvents = dayEvents.length > 0;
+              // Hide external groups on public mini calendar; show in admin
+              const visibleDayEvents = (dayEvents as RecurringEvent[]).filter((e) => isAdminMode || !(e as any).isExternal);
+              const hasEvents = visibleDayEvents.length > 0;
               const isSunday = index === 0;
               
               // Cycle through our signature colors for day headers
@@ -586,7 +603,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                         )}
                       </>
                     ) : hasEvents ? (
-                      dayEvents
+                      visibleDayEvents
                         .sort((a: RecurringEvent, b: RecurringEvent) => a.time.localeCompare(b.time))
                         .map((event: RecurringEvent, eventIndex: number) => (
                           <div
@@ -633,6 +650,10 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
               )}
             </DialogTitle>
           </DialogHeader>
+          {/* Accessible description for dialog content to satisfy aria-describedby */}
+          <p className="sr-only" id="mini-calendar-dialog-description">
+            Edit event settings and connections for the selected recurring event.
+          </p>
           
           {selectedEvent && (
             isAdminMode ? (

@@ -283,9 +283,6 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off" data-lpignore="true" data-form-type="other">
-            {/* Hidden fields to confuse browser autofill heuristics (prevents WebKit errors) */}
-            <input type="text" name="fake-username" autoComplete="username" className="hidden" aria-hidden="true" tabIndex={-1} />
-            <input type="password" name="fake-password" autoComplete="new-password" className="hidden" aria-hidden="true" tabIndex={-1} />
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -315,12 +312,9 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   autoComplete="off"
                   data-form-type="other"
                 >
-                  {/* Hidden helpers for autofill sibling traversal and a text node */}
-                  <input type="text" tabIndex={-1} aria-hidden="true" className="hidden" name="_ignore_primary_category" autoComplete="off" />
-                  {'\u200B'}
-                  <span className="sr-only">Primary Category</span>
+                  {/* WebKit autofill workaround: real DOM sibling before trigger */}
+                  <div aria-hidden="true" style={{ visibility: 'hidden' }}>Primary Category</div>
                   <SelectTrigger aria-labelledby="primaryCategoryLabel" id="primaryCategoryTrigger" form="__none">
-                    <span className="sr-only">Primary Category</span>
                     <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
                   </SelectTrigger>
                   <SelectContent className="z-[100] relative">
@@ -374,12 +368,9 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   autoComplete="off"
                   data-form-type="other"
                 >
-                    {/* Hidden helpers for autofill sibling traversal and a text node */}
-                    <input type="text" tabIndex={-1} aria-hidden="true" className="hidden" name="_ignore_additional_categories" autoComplete="off" />
-                    {'\u200B'}
-                    <span className="sr-only">Additional Categories</span>
+                    {/* WebKit autofill workaround: real DOM sibling before trigger */}
+                    <div aria-hidden="true" style={{ visibility: 'hidden' }}>Additional Categories</div>
                     <SelectTrigger aria-labelledby="additionalCategoriesLabel" id="additionalCategoriesTrigger" form="__none">
-                      <span className="sr-only">Additional Categories</span>
                       <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Add additional category..."} />
                     </SelectTrigger>
                     <SelectContent className="z-[100] relative">

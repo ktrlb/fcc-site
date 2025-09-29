@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { calendarEvents, calendarCache } from '@/lib/schema';
-import { eq, desc } from 'drizzle-orm';
+import { calendarEvents, calendarCache, recurringEventsCache } from '@/lib/schema';
+import { eq, desc, and, sql } from 'drizzle-orm';
 import type { NewCalendarEvent } from '@/lib/schema';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
@@ -118,6 +118,40 @@ export async function POST(request: Request) {
           };
           await db.insert(calendarEvents).values(insertEvent);
         }
+      }
+
+      // Also persist the external flag on the recurring pattern cache so mini-calendar reflects it
+      try {
+        const normalizedLocation = (location || '').trim();
+        // Update rows matching normalized location string
+        await db
+          .update(recurringEventsCache)
+          .set({ isExternal: !!data.isExternal })
+          .where(
+            and(
+              eq(recurringEventsCache.title, title),
+              eq(recurringEventsCache.dayOfWeek, String(dayOfWeek)),
+              eq(recurringEventsCache.time, time),
+              eq(recurringEventsCache.location, normalizedLocation)
+            )
+          );
+        // If no location provided/blank, also update rows where location is NULL
+        if (!normalizedLocation) {
+          await db
+            .update(recurringEventsCache)
+            .set({ isExternal: !!data.isExternal })
+            .where(
+              and(
+                eq(recurringEventsCache.title, title),
+                eq(recurringEventsCache.dayOfWeek, String(dayOfWeek)),
+                eq(recurringEventsCache.time, time),
+                // location IS NULL
+                sql`${recurringEventsCache.location} IS NULL`
+              )
+            );
+        }
+      } catch (e) {
+        console.error('Failed to update recurring_events_cache isExternal:', e);
       }
 
       return NextResponse.json({ ok: true, applied: matchingGoogleIds.length });

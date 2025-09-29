@@ -8,6 +8,53 @@ export function Staff() {
   const [staff, setStaff] = useState<StaffType[]>([]);
   const [loading, setLoading] = useState(true);
 
+  function getObjectPositionFromFocalPoint(raw?: unknown): string {
+    if (!raw) return 'center';
+    try {
+      // Aggressively unwrap deeply escaped/encoded JSON strings
+      let parsed: any = raw;
+      for (let i = 0; i < 8 && typeof parsed === 'string'; i++) {
+        const trimmed = parsed.trim();
+        const unquoted = trimmed.startsWith('"') && trimmed.endsWith('"')
+          ? trimmed.slice(1, -1)
+          : trimmed;
+        const deescaped = unquoted.replace(/\\\"/g, '"');
+        try {
+          parsed = JSON.parse(deescaped);
+          continue;
+        } catch {
+          // If still not JSON parseable, keep trying in next iteration
+          parsed = deescaped;
+        }
+      }
+      // Extract x/y whether object or string
+      let xVal: number | undefined;
+      let yVal: number | undefined;
+      if (parsed && typeof parsed === 'object') {
+        xVal = typeof (parsed as any).x === 'string' ? Number((parsed as any).x) : Number((parsed as any).x);
+        yVal = typeof (parsed as any).y === 'string' ? Number((parsed as any).y) : Number((parsed as any).y);
+      } else if (typeof parsed === 'string') {
+        const s = parsed;
+        const sx = /\"?x\"?\s*:\s*([0-9]+(?:\.[0-9]+)?)/.exec(s) || /x\s*:\s*([0-9]+(?:\.[0-9]+)?)/.exec(s);
+        const sy = /\"?y\"?\s*:\s*([0-9]+(?:\.[0-9]+)?)/.exec(s) || /y\s*:\s*([0-9]+(?:\.[0-9]+)?)/.exec(s);
+        if (sx) xVal = Number(sx[1]);
+        if (sy) yVal = Number(sy[1]);
+      }
+      if (Number.isFinite(xVal) && Number.isFinite(yVal)) {
+        // Standard focal-point technique: use stored X/Y directly with background-size: cover
+        const nxRaw = (xVal as number) <= 1 && (xVal as number) >= 0 ? (xVal as number) * 100 : (xVal as number);
+        const nyRaw = (yVal as number) <= 1 && (yVal as number) >= 0 ? (yVal as number) * 100 : (yVal as number);
+        const clamp = (v: number) => Math.max(0, Math.min(100, v));
+        const nx = clamp(nxRaw);
+        const ny = clamp(nyRaw);
+        return `${nx}% ${ny}%`;
+      }
+      return 'center';
+    } catch {
+      return 'center';
+    }
+  }
+
   useEffect(() => {
     const fetchStaff = async () => {
       try {
@@ -69,29 +116,23 @@ export function Staff() {
                   {/* Photo */}
                   <div className="flex-shrink-0">
                     {person.imageUrl ? (
-                      <img
-                        src={person.imageUrl}
-                        alt={person.name}
-                        className="rounded-full object-cover shadow-lg"
-                        style={{
-                          width: '192px',
-                          height: '192px',
-                          objectPosition: person.focalPoint ? 
-                            (() => {
-                              try {
-                                // The focal point might be double-encoded, so we need to parse it twice
-                                let focal = JSON.parse(person.focalPoint);
-                                if (typeof focal === 'string') {
-                                  focal = JSON.parse(focal);
-                                }
-                                return `${focal.x}% ${focal.y}%`;
-                              } catch (error) {
-                                console.log(`Error parsing focal point for ${person.name}:`, error, person.focalPoint);
-                                return 'center';
-                              }
-                            })() : 'center'
-                        }}
-                      />
+                      (() => {
+                        const objPos = getObjectPositionFromFocalPoint(person.focalPoint);
+                        return (
+                          <div
+                            aria-label={person.name}
+                            className="rounded-full shadow-lg"
+                            style={{
+                              width: '192px',
+                              height: '192px',
+                              backgroundImage: `url(${person.imageUrl})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: objPos,
+                              backgroundRepeat: 'no-repeat'
+                            }}
+                          />
+                        );
+                      })()
                     ) : (
                       <div 
                         className="bg-gray-200 rounded-full flex items-center justify-center shadow-lg"
