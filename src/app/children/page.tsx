@@ -11,7 +11,7 @@ export default function ChildrenPage() {
           style={{
             backgroundImage: "url('/images/childrens-header-background.jpeg')",
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "center calc(50% + 80px)",
             backgroundRepeat: "no-repeat"
           }}
         />
@@ -246,12 +246,37 @@ export default function ChildrenPage() {
         </div>
       </section>
 
-      {/* Contact Information */}
+      {/* Volunteer Section */}
       <section className="py-16 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-indigo-900 font-serif mb-4">Interested in Volunteering?</h2>
+            <p className="text-xl text-indigo-700 mb-8 max-w-3xl mx-auto">
+              We&apos;re always looking for caring adults who want to make a difference in the lives of our children and youth. Join our team of dedicated volunteers!
+            </p>
+            <div className="p-8 rounded-lg" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+              <h3 className="text-2xl font-bold text-white mb-4">Volunteer with Children & Youth</h3>
+              <p className="text-white/90 mb-6 text-lg">
+                Make a lasting impact on young lives by volunteering with our children&apos;s and youth ministries. 
+                We have opportunities for every schedule and skill set.
+              </p>
+              <a 
+                href="/children-youth-volunteer"
+                className="inline-block bg-white text-red-600 hover:bg-white/10 hover:text-white font-semibold py-3 px-8 rounded-lg transition-colors border border-white text-lg"
+              >
+                Learn How to Volunteer
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Information */}
+      <section className="py-16" style={{ backgroundColor: 'rgb(68 64 60)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif mb-4">Get Involved</h2>
-            <p className="text-xl text-indigo-700 mb-6">
+            <h2 className="text-3xl font-bold text-white font-serif mb-4">Get Involved</h2>
+            <p className="text-xl text-white/80 mb-6">
               We welcome children and families to join our community of faith and discovery.
             </p>
             <div className="p-6 rounded-lg" style={{ backgroundColor: 'rgb(49 46 129)' }}>

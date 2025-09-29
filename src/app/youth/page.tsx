@@ -11,7 +11,7 @@ export default function YouthPage() {
           style={{
             backgroundImage: "url('/images/youth-header-background.jpg')",
             backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundPosition: "center calc(50% + 50px)",
             backgroundRepeat: "no-repeat"
           }}
         />
@@ -281,13 +281,19 @@ export default function YouthPage() {
             
             <div className="p-8 rounded-lg" style={{ backgroundColor: 'rgb(245 158 11)' }}>
               <h3 className="text-xl font-bold text-white mb-4">For Volunteers</h3>
-              <ul className="space-y-3 text-white/90">
+              <ul className="space-y-3 text-white/90 mb-6">
                 <li>• Teach Sunday School classes</li>
                 <li>• Provide meals for Wednesday youth events</li>
                 <li>• Volunteer at camps and retreats</li>
                 <li>• Mentor youth in their faith journey</li>
                 <li>• Contact Austin to learn more about opportunities</li>
               </ul>
+              <a 
+                href="/children-youth-volunteer"
+                className="inline-block bg-white text-amber-500 hover:bg-white/10 hover:text-white font-semibold py-2 px-6 rounded-lg transition-colors border border-white"
+              >
+                Learn How to Volunteer
+              </a>
             </div>
           </div>
         </div>

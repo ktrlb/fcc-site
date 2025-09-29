@@ -7,7 +7,7 @@ export function GiveHero() {
         style={{
           backgroundImage: "url('/images/fistpump.jpg')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "center calc(50% + 60px)",
           backgroundRepeat: "no-repeat"
         }}
       />
