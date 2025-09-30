@@ -114,7 +114,7 @@ export function MinistryPlaceholder({ ministryName, category }: MinistryPlacehol
     <div className={`w-full h-full ${bgColors} flex items-center justify-center`}>
       <div className="text-center">
         <IconComponent className={`h-12 w-12 ${colors} mx-auto mb-2`} />
-        <p className={`${colors.replace('text-', 'text-').replace('-500', '-700')} font-medium text-sm px-2`}>
+        <p className={`${colors.replace('text-', 'text-').replace('-500', '-700')} font-medium text-base px-2`}>
           {ministryName}
         </p>
       </div>

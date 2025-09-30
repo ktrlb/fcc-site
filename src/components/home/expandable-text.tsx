@@ -33,7 +33,7 @@ export function ExpandableText({
         <button
           type="button"
           onClick={handleToggle}
-          className={toggleClassName ?? "mt-1 text-sm text-indigo-700 hover:text-indigo-800 underline"}
+          className={toggleClassName ?? "mt-1 text-base text-indigo-700 hover:text-indigo-800 underline"}
           aria-expanded={isExpanded}
         >
           {isExpanded ? "Show less" : "Read more"}

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, timestamp, integer, decimal } from 'drizzle-orm/pg-core';
 
 export const ministryCategories = pgTable('ministry_categories', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -108,6 +108,171 @@ export const staff = pgTable('staff', {
   sortOrder: varchar('sort_order', { length: 10 }).default('0'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Families table for grouping related members
+export const families = pgTable('families', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  familyName: varchar('family_name', { length: 255 }).notNull(), // e.g., "Smith Family"
+  headOfHousehold1: uuid('head_of_household_1'), // Primary head of household
+  headOfHousehold2: uuid('head_of_household_2'), // Secondary head (spouse, partner, etc.)
+  address: text('address'),
+  city: varchar('city', { length: 100 }),
+  state: varchar('state', { length: 50 }),
+  zipCode: varchar('zip_code', { length: 10 }),
+  phone: varchar('phone', { length: 20 }), // Primary family phone
+  email: varchar('email', { length: 255 }), // Primary family email
+  familyNotes: text('family_notes'), // For tracking extended family, special situations, etc.
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Members table for church members (sensitive data - admin only)
+export const members = pgTable('members', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  // Basic info
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
+  preferredName: varchar('preferred_name', { length: 100 }), // Nickname or preferred name
+  pastNames: text('past_names'), // JSON array of previous names (maiden, divorced, etc.)
+  nameSuffix: varchar('name_suffix', { length: 10 }), // Jr., Sr., III, etc.
+  // Contact info (sensitive)
+  email: varchar('email', { length: 255 }),
+  churchEmail: varchar('church_email', { length: 255 }), // FCC email if they have one
+  phone: varchar('phone', { length: 20 }),
+  socialMedia: text('social_media'), // JSON object for Facebook, Instagram, etc.
+  // Address (can be individual or family)
+  address: text('address'),
+  city: varchar('city', { length: 100 }),
+  state: varchar('state', { length: 50 }),
+  zipCode: varchar('zip_code', { length: 10 }),
+  // Demographics (sensitive)
+  dateOfBirth: timestamp('date_of_birth'),
+  anniversaryDate: timestamp('anniversary_date'), // Wedding anniversary
+  // Church info
+  memberSince: timestamp('member_since'), // When they became a member
+  membershipStatus: varchar('membership_status', { length: 50 }).default('Visitor'), // From your list
+  baptismDate: timestamp('baptism_date'),
+  // Family relationships
+  primaryFamilyId: uuid('primary_family_id').references(() => families.id), // Primary family
+  spouseName: varchar('spouse_name', { length: 255 }),
+  childrenNames: text('children_names'), // JSON array of children names
+  emergencyContact: varchar('emergency_contact', { length: 255 }),
+  emergencyPhone: varchar('emergency_phone', { length: 20 }),
+  // Communication preferences
+  communicationPreferences: text('communication_preferences'), // JSON object for email, phone, text preferences
+  optOutCommunications: text('opt_out_communications'), // JSON array of communication types to opt out of
+  // Privacy controls
+  isActive: boolean('is_active').default(true).notNull(),
+  allowDirectoryListing: boolean('allow_directory_listing').default(true).notNull(), // Can appear in directory
+  allowLayLeadership: boolean('allow_lay_leadership').default(false).notNull(), // Can appear in lay leadership
+  // Admin fields
+  notes: text('notes'), // Internal admin notes
+  customFields: text('custom_fields'), // JSON object for future flexible data
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Family memberships table (many-to-many for people in multiple families)
+export const familyMemberships = pgTable('family_memberships', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  familyId: uuid('family_id').references(() => families.id, { onDelete: 'cascade' }).notNull(),
+  relationship: varchar('relationship', { length: 50 }).notNull(), // 'head', 'spouse', 'child', 'parent', 'sibling', etc.
+  isPrimary: boolean('is_primary').default(false).notNull(), // Is this their primary family?
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Welcome team tracking for visitors and prospects
+export const welcomeTeamTracking = pgTable('welcome_team_tracking', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  // Visitor tracking
+  firstVisitDate: timestamp('first_visit_date'),
+  firstVisitService: varchar('first_visit_service', { length: 100 }), // Which service they attended
+  howDidYouHear: varchar('how_did_you_hear', { length: 255 }), // How they found the church
+  previousChurch: varchar('previous_church', { length: 255 }),
+  // Welcome team notes
+  welcomeTeamNotes: text('welcome_team_notes'),
+  followUpDate: timestamp('follow_up_date'),
+  followUpNotes: text('follow_up_notes'),
+  // Status tracking
+  visitorStatus: varchar('visitor_status', { length: 50 }).default('new'), // new, contacted, engaged, etc.
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Lay Leadership table for public display (filtered data only)
+export const layLeadership = pgTable('lay_leadership', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  // Public display info
+  displayName: varchar('display_name', { length: 255 }).notNull(), // What name to show publicly
+  role: varchar('role', { length: 255 }).notNull(), // e.g., "Elder", "Deacon", "Trustee"
+  roleDescription: text('role_description'), // Brief description of their role
+  bio: text('bio'), // Public bio for leadership page
+  imageUrl: varchar('image_url', { length: 500 }), // Vercel Blob URL for photo
+  focalPoint: text('focal_point'), // JSON string for focal point coordinates
+  // Contact info (public only)
+  publicEmail: varchar('public_email', { length: 255 }), // Email they want public
+  publicPhone: varchar('public_phone', { length: 20 }), // Phone they want public
+  // Display settings
+  isActive: boolean('is_active').default(true).notNull(),
+  sortOrder: integer('sort_order').default(0),
+  // Terms
+  termStart: timestamp('term_start'),
+  termEnd: timestamp('term_end'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Leadership history table for tracking previous positions
+export const leadershipHistory = pgTable('leadership_history', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  role: varchar('role', { length: 255 }).notNull(),
+  roleDescription: text('role_description'),
+  termStart: timestamp('term_start').notNull(),
+  termEnd: timestamp('term_end'),
+  notes: text('notes'), // Additional notes about their service
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Volunteer tracking for hours and schedules
+export const volunteerTracking = pgTable('volunteer_tracking', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id, { onDelete: 'cascade' }),
+  // Volunteer session
+  date: timestamp('date').notNull(),
+  hours: decimal('hours', { precision: 4, scale: 2 }), // Hours volunteered
+  description: text('description'), // What they did
+  // Approval tracking (for children's ministry, etc.)
+  requiresApproval: boolean('requires_approval').default(false).notNull(),
+  isApproved: boolean('is_approved'),
+  approvedBy: uuid('approved_by').references(() => members.id), // Who approved them
+  approvedAt: timestamp('approved_at'),
+  // Future scheduling
+  scheduledDate: timestamp('scheduled_date'),
+  scheduledTime: varchar('scheduled_time', { length: 50 }),
+  isCompleted: boolean('is_completed').default(false).notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Audit trail for tracking changes (for rollback capability)
+export const memberAuditLog = pgTable('member_audit_log', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  changedBy: varchar('changed_by', { length: 255 }).notNull(), // Admin user who made the change
+  changeType: varchar('change_type', { length: 50 }).notNull(), // 'create', 'update', 'delete'
+  fieldName: varchar('field_name', { length: 100 }),
+  oldValue: text('old_value'),
+  newValue: text('new_value'),
+  changeReason: text('change_reason'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // Special event types table for managing event type categories with images and configurations
@@ -273,6 +438,30 @@ export type NewSeasonalGuide = typeof seasonalGuides.$inferInsert;
 
 export type Staff = typeof staff.$inferSelect;
 export type NewStaff = typeof staff.$inferInsert;
+
+export type Member = typeof members.$inferSelect;
+export type NewMember = typeof members.$inferInsert;
+
+export type Family = typeof families.$inferSelect;
+export type NewFamily = typeof families.$inferInsert;
+
+export type FamilyMembership = typeof familyMemberships.$inferSelect;
+export type NewFamilyMembership = typeof familyMemberships.$inferInsert;
+
+export type WelcomeTeamTracking = typeof welcomeTeamTracking.$inferSelect;
+export type NewWelcomeTeamTracking = typeof welcomeTeamTracking.$inferInsert;
+
+export type LayLeadership = typeof layLeadership.$inferSelect;
+export type NewLayLeadership = typeof layLeadership.$inferInsert;
+
+export type LeadershipHistory = typeof leadershipHistory.$inferSelect;
+export type NewLeadershipHistory = typeof leadershipHistory.$inferInsert;
+
+export type VolunteerTracking = typeof volunteerTracking.$inferSelect;
+export type NewVolunteerTracking = typeof volunteerTracking.$inferInsert;
+
+export type MemberAuditLog = typeof memberAuditLog.$inferSelect;
+export type NewMemberAuditLog = typeof memberAuditLog.$inferInsert;
 
 export type SpecialEventType = typeof specialEventTypes.$inferSelect;
 export type NewSpecialEventType = typeof specialEventTypes.$inferInsert;

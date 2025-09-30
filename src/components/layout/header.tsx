@@ -117,7 +117,7 @@ export function Header() {
             if (item.dropdown) {
               return (
                 <DropdownMenu key={item.name}>
-                  <DropdownMenuTrigger className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-1">
+                  <DropdownMenuTrigger className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-1">
                     {item.name}
                     <ChevronDown className="h-4 w-4" />
                   </DropdownMenuTrigger>
@@ -152,7 +152,7 @@ export function Header() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors"
+                  className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors"
                 >
                   {item.name}
                 </a>
@@ -163,7 +163,7 @@ export function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors"
+                className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors"
               >
                 {item.name}
               </Link>

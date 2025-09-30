@@ -17,6 +17,9 @@ module.exports = {
       },
     },
     extend: {
+      fontSize: {
+        'base': '20px',
+      },
       fontFamily: {
         sans: ['neue-haas-grotesk-display', 'system-ui', '-apple-system', 'sans-serif'],
         serif: ['baskerville-urw', 'Times New Roman', 'serif'],

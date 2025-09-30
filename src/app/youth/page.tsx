@@ -34,7 +34,7 @@ export default function YouthPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white font-serif">Our Youth Programs</h2>
-            <p className="mt-4 text-lg text-white/80 max-w-4xl mx-auto">
+            <p className="mt-4 text-xl text-white/80 max-w-4xl mx-auto">
               Our youth ministry creates spaces where young people can explore their faith, 
               build meaningful relationships, and discover their calling to serve others. 
               Through authentic community and hands-on experiences, we help youth develop 
@@ -45,11 +45,11 @@ export default function YouthPage() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className="p-6 rounded-lg" style={{ backgroundColor: 'rgb(49 46 129)' }}>
               <h3 className="text-2xl font-bold text-white mb-4">Chi-Rho (6th through 8th grade)</h3>
-              <p className="text-white/90 mb-4">
+              <p className="text-white/90 mb-4 text-lg">
                 A time of exploration and growth as young people begin to 
                 form their own faith identity and values.
               </p>
-              <ul className="space-y-2 text-white/90">
+              <ul className="space-y-2 text-white/90 text-lg">
                 <li>• Weekly gatherings with games, discussion, and fellowship</li>
                 <li>• Service projects in the local community</li>
                 <li>• Weekend retreats and day trips</li>
@@ -59,11 +59,11 @@ export default function YouthPage() {
 
             <div className="p-6 rounded-lg" style={{ backgroundColor: 'rgb(77 124 15)' }}>
               <h3 className="text-2xl font-bold text-white mb-4">CYF - Christian Youth Fellowship (9th through 12th grade)</h3>
-              <p className="text-white/90 mb-4">
+              <p className="text-white/90 mb-4 text-lg">
                 A time of deepening faith and preparing for life beyond high school, 
                 with opportunities for leadership and service.
               </p>
-              <ul className="space-y-2 text-white/90">
+              <ul className="space-y-2 text-white/90 text-lg">
                 <li>• Weekly gatherings with deeper theological discussions</li>
                 <li>• Leadership roles in church and community</li>
                 <li>• Mission trips and service immersion experiences</li>
@@ -192,7 +192,7 @@ export default function YouthPage() {
                 Week-long residential camp experience with outdoor activities, worship, 
                 Bible study, and community building.
               </p>
-              <ul className="space-y-1 text-sm text-white/90">
+              <ul className="space-y-1 text-base text-white/90">
                 <li>• Ages 12-18</li>
                 <li>• Multiple session options</li>
                 <li>• Scholarships available</li>
@@ -206,7 +206,7 @@ export default function YouthPage() {
                 Quarterly retreats focusing on specific themes like leadership, 
                 discipleship, service, and spiritual growth.
               </p>
-              <ul className="space-y-1 text-sm text-white/90">
+              <ul className="space-y-1 text-base text-white/90">
                 <li>• Friday evening - Sunday morning</li>
                 <li>• Age-appropriate programming</li>
                 <li>• Guest speakers and workshops</li>
@@ -220,7 +220,7 @@ export default function YouthPage() {
                 Special opportunities for older youth to develop leadership skills 
                 and take on mentoring roles with younger students.
               </p>
-              <ul className="space-y-1 text-sm text-white/90">
+              <ul className="space-y-1 text-base text-white/90">
                 <li>• High school juniors and seniors</li>
                 <li>• Leadership training curriculum</li>
                 <li>• Mentorship program</li>

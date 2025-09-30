@@ -186,6 +186,71 @@ export async function POST(request: Request) {
         .where(eq(calendarEvents.id, existingEvent[0].id))
         .returning();
       
+      // Also update the recurring_events_cache if this is a recurring event
+      if (data.isExternal !== undefined && existingEvent[0].recurring) {
+        try {
+          // Get the event details to match against recurring cache
+          const eventDetails = await db
+            .select()
+            .from(calendarCache)
+            .where(eq(calendarCache.googleEventId, data.googleEventId))
+            .limit(1);
+          
+          if (eventDetails.length > 0) {
+            const event = eventDetails[0];
+            
+            // Helper to extract Chicago HH:MM and day index
+            const chicagoTimeOf = (d: Date) => {
+              const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', hour12: false });
+              const parts = fmt.formatToParts(d);
+              const hh = parts.find(p => p.type === 'hour')?.value || '00';
+              const mm = parts.find(p => p.type === 'minute')?.value || '00';
+              return `${hh}:${mm}`;
+            };
+            const chicagoDowOf = (d: Date) => {
+              const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', weekday: 'long' });
+              const name = fmt.format(d).toLowerCase();
+              return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].indexOf(name);
+            };
+            
+            const dayOfWeek = chicagoDowOf(event.startTime as Date);
+            const time = chicagoTimeOf(event.startTime as Date);
+            const location = (event.location || '').trim();
+            
+            // Update matching recurring cache entries
+            const normalizedLocation = location;
+            await db
+              .update(recurringEventsCache)
+              .set({ isExternal: !!data.isExternal })
+              .where(
+                and(
+                  eq(recurringEventsCache.title, event.title),
+                  eq(recurringEventsCache.dayOfWeek, String(dayOfWeek)),
+                  eq(recurringEventsCache.time, time),
+                  eq(recurringEventsCache.location, normalizedLocation)
+                )
+              );
+            
+            // If no location provided/blank, also update rows where location is NULL
+            if (!normalizedLocation) {
+              await db
+                .update(recurringEventsCache)
+                .set({ isExternal: !!data.isExternal })
+                .where(
+                  and(
+                    eq(recurringEventsCache.title, event.title),
+                    eq(recurringEventsCache.dayOfWeek, String(dayOfWeek)),
+                    eq(recurringEventsCache.time, time),
+                    sql`${recurringEventsCache.location} IS NULL`
+                  )
+                );
+            }
+          }
+        } catch (e) {
+          console.error('Failed to update recurring_events_cache isExternal for individual event:', e);
+        }
+      }
+      
       return NextResponse.json({ event: result[0] });
     } else {
       // Create new event - handle null start/end times

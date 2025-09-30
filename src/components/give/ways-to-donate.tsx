@@ -65,14 +65,14 @@ export function WaysToDonate() {
                   
                   {method.address && (
                     <div className="bg-white/10 rounded-lg p-4 mb-4">
-                      <p className="text-sm text-white font-medium">Address:</p>
-                      <p className="text-sm text-white/80">{method.address}</p>
+                      <p className="text-base text-white font-medium">Address:</p>
+                      <p className="text-base text-white/80">{method.address}</p>
                     </div>
                   )}
                   
                   {method.details && (
                     <div className="bg-white/10 rounded-lg p-4 mb-4">
-                      <p className="text-sm text-white/80">{method.details}</p>
+                      <p className="text-base text-white/80">{method.details}</p>
                     </div>
                   )}
                   

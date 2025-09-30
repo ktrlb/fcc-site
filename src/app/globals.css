@@ -85,6 +85,17 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-lg;
+  }
+  html {
+    font-size: 18px; /* Increase base font size from 16px to 18px */
+  }
+}
+
+@layer components {
+  /* Make all paragraph text larger by default with higher specificity */
+  p:not(.text-xs):not(.text-sm) {
+    font-size: 1.125rem !important; /* text-lg equivalent */
+    line-height: 1.75rem !important;
   }
 }

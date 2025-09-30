@@ -92,17 +92,17 @@ export async function FeaturedAssets() {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
+                      <h3 className="text-xl font-semibold text-white mb-2 line-clamp-2">
                         {asset.name}
                       </h3>
                       
                       {asset.description && (
-                        <p className="text-white text-sm mb-3 line-clamp-2">
+                        <p className="text-white text-lg mb-3 line-clamp-2">
                           {asset.description}
                         </p>
                       )}
                       
-                      <div className="flex items-center justify-between text-sm text-white/80 mb-4">
+                      <div className="flex items-center justify-between text-lg text-white/80 mb-4">
                         <span className="capitalize">{asset.type}</span>
                         {asset.fileSize && (
                           <span>{formatFileSize(asset.fileSize)}</span>

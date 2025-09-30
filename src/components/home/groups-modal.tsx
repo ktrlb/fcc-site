@@ -532,7 +532,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
               <Calendar className="h-5 w-5" />
               Weekly Groups & Activities
             </DialogTitle>
-            <p className="text-indigo-700 text-sm mt-2">
+            <p className="text-indigo-700 text-base mt-2">
               In addition to Sunday worship services, these groups meet regularly throughout the week.
             </p>
           </DialogHeader>
@@ -576,12 +576,12 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                           .map((event, eventIndex) => (
                             <div
                               key={eventIndex}
-                              className="p-3 rounded bg-white text-sm cursor-pointer hover:shadow-sm transition-shadow w-full"
+                              className="p-3 rounded bg-white text-base cursor-pointer hover:shadow-sm transition-shadow w-full"
                               onClick={() => handleEventClick(event, index)}
                             >
                               <div className="flex items-center gap-2">
                                 <Clock className="h-3 w-3" style={{ color: colorScheme.bg }} />
-                                <span className="text-xs font-mono" style={{ color: colorScheme.bg }}>
+                                <span className="text-sm font-mono" style={{ color: colorScheme.bg }}>
                                   {(() => {
                                     const [hours, minutes] = event.time.split(':');
                                     const hour = parseInt(hours);
@@ -591,18 +591,18 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                                     return minute > 0 ? `${displayHour}:${minutes}${ampm}` : `${displayHour}${ampm}`;
                                   })()}
                                 </span>
-                                <span className="font-medium text-sm" style={{ color: colorScheme.bg }}>{event.title}</span>
+                                <span className="font-medium text-base" style={{ color: colorScheme.bg }}>{event.title}</span>
                               </div>
                               {event.location && (
                                 <div className="flex items-center gap-1 mt-1">
                                   <MapPin className="h-3 w-3" style={{ color: colorScheme.bg }} />
-                                  <span className="text-xs" style={{ color: colorScheme.bg }}>{event.location}</span>
+                                  <span className="text-sm" style={{ color: colorScheme.bg }}>{event.location}</span>
                                 </div>
                               )}
                             </div>
                           ))
                       ) : (
-                        <div className="text-center py-6 w-full text-white text-sm">
+                        <div className="text-center py-6 w-full text-white text-base">
                           No recurring events
                         </div>
                       )}
@@ -640,7 +640,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-white">
                   <Calendar className="h-4 w-4" />
-                  <span className="text-sm">
+                  <span className="text-base">
                     Every {FULL_DAYS[new Date(selectedEvent.start).getDay()]} at {new Intl.DateTimeFormat('en-US', {
                       timeZone: 'America/Chicago',
                       hour: 'numeric',
@@ -653,13 +653,13 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                 {selectedEvent.location && (
                   <div className="flex items-center gap-2 text-white">
                     <MapPin className="h-4 w-4" />
-                    <span className="text-sm">{selectedEvent.location}</span>
+                    <span className="text-base">{selectedEvent.location}</span>
                   </div>
                 )}
                 
                 {selectedEvent.ministryConnection && (
                   <div className="flex items-center gap-2 text-white">
-                    <Badge variant="outline" className="text-xs capitalize border-white text-white">
+                    <Badge variant="outline" className="text-sm capitalize border-white text-white">
                       {selectedEvent.ministryConnection}
                     </Badge>
                   </div>
@@ -682,22 +682,22 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         </div>
                       )}
                       {selectedEvent.ministryInfo.description && (
-                        <p className="text-sm text-white mb-3">{selectedEvent.ministryInfo.description}</p>
+                        <p className="text-base text-white mb-3">{selectedEvent.ministryInfo.description}</p>
                       )}
                       {selectedEvent.ministryInfo.contactPerson && (
-                        <div className="flex items-center gap-2 text-sm text-white">
+                        <div className="flex items-center gap-2 text-base text-white">
                           <Users className="h-4 w-4" />
                           <span>Contact: {selectedEvent.ministryInfo.contactPerson}</span>
                         </div>
                       )}
                       {selectedEvent.ministryInfo.contactEmail && (
-                        <div className="flex items-center gap-2 text-sm text-white mt-1">
+                        <div className="flex items-center gap-2 text-base text-white mt-1">
                           <Mail className="h-3 w-3" />
                           <span>{selectedEvent.ministryInfo.contactEmail}</span>
                         </div>
                       )}
                       {selectedEvent.ministryInfo.contactPhone && (
-                        <div className="flex items-center gap-2 text-sm text-white mt-1">
+                        <div className="flex items-center gap-2 text-base text-white mt-1">
                           <Phone className="h-3 w-3" />
                           <span>{selectedEvent.ministryInfo.contactPhone}</span>
                         </div>
@@ -717,10 +717,10 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         </div>
                       )}
                       {selectedEvent.specialEventInfo.description && (
-                        <p className="text-sm text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
+                        <p className="text-base text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
                       )}
                       {selectedEvent.specialEventInfo.contactPerson && (
-                        <div className="flex items-center gap-2 text-sm text-white">
+                        <div className="flex items-center gap-2 text-base text-white">
                           <Users className="h-4 w-4" />
                           <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
                         </div>
@@ -741,10 +741,10 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         </div>
                       )}
                       {selectedEvent.specialEventNote && (
-                        <p className="text-sm text-white mb-3">{selectedEvent.specialEventNote}</p>
+                        <p className="text-base text-white mb-3">{selectedEvent.specialEventNote}</p>
                       )}
                       {selectedEvent.contactPerson && (
-                        <div className="flex items-center gap-2 text-sm text-white">
+                        <div className="flex items-center gap-2 text-base text-white">
                           <Users className="h-4 w-4" />
                           <span>Contact: {selectedEvent.contactPerson}</span>
                         </div>

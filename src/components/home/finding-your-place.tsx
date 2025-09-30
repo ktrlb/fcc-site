@@ -106,17 +106,17 @@ export function FindingYourPlace() {
           <h2 className="text-4xl font-bold text-indigo-900 mb-4 font-serif">
             Finding Your Place Here
           </h2>
-          <p className="text-xl text-indigo-900 max-w-3xl mx-auto">
+          <p className="text-2xl text-indigo-900 max-w-3xl mx-auto">
             Discover the five areas of discipleship that help us grow in faith and serve our community.
           </p>
         </div>
 
         <div className="mb-12">
           <div className="bg-stone-700 p-8 rounded-lg mb-8 max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-4 text-center">
+            <h3 className="text-3xl font-bold text-white mb-4 text-center">
               The Five Things
             </h3>
-            <p className="text-lg text-white text-center max-w-4xl mx-auto">
+            <p className="text-xl text-white text-center max-w-4xl mx-auto">
               Each year, usually in October, we challenge each person in our church to assess where they are 
               in these five areas of discipleship. These are opportunities to give of our time, our love, 
               and our financial resources.
@@ -131,14 +131,14 @@ export function FindingYourPlace() {
                     <div className={`p-3 rounded-full bg-white mr-4`}>
                       <item.icon className={`h-6 w-6 ${item.iconText}`} style={{ color: (item as any).iconHex }} />
                     </div>
-                    <h4 className="text-xl font-bold text-white">{item.title}</h4>
+                    <h4 className="text-2xl font-bold text-white">{item.title}</h4>
                   </div>
                   
-                  <p className="text-white mb-4">{item.description}</p>
+                  <p className="text-white mb-4 text-lg">{item.description}</p>
                   
                   <ul className="space-y-2 mb-6">
                     {item.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-sm text-white">
+                      <li key={featureIndex} className="flex items-center text-base text-white">
                         <div className="w-1.5 h-1.5 bg-white rounded-full mr-2"></div>
                         {feature}
                       </li>

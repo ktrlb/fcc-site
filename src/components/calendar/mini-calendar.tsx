@@ -131,6 +131,12 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
             };
             setAnalysis(analysisData);
             
+            // Debug: Check for external events in the cache
+            const externalEvents = cachedEvents.filter((e: any) => e.isExternal);
+            if (externalEvents.length > 0) {
+              console.log(`Found ${externalEvents.length} external events in cache`);
+            }
+            
             console.log(`Loaded ${cachedEvents.length} cached recurring patterns for ${currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`);
           } else {
             console.warn('Failed to fetch recurring patterns, falling back to live analysis');
@@ -436,6 +442,10 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
       
       // Update current selection with persisted flags so reopening shows correct state
       setSelectedEvent(prev => prev ? { ...prev, isExternal: !!eventData.isExternal } : prev);
+      
+      // Refresh the analysis data to pick up the changes
+      await fetchRecurringPatterns();
+      
       // Close the modal and refresh
       setIsModalOpen(false);
       setSelectedEvent(null);
@@ -515,7 +525,10 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
             {DAYS.map((day, index) => {
               const dayEvents = analysis.weeklyPatterns[index] || [];
               // Hide external groups on public mini calendar; show in admin
-              const visibleDayEvents = (dayEvents as RecurringEvent[]).filter((e) => isAdminMode || !(e as any).isExternal);
+              const visibleDayEvents = (dayEvents as RecurringEvent[]).filter((e) => {
+                const isExternal = (e as any).isExternal;
+                return isAdminMode || !isExternal;
+              });
               const hasEvents = visibleDayEvents.length > 0;
               const isSunday = index === 0;
               
@@ -537,10 +550,10 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                   className="p-3 rounded-lg transition-all min-h-[120px] md:min-h-[200px]"
                   style={{ backgroundColor: colorScheme.bg }}
                 >
-                  <div className="text-sm font-semibold text-white mb-3 text-center">
+                  <div className="text-base font-semibold text-white mb-3 text-center">
                     {day}
                     {isSunday && (
-                      <div className="text-xs text-white font-normal mt-1">
+                      <div className="text-sm text-white font-normal mt-1">
                         <Music className="inline h-4 w-4 mr-1" /> Worship Services
                       </div>
                     )}
@@ -550,23 +563,23 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                       <>
                         {/* Standard Sunday Schedule */}
                         <div className="space-y-1">
-                          <div className="p-2 rounded bg-white text-sm">
-                            <span className="font-bold text-sm" style={{ color: colorScheme.bg }}>9am Worship</span>
+                          <div className="p-2 rounded bg-white text-base">
+                            <span className="font-bold text-base" style={{ color: colorScheme.bg }}>9am Worship</span>
                           </div>
                           
-                          <div className="p-2 rounded bg-white text-sm">
-                            <span className="font-bold text-sm" style={{ color: colorScheme.bg }}>10am Sunday School</span>
+                          <div className="p-2 rounded bg-white text-base">
+                            <span className="font-bold text-base" style={{ color: colorScheme.bg }}>10am Sunday School</span>
                           </div>
                           
-                          <div className="p-2 rounded bg-white text-sm">
-                            <span className="font-bold text-sm" style={{ color: colorScheme.bg }}>11am Worship</span>
+                          <div className="p-2 rounded bg-white text-base">
+                            <span className="font-bold text-base" style={{ color: colorScheme.bg }}>11am Worship</span>
                           </div>
                         </div>
                         
                         {/* Worship Service Exceptions */}
                         {worshipAnalysis && worshipAnalysis.exceptions.length > 0 && (
                           <div className="mt-2 pt-2 border-t border-white/30">
-                            <div className="text-xs font-medium mb-1 text-white">Exceptions:</div>
+                            <div className="text-sm font-medium mb-1 text-white">Exceptions:</div>
                             <div className="space-y-1">
                               {worshipAnalysis.exceptions
                                 .filter((event: CalendarEvent) => {
@@ -580,21 +593,21 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                                 .map((event: CalendarEvent, eventIndex: number) => (
                                   <div
                                     key={eventIndex}
-                                    className="p-2 rounded text-sm cursor-pointer hover:shadow-sm transition-shadow bg-white"
+                                    className="p-2 rounded text-base cursor-pointer hover:shadow-sm transition-shadow bg-white"
                                     onClick={() => {
                                       setSelectedEvent(event);
                                       setIsModalOpen(true);
                                     }}
                                   >
                                     <div className="space-y-1">
-                                      <div className="text-xs font-mono" style={{ color: colorScheme.bg }}>
+                                      <div className="text-sm font-mono" style={{ color: colorScheme.bg }}>
                                         {new Date(event.start).toLocaleDateString('en-US', {
                                           month: 'short',
                                           day: 'numeric',
                                           timeZone: 'America/Chicago'
                                         })}
                                       </div>
-                                      <div className="font-bold text-sm break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
+                                      <div className="font-bold text-base break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
                                     </div>
                                   </div>
                                 ))}
@@ -608,17 +621,17 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                         .map((event: RecurringEvent, eventIndex: number) => (
                           <div
                             key={eventIndex}
-                            className="p-2 rounded text-sm cursor-pointer hover:shadow-sm transition-shadow bg-white"
+                            className="p-2 rounded text-base cursor-pointer hover:shadow-sm transition-shadow bg-white"
                             onClick={() => handleEventClick(event)}
                           >
                             <div className="space-y-1">
-                              <div className="text-xs font-mono" style={{ color: colorScheme.bg }}>{formatTime(event.time)}</div>
-                              <div className="font-bold text-sm break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
+                              <div className="text-sm font-mono" style={{ color: colorScheme.bg }}>{formatTime(event.time)}</div>
+                              <div className="font-bold text-base break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
                             </div>
                           </div>
                         ))
                     ) : (
-                      <div className="text-center text-white text-xs py-4">
+                      <div className="text-center text-white text-sm py-4">
                         No recurring events
                       </div>
                     )}
@@ -706,7 +719,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                       return (
                         <div className="flex items-center gap-2 text-stone-700">
                           <Calendar className="h-4 w-4" />
-                          <span className="text-sm">
+                          <span className="text-base">
                             Every {days[dayOfWeek]} at {new Date(selectedEvent.start).toLocaleTimeString('en-US', {
                               timeZone: 'America/Chicago',
                               hour: 'numeric',
@@ -721,7 +734,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                         <>
                           <div className="flex items-center gap-2 text-stone-700">
                             <Clock className="h-4 w-4" />
-                            <span className="text-sm">
+                            <span className="text-base">
                               {new Date(selectedEvent.start).toLocaleDateString('en-US', {
                                 weekday: 'long',
                                 year: 'numeric',
@@ -734,7 +747,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                           
                           <div className="flex items-center gap-2 text-stone-700">
                             <Clock className="h-4 w-4" />
-                            <span className="text-sm">
+                            <span className="text-base">
                               {new Date(selectedEvent.start).toLocaleTimeString('en-US', {
                                 hour: 'numeric',
                                 minute: '2-digit',
@@ -756,7 +769,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                   {selectedEvent.location && (
                     <div className="flex items-center gap-2 text-stone-700">
                       <MapPin className="h-4 w-4" />
-                      <span className="text-sm">{selectedEvent.location}</span>
+                      <span className="text-base">{selectedEvent.location}</span>
                     </div>
                   )}
                 </div>
@@ -792,22 +805,22 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                           </div>
                         )}
                         {selectedEvent.ministryInfo.description && (
-                          <p className="text-sm text-white mb-3">{selectedEvent.ministryInfo.description}</p>
+                          <p className="text-base text-white mb-3">{selectedEvent.ministryInfo.description}</p>
                         )}
                         {selectedEvent.ministryInfo.contactPerson && (
-                          <div className="flex items-center gap-2 text-sm text-white">
+                          <div className="flex items-center gap-2 text-base text-white">
                             <Users className="h-4 w-4" />
                             <span>Contact: {selectedEvent.ministryInfo.contactPerson}</span>
                           </div>
                         )}
                         {selectedEvent.ministryInfo.contactEmail && (
-                          <div className="flex items-center gap-2 text-sm text-white mt-1">
+                          <div className="flex items-center gap-2 text-base text-white mt-1">
                             <Mail className="h-3 w-3" />
                             <span>{selectedEvent.ministryInfo.contactEmail}</span>
                           </div>
                         )}
                         {selectedEvent.ministryInfo.contactPhone && (
-                          <div className="flex items-center gap-2 text-sm text-white mt-1">
+                          <div className="flex items-center gap-2 text-base text-white mt-1">
                             <Phone className="h-3 w-3" />
                             <span>{selectedEvent.ministryInfo.contactPhone}</span>
                           </div>
@@ -842,10 +855,10 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                           </div>
                         )}
                         {selectedEvent.specialEventInfo.description && (
-                          <p className="text-sm text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
+                          <p className="text-base text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
                         )}
                         {selectedEvent.specialEventInfo.contactPerson && (
-                          <div className="flex items-center gap-2 text-sm text-white">
+                          <div className="flex items-center gap-2 text-base text-white">
                             <Users className="h-4 w-4" />
                             <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
                           </div>
@@ -881,10 +894,10 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                           </div>
                         )}
                         {selectedEvent.specialEventNote && (
-                          <p className="text-sm text-white mb-3">{selectedEvent.specialEventNote}</p>
+                          <p className="text-base text-white mb-3">{selectedEvent.specialEventNote}</p>
                         )}
                         {selectedEvent.contactPerson && (
-                          <div className="flex items-center gap-2 text-sm text-white">
+                          <div className="flex items-center gap-2 text-base text-white">
                             <Users className="h-4 w-4" />
                             <span>Contact: {selectedEvent.contactPerson}</span>
                           </div>
@@ -967,7 +980,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       {/* Event Info Display */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <h3 className="font-semibold text-lg text-gray-900 mb-2">{event.title}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-base text-gray-600">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
             <span>
@@ -1004,7 +1017,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
           )}
         </div>
         {event.description && (
-          <div className="mt-2 text-sm text-gray-600">
+          <div className="mt-2 text-base text-gray-600">
             <strong>Description:</strong> {event.description}
           </div>
         )}
@@ -1119,7 +1132,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
                   placeholder="e.g., 'Tuesdays in January', 'Every Sunday', 'First Friday of each month'"
                   className="mt-1"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-base text-gray-500 mt-1">
                   Describe how often this event occurs (only needed for recurring events)
                 </p>
               </div>
@@ -1133,7 +1146,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
                   onChange={(e) => setFormData({ ...formData, endsBy: e.target.value ? new Date(e.target.value).toISOString() : '' })}
                   className="mt-1"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-base text-gray-500 mt-1">
                   When to stop featuring this recurring event on the homepage (leave blank for no end date)
                 </p>
               </div>
@@ -1187,7 +1200,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
                 />
                 {formData.specialEventImage && (
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500 mb-2">Uploaded image:</p>
+                    <p className="text-base text-gray-500 mb-2">Uploaded image:</p>
                     <img 
                       src={formData.specialEventImage} 
                       alt="Event preview" 

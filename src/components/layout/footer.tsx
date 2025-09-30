@@ -19,7 +19,7 @@ export function Footer() {
               />
               <h3 className="text-lg font-semibold">First Christian Church</h3>
             </div>
-            <div className="space-y-2 text-sm text-white">
+            <div className="space-y-2 text-base text-white">
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
                 <span>2109 W US Hwy 377<br />Granbury, TX 76048</span>
@@ -34,7 +34,7 @@ export function Footer() {
           {/* Quick Links */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-base">
               <Link href="/about" className="block text-white hover:text-white transition-colors">
                 About Us
               </Link>
@@ -53,7 +53,7 @@ export function Footer() {
           {/* Resources */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Resources</h3>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 text-base">
               <Link href="/calendar" className="block text-gray-300 hover:text-white transition-colors">
                 Calendar
               </Link>
@@ -100,7 +100,7 @@ export function Footer() {
                 <Mail className="h-5 w-5" />
               </a>
             </div>
-            <div className="text-sm text-stone-400">
+            <div className="text-base text-stone-400">
               <p>Sunday Services:</p>
               <p>9:00 AM Modern / 11:00 AM Traditional</p>
             </div>
@@ -109,10 +109,10 @@ export function Footer() {
 
         <div className="mt-8 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-sm text-stone-400">
+            <p className="text-base text-stone-400">
               © {new Date().getFullYear()} First Christian Church Granbury. All rights reserved.
             </p>
-            <div className="flex space-x-6 text-sm">
+            <div className="flex space-x-6 text-base">
               <Link href="/privacy" className="text-stone-400 hover:text-white transition-colors">
                 Privacy Policy
               </Link>

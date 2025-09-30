@@ -60,7 +60,7 @@ export default function ChildrenYouthVolunteerPage() {
                   <Play className="h-6 w-6 text-white" />
                   <span className="font-semibold text-white">FCC Boundaries Training Video</span>
                 </div>
-                <p className="text-sm text-white/80 mb-4">
+                <p className="text-base text-white/80 mb-4">
                   This comprehensive training covers important policies and procedures for working with children and youth at FCC Granbury.
                 </p>
                 <a 
@@ -90,7 +90,7 @@ export default function ChildrenYouthVolunteerPage() {
                   <FileText className="h-6 w-6 text-white" />
                   <span className="font-semibold text-white">Training Confirmation Form</span>
                 </div>
-                <p className="text-sm text-white/80 mb-4">
+                <p className="text-base text-white/80 mb-4">
                   This form confirms that you have completed the training and understand our policies and procedures.
                 </p>
                 <a 
@@ -120,7 +120,7 @@ export default function ChildrenYouthVolunteerPage() {
                   <Shield className="h-6 w-6 text-white" />
                   <span className="font-semibold text-white">Background Check Form</span>
                 </div>
-                <p className="text-sm text-white/80 mb-4">
+                <p className="text-base text-white/80 mb-4">
                   This comprehensive form includes personal information and authorization for background screening to ensure the safety of our children and youth.
                 </p>
                 <a 

@@ -29,10 +29,10 @@ export function MissionVision() {
           {/* Vision Statement */}
           <div className="rounded-lg shadow-sm p-8 border-0" style={{ backgroundColor: 'rgb(49 46 129)' }}>
             <h3 className="text-2xl font-bold text-white font-serif mb-4">Our Vision</h3>
-            <p className="text-white leading-relaxed mb-4">
+            <p className="text-white leading-relaxed mb-4 text-xl">
               Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
             </p>
-            <ul className="text-white leading-relaxed space-y-3">
+            <ul className="text-white leading-relaxed space-y-3 text-xl">
               <li><strong>Not pride and judgment,</strong> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.</li>
               <li><strong>Not easy answers,</strong> but growing together through shared engagement with the scriptures and the hard questions of life and faith.</li>
               <li><strong>Not a self-serving institution,</strong> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.</li>
@@ -77,7 +77,7 @@ export function MissionVision() {
                   </div>
                   <div>
                     <h4 className="text-xl font-semibold text-white mb-3 font-serif">{value.title}</h4>
-                    <p className="text-white leading-relaxed">
+                    <p className="text-white leading-relaxed text-lg">
                       {value.description}
                     </p>
                   </div>

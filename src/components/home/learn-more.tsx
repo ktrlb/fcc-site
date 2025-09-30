@@ -34,7 +34,7 @@ export function LearnMore() {
           <h2 className="text-4xl font-bold text-white mb-4 font-serif">
             Learn More About FCC
           </h2>
-          <p className="text-xl text-white max-w-3xl mx-auto">
+          <p className="text-2xl text-white max-w-3xl mx-auto">
             Discover our mission, meet our team, and learn about our rich history in the Granbury community.
           </p>
         </div>
@@ -43,16 +43,16 @@ export function LearnMore() {
           {/* Mission */}
           <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-white mb-3">Our Mission is...</h3>
+              <h3 className="text-3xl font-bold text-white mb-3">Our Mission is...</h3>
               
               <div className="space-y-4 text-center flex flex-col justify-center h-full py-8">
-                <p className="text-white text-2xl font-bold">
-                  to share with <em className="text-3xl font-black animate-pulse">ALL people</em>
+                <p className="text-white text-3xl font-bold">
+                  to share with <em className="text-4xl font-black animate-pulse">ALL people</em>
                 </p>
-                <p className="text-white text-2xl font-bold">
+                <p className="text-white text-3xl font-bold">
                   the unconditional love of God
                 </p>
-                <p className="text-white text-2xl font-bold">
+                <p className="text-white text-3xl font-bold">
                   that we experience in <i>Jesus Christ</i> our Lord.
                 </p>
               </div>
@@ -62,20 +62,20 @@ export function LearnMore() {
           {/* Vision */}
           <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <CardContent className="p-0">
-              <h3 className="text-2xl font-bold text-white mb-6">Our Vision is...</h3>
+              <h3 className="text-3xl font-bold text-white mb-6">Our Vision is...</h3>
               
               <div className="space-y-6">
-                <p className="text-white text-lg">
+                <p className="text-white text-xl">
                   to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
                 </p>
                 <div className="text-white space-y-4">
-                  <p>
+                  <p className="text-lg">
                     <span className="font-semibold text-white">Not pride and judgment,</span> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.
                   </p>
-                  <p>
+                  <p className="text-lg">
                     <span className="font-semibold text-white">Not easy answers,</span> but growing together through shared engagement with the scriptures and the hard questions of life and faith.
                   </p>
-                  <p>
+                  <p className="text-lg">
                     <span className="font-semibold text-white">Not a self-serving institution,</span> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.
                   </p>
                 </div>
@@ -86,7 +86,7 @@ export function LearnMore() {
 
         {/* Core Values */}
         <div className="mb-12">
-          <h3 className="text-2xl font-bold text-white mb-8 text-center">Our Core Values Are...</h3>
+          <h3 className="text-3xl font-bold text-white mb-8 text-center">Our Core Values Are...</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {coreValues.map((value, index) => {
@@ -108,8 +108,8 @@ export function LearnMore() {
                       </div>
                     </div>
                     
-                    <h4 className="text-lg font-bold text-white mb-2">{value.title}</h4>
-                    <p className="text-white text-sm">{value.description}</p>
+                    <h4 className="text-2xl font-bold text-white mb-2">{value.title}</h4>
+                    <p className="text-white text-lg">{value.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -118,7 +118,7 @@ export function LearnMore() {
         </div>
 
         <div className="text-center">
-          <Button asChild size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3">
+          <Button asChild size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3 text-lg">
             <Link href="/about">Learn More About Our Staff, History & Leadership</Link>
           </Button>
         </div>

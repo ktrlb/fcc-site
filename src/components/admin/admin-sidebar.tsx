@@ -64,6 +64,12 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
       name: 'All Assets',
       href: '/admin/assets',
       icon: Upload,
+    },
+    {
+      name: 'People (Beta)',
+      href: '/admin/people',
+      icon: Users,
+      isBeta: true,
     }
   ];
 
@@ -101,7 +107,12 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
                     )}
                   >
                     <Icon className="h-4 w-4" />
-                    {item.name}
+                    <span className="flex-1">{item.name}</span>
+                    {item.isBeta && (
+                      <span className="text-xs bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded-full font-medium">
+                        BETA
+                      </span>
+                    )}
                     {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
                   </Link>
                 );
@@ -155,7 +166,12 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
                       onClick={() => setIsOpen(false)}
                     >
                       <Icon className="h-4 w-4" />
-                      {item.name}
+                      <span className="flex-1">{item.name}</span>
+                      {item.isBeta && (
+                        <span className="text-xs bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded-full font-medium">
+                          BETA
+                        </span>
+                      )}
                       {isActive && <ChevronRight className="ml-auto h-4 w-4" />}
                     </Link>
                   );

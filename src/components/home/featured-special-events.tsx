@@ -87,11 +87,11 @@ export async function FeaturedSpecialEvents() {
                 <ExpandableText
                   text={event.specialEventNote || 'Join us for this special event.'}
                   collapsedChars={90}
-                  className="text-white mb-1"
-                  toggleClassName="text-sm text-white/80 hover:text-white underline block ml-auto"
+                  className="text-white mb-1 text-lg"
+                  toggleClassName="text-lg text-white/80 hover:text-white underline block ml-auto"
                 />
                 
-                <div className="space-y-1 text-sm text-white">
+                <div className="space-y-1 text-lg text-white">
                   <p className="font-semibold">
                     {new Date(event.startTime).toLocaleDateString('en-US', {
                       weekday: 'long',

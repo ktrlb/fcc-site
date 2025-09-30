@@ -26,7 +26,7 @@ export async function SpecialEvents() {
           <h2 className="text-4xl font-bold text-black mb-4 font-serif">
             Special Events & Seasonal Guide
           </h2>
-          <p className="text-xl text-black max-w-3xl mx-auto">
+          <p className="text-2xl text-black max-w-3xl mx-auto">
             Stay connected with our community through special events and regular fellowship opportunities.
           </p>
         </div>
@@ -50,7 +50,7 @@ export async function SpecialEvents() {
                   <div className="flex flex-col md:flex-row items-start gap-4">
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg mb-2 text-white">What&apos;s Inside:</h4>
-                      <ul className="space-y-2 text-white">
+                      <ul className="space-y-2 text-white text-lg">
                         <li>• Special service schedules</li>
                         <li>• Community outreach opportunities</li>
                         <li>• Fellowship events</li>

@@ -74,7 +74,7 @@ export function WhereToFindUs() {
                     </div>
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-white">Facebook</h4>
-                      <p className="text-white text-sm">Stay updated with church news and events</p>
+                      <p className="text-white text-base">Stay updated with church news and events</p>
                     </div>
                     <Button asChild variant="outline" size="sm" className="bg-white text-red-600 hover:bg-white/10 hover:text-white border border-white transition-colors">
                       <a 
@@ -99,7 +99,7 @@ export function WhereToFindUs() {
                     </div>
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-white">YouTube</h4>
-                      <p className="text-white text-sm">Watch sermons and special services</p>
+                      <p className="text-white text-base">Watch sermons and special services</p>
                     </div>
                     <Button asChild variant="outline" size="sm" className="bg-white text-indigo-900 hover:bg-white/10 hover:text-white border border-white transition-colors">
                       <a 
@@ -124,7 +124,7 @@ export function WhereToFindUs() {
                     </div>
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-white">Live Streaming</h4>
-                      <p className="text-white text-sm">We stream our services live on Facebook and YouTube</p>
+                      <p className="text-white text-base">We stream our services live on Facebook and YouTube</p>
                     </div>
                     <div className="flex space-x-2">
                       <Button asChild variant="outline" size="sm" className="bg-white text-amber-500 hover:bg-white/10 hover:text-white border border-white transition-colors">

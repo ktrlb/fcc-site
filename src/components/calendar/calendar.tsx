@@ -388,7 +388,7 @@ export function Calendar({ events = [] }: CalendarProps) {
             return (
               <div 
                 key={day} 
-                className="p-3 text-center text-sm font-medium text-white rounded-lg"
+                className="p-3 text-center text-base font-medium text-white rounded-lg"
                 style={{ backgroundColor: colorScheme.bg }}
               >
                 {day}
@@ -457,7 +457,7 @@ export function Calendar({ events = [] }: CalendarProps) {
                           return (
                             <div
                               key={event.id}
-                              className="text-sm p-2 bg-white rounded break-words cursor-pointer hover:bg-gray-50 transition-colors border"
+                              className="text-base p-2 bg-white rounded break-words cursor-pointer hover:bg-gray-50 transition-colors border"
                               title={event.title}
                               onClick={() => handleEventClick(event)}
                             >
@@ -504,7 +504,7 @@ export function Calendar({ events = [] }: CalendarProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-stone-700">
                   <Clock className="h-4 w-4" />
-                  <span className="text-sm">
+                  <span className="text-base">
                     {selectedEvent.start.toLocaleDateString('en-US', {
                       weekday: 'long',
                       year: 'numeric',
@@ -517,7 +517,7 @@ export function Calendar({ events = [] }: CalendarProps) {
                 
                 <div className="flex items-center gap-2 text-stone-700">
                   <Clock className="h-4 w-4" />
-                  <span className="text-sm">
+                  <span className="text-base">
                     {selectedEvent.start.toLocaleTimeString('en-US', {
                       hour: 'numeric',
                       minute: '2-digit',
@@ -535,7 +535,7 @@ export function Calendar({ events = [] }: CalendarProps) {
                 {selectedEvent.location && (
                   <div className="flex items-center gap-2 text-stone-700">
                     <MapPin className="h-4 w-4" />
-                    <span className="text-sm">{selectedEvent.location}</span>
+                    <span className="text-base">{selectedEvent.location}</span>
                   </div>
                 )}
               </div>
@@ -571,22 +571,22 @@ export function Calendar({ events = [] }: CalendarProps) {
                  </div>
                )}
                {selectedEvent.ministryInfo.description && (
-                 <p className="text-sm text-white mb-3">{selectedEvent.ministryInfo.description}</p>
+                 <p className="text-base text-white mb-3">{selectedEvent.ministryInfo.description}</p>
                )}
                {selectedEvent.ministryInfo.contactPerson && (
-                 <div className="flex items-center gap-2 text-sm text-white">
+                 <div className="flex items-center gap-2 text-base text-white">
                    <Users className="h-4 w-4" />
                    <span>Contact: {selectedEvent.ministryInfo.contactPerson}</span>
                  </div>
                )}
                {selectedEvent.ministryInfo.contactEmail && (
-                 <div className="flex items-center gap-2 text-sm text-white mt-1">
+                 <div className="flex items-center gap-2 text-base text-white mt-1">
                    <Mail className="h-3 w-3" />
                    <span>{selectedEvent.ministryInfo.contactEmail}</span>
                  </div>
                )}
                {selectedEvent.ministryInfo.contactPhone && (
-                 <div className="flex items-center gap-2 text-sm text-white mt-1">
+                 <div className="flex items-center gap-2 text-base text-white mt-1">
                    <Phone className="h-3 w-3" />
                    <span>{selectedEvent.ministryInfo.contactPhone}</span>
                  </div>
@@ -621,10 +621,10 @@ export function Calendar({ events = [] }: CalendarProps) {
                  </div>
                )}
                {selectedEvent.specialEventInfo.description && (
-                 <p className="text-sm text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
+                 <p className="text-base text-white mb-3">{selectedEvent.specialEventInfo.description}</p>
                )}
                {selectedEvent.specialEventInfo.contactPerson && (
-                 <div className="flex items-center gap-2 text-sm text-white">
+                 <div className="flex items-center gap-2 text-base text-white">
                    <Users className="h-4 w-4" />
                    <span>Contact: {selectedEvent.specialEventInfo.contactPerson}</span>
                  </div>
@@ -675,7 +675,7 @@ export function Calendar({ events = [] }: CalendarProps) {
                       <h3 className="text-lg font-bold" style={{ color: colorScheme.bg }}>{event.title}</h3>
                       <div className="flex items-center gap-2 text-stone-700">
                         <Clock className="h-4 w-4" />
-                        <span className="text-sm">
+                        <span className="text-base">
                           {event.start.toLocaleTimeString('en-US', {
                             hour: 'numeric',
                             minute: '2-digit',
@@ -692,7 +692,7 @@ export function Calendar({ events = [] }: CalendarProps) {
                       {event.location && (
                         <div className="flex items-center gap-2 text-stone-700">
                           <MapPin className="h-4 w-4" />
-                          <span className="text-sm">{event.location}</span>
+                          <span className="text-base">{event.location}</span>
                         </div>
                       )}
                     </div>

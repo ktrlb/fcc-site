@@ -41,12 +41,12 @@ export function LayLeadership() {
               </div>
             </div>
             <h3 className="text-2xl font-bold text-white font-serif mb-6">Our Governance</h3>
-            <p className="text-white leading-relaxed text-lg mb-6">
+            <p className="text-white leading-relaxed text-xl mb-6">
               First Christian Church is a congregationally led church, meaning our members play a vital role 
               in the governance and direction of our community. We believe that the Holy Spirit works through 
               all members of our congregation to guide our church&apos;s mission and ministry.
             </p>
-            <p className="text-white leading-relaxed">
+            <p className="text-white leading-relaxed text-xl">
               Our leadership structure includes dedicated members who serve on our General Board, as Elders 
               and Deacons, and on our Mission-Vision Team. Each September, we seek nominations from our 
               congregation for leadership positions for the coming year, ensuring fresh perspectives and 

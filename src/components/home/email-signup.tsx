@@ -17,7 +17,7 @@ export function EmailSignup() {
               <h2 className="text-3xl font-bold text-white mb-4">
                 Stay Connected
               </h2>
-              <p className="text-lg text-white">
+              <p className="text-xl text-white">
                 Sign up for our weekly newsletter to stay informed about upcoming events, 
                 sermon series, and community news.
               </p>
@@ -40,27 +40,27 @@ export function EmailSignup() {
                   <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 </a>
               </Button>
-              <p className="text-sm text-white mt-4">
+              <p className="text-lg text-white mt-4">
                 You&apos;ll be redirected to our secure signup page
               </p>
             </div>
 
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div>
-                <h4 className="font-semibold text-white mb-2">Weekly Newsletter</h4>
-                <p className="text-sm text-white">
+                <h4 className="font-semibold text-white mb-2 text-lg">Weekly Newsletter</h4>
+                <p className="text-lg text-white">
                   Get the latest news and updates from our community
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold text-white mb-2">Event Reminders</h4>
-                <p className="text-sm text-white">
+                <h4 className="font-semibold text-white mb-2 text-lg">Event Reminders</h4>
+                <p className="text-lg text-white">
                   Never miss important events and special services
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold text-white mb-2">Prayer Requests</h4>
-                <p className="text-sm text-white">
+                <h4 className="font-semibold text-white mb-2 text-lg">Prayer Requests</h4>
+                <p className="text-lg text-white">
                   Stay connected with our prayer community
                 </p>
               </div>

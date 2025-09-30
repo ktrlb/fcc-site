@@ -150,7 +150,12 @@ function getEventIcon(eventTitle: string) {
 async function getUpcomingSundaySermonSeries(sundayDate: Date) {
   try {
     // Format the date to match the database format (YYYY-MM-DD)
-    const dateString = sundayDate.toISOString().split('T')[0];
+    // Use local date to avoid timezone issues
+    const year = sundayDate.getFullYear();
+    const month = String(sundayDate.getMonth() + 1).padStart(2, '0');
+    const day = String(sundayDate.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+    console.log(`🔍 Looking for sermon series for Sunday: ${dateString}`);
     
     // Get the sermon series for this Sunday
     const sundayData = await db
@@ -168,8 +173,10 @@ async function getUpcomingSundaySermonSeries(sundayDate: Date) {
       .where(eq(sundays.date, dateString))
       .limit(1);
 
-
-    return sundayData[0]?.sermonSeries || null;
+    console.log(`📋 Sunday data found:`, sundayData);
+    const result = sundayData[0]?.sermonSeries || null;
+    console.log(`📖 Sermon series for ${dateString}:`, result);
+    return result;
   } catch (error) {
     console.error('❌ Error fetching upcoming Sunday sermon series:', error);
     return null;
@@ -182,7 +189,10 @@ export async function SeeYouOnSunday() {
   const upcomingSermonSeries = await getUpcomingSundaySermonSeries(sundayData.date);
   
   // Fallback to featured sermon series if no specific series is scheduled
-  const sermonSeries = upcomingSermonSeries || await getFeaturedSermonSeries();
+  const featuredSermonSeries = await getFeaturedSermonSeries();
+  console.log(`⭐ Featured sermon series:`, featuredSermonSeries);
+  const sermonSeries = upcomingSermonSeries || featuredSermonSeries;
+  console.log(`🎯 Final sermon series being displayed:`, sermonSeries);
 
   return (
     <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
@@ -213,7 +223,7 @@ export async function SeeYouOnSunday() {
                     }
                   </h3>
                   {sundayData.isFallback && (
-                    <p className="text-sm text-white/70 text-center mt-2">
+                    <p className="text-base text-white/70 text-center mt-2">
                       Standard service times shown
                     </p>
                   )}
@@ -228,12 +238,12 @@ export async function SeeYouOnSunday() {
                           <div className="bg-white rounded-full p-2 mb-4">
                             <IconComponent className="h-6 w-6" style={{ color: 'rgb(220 38 38)' }} />
                           </div>
-                          <p className="font-semibold text-base md:text-lg text-white">
+                          <p className="font-semibold text-lg md:text-xl text-white">
                             {formatTime(new Date(event.startTime))}
                           </p>
                           <p className="text-white">{event.title}</p>
                           {event.location && (
-                            <p className="text-sm text-white/80">{event.location}</p>
+                            <p className="text-base text-white/80">{event.location}</p>
                           )}
                         </div>
                       );
@@ -282,15 +292,15 @@ export async function SeeYouOnSunday() {
                     {sermonSeries.title}
                   </h4>
                   {sermonSeries.description && (
-                    <p className="text-white mt-2">
+                    <p className="text-white mt-2 text-lg">
                       {sermonSeries.description}
                     </p>
                   )}
                 </>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-white">No current sermon series available</p>
-                  <p className="text-sm text-white/80 mt-2">
+                  <p className="text-white text-lg">No current sermon series available</p>
+                  <p className="text-base text-white/80 mt-2">
                     Create a sermon series in the admin panel to display it here.
                   </p>
                 </div>

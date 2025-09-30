@@ -193,7 +193,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
               )}
             </div>
             {searchTerm && (
-              <div className="mt-2 text-sm text-white/80">
+              <div className="mt-2 text-base text-white/80">
                 Showing {filteredMinistries.length} of {ministries.length} ministries
               </div>
             )}
@@ -242,8 +242,8 @@ export function MinistryDatabase({ initialMinistries }: Props) {
           {filteredMinistries.length === 0 ? (
             <div className="text-center py-12">
               <Users className="mx-auto h-12 w-12 text-indigo-400" />
-              <h3 className="mt-2 text-sm font-medium text-indigo-900">No ministries found</h3>
-              <p className="mt-1 text-sm text-indigo-600">
+              <h3 className="mt-2 text-base font-medium text-indigo-900">No ministries found</h3>
+              <p className="mt-1 text-base text-indigo-600">
                 Try adjusting your search terms or category filter.
               </p>
             </div>
@@ -285,23 +285,23 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-gray-700 text-sm">{ministry.description}</p>
+                      <p className="text-gray-700 text-base">{ministry.description}</p>
                       
                       <div className="space-y-2">
                         {ministry.timeCommitment && (
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-base text-gray-600">
                             <Clock className="h-4 w-4 mr-2" />
                             {ministry.timeCommitment}
                           </div>
                         )}
                         {ministry.location && (
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-base text-gray-600">
                             <MapPin className="h-4 w-4 mr-2" />
                             {ministry.location}
                           </div>
                         )}
                         {ministry.meetingSchedule && (
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-base text-gray-600">
                             <Users className="h-4 w-4 mr-2" />
                             {ministry.meetingSchedule}
                           </div>
@@ -310,10 +310,10 @@ export function MinistryDatabase({ initialMinistries }: Props) {
 
                       {ministry.skillsNeeded && ministry.skillsNeeded.length > 0 && (
                         <div>
-                          <h4 className="font-medium text-sm text-gray-900 mb-2">Skills Needed:</h4>
+                          <h4 className="font-medium text-base text-gray-900 mb-2">Skills Needed:</h4>
                           <div className="flex flex-wrap gap-1">
                             {ministry.skillsNeeded.map((skill, index) => (
-                              <Badge key={index} variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-300">
+                              <Badge key={index} variant="outline" className="text-sm bg-gray-50 text-gray-700 border-gray-300">
                                 {skill}
                               </Badge>
                             ))}
@@ -322,10 +322,10 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                       )}
 
                       <div className="pt-4 border-t border-gray-200">
-                        <h4 className="font-medium text-sm text-gray-900 mb-2">Contact:</h4>
-                        <p className="text-sm text-gray-700">{ministry.contactPerson}</p>
+                        <h4 className="font-medium text-base text-gray-900 mb-2">Contact:</h4>
+                        <p className="text-base text-gray-700">{ministry.contactPerson}</p>
                         {ministry.contactPhone && (
-                          <div className="flex items-center text-sm text-gray-700 mt-1">
+                          <div className="flex items-center text-base text-gray-700 mt-1">
                             <Phone className="h-4 w-4 mr-1" />
                             <a href={`tel:${ministry.contactPhone}`} className="hover:text-gray-900 transition-colors">
                               {ministry.contactPhone}

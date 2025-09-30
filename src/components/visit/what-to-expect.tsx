@@ -93,7 +93,7 @@ export function WhatToExpect() {
                         <h3 className="text-lg font-semibold text-white mb-3">
                           {faq.question}
                         </h3>
-                        <div className="text-white leading-relaxed">
+                        <div className="text-white leading-relaxed text-base">
                           {faq.answer}
                         </div>
                       </div>
@@ -118,15 +118,15 @@ export function WhatToExpect() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-center">
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-indigo-900 mb-1">Call Us</h4>
-                <p className="text-sm text-indigo-900">(817) 573-5431</p>
+                <p className="text-base text-indigo-900">(817) 573-5431</p>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-indigo-900 mb-1">Email Us</h4>
-                <p className="text-sm text-indigo-900">office@fccgranbury.org</p>
+                <p className="text-base text-indigo-900">office@fccgranbury.org</p>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <h4 className="font-semibold text-indigo-900 mb-1">Office Hours</h4>
-                <p className="text-sm text-indigo-900">Monday-Thursday<br />9am-5pm</p>
+                <p className="text-base text-indigo-900">Monday-Thursday<br />9am-5pm</p>
               </div>
             </div>
           </div>

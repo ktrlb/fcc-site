@@ -13,8 +13,8 @@ export default function LibraryPage() {
               <BookOpen className="h-12 w-12" style={{ color: 'rgb(220 38 38)' }} />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-white font-serif mb-6">FCC Library</h1>
-          <p className="text-xl text-white max-w-3xl mx-auto">
+          <h1 className="text-5xl font-bold text-white font-serif mb-6">FCC Library</h1>
+          <p className="text-2xl text-white max-w-3xl mx-auto">
             Discover books, resources, and materials to support your faith journey
           </p>
         </div>
@@ -87,7 +87,7 @@ export default function LibraryPage() {
                   </a>
                 </Button>
                 
-                <p className="text-sm text-white text-center">
+                <p className="text-base text-white text-center">
                   Opens in a new window
                 </p>
               </div>

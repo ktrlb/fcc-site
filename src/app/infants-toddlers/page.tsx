@@ -19,10 +19,10 @@ export default function InfantsToddlersPage() {
         <div className="relative flex items-center justify-center h-full">
           <div className="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Baby className="h-16 w-16 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-serif">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 font-serif">
               Infants & Toddlers Ministry
             </h1>
-            <p className="text-xl text-white max-w-3xl mx-auto">
+            <p className="text-2xl text-white max-w-3xl mx-auto">
               Providing a safe, nurturing environment for our youngest members while supporting parents in worship and fellowship.
             </p>
           </div>

@@ -64,11 +64,11 @@ export function ChildrenYouthMinistries() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-white">{ministry.title}</h3>
-                    <p className="text-sm text-white/80">{ministry.ageRange}</p>
+                    <p className="text-lg text-white/80">{ministry.ageRange}</p>
                   </div>
                 </div>
                 
-                <p className="text-white mb-6 leading-relaxed">
+                <p className="text-white mb-6 leading-relaxed text-lg">
                   {ministry.description}
                 </p>
                 

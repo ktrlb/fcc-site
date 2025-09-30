@@ -69,16 +69,16 @@ export default function DirectoryPage() {
                 <Users className="h-8 w-8" style={{ color: 'rgb(17 94 89)' }} />
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-white font-serif mb-4">Church Directory</h1>
-            <p className="text-xl text-white/80">
+            <h1 className="text-5xl font-bold text-white font-serif mb-4">Church Directory</h1>
+            <p className="text-2xl text-white/80">
               Access our church family directory
             </p>
           </div>
 
           <div className="p-8 rounded-lg mb-8" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white mb-4">Download Directory PDF</h2>
-              <p className="text-white/90 mb-6">
+              <h2 className="text-3xl font-bold text-white mb-4">Download Directory PDF</h2>
+              <p className="text-xl text-white/90 mb-6">
                 You can now download the church directory PDF. This directory contains contact 
                 information for our church family members.
               </p>
@@ -92,7 +92,7 @@ export default function DirectoryPage() {
                 Download Directory PDF
               </Button>
               
-              <p className="text-sm text-white/80">
+              <p className="text-base text-white/80">
                 Note: This directory is for church family use only. Please respect the privacy 
                 of our members and do not share this information outside our church community.
               </p>
@@ -137,26 +137,26 @@ export default function DirectoryPage() {
 
             <div className="space-y-4 mb-6">
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-base font-semibold flex-shrink-0 mt-0.5">
                   1
                 </div>
-                <p className="text-white/90 text-sm">
+                <p className="text-white/90 text-base">
                   Click &quot;Request Breeze Access&quot; to fill out the signup form
                 </p>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-base font-semibold flex-shrink-0 mt-0.5">
                   2
                 </div>
-                <p className="text-white/90 text-sm">
+                <p className="text-white/90 text-base">
                   Receive an email within 24-48 hours with account setup instructions
                 </p>
               </div>
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 bg-white text-indigo-900 rounded-full flex items-center justify-center text-base font-semibold flex-shrink-0 mt-0.5">
                   3
                 </div>
-                <p className="text-white/90 text-sm">
+                <p className="text-white/90 text-base">
                   Access the complete, always-current directory
                 </p>
               </div>
@@ -203,7 +203,7 @@ export default function DirectoryPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+                <label htmlFor="password" className="block text-base font-medium text-white mb-2">
                   Directory Password
                 </label>
                 <div className="relative">
@@ -230,7 +230,7 @@ export default function DirectoryPage() {
                   </button>
                 </div>
                 {error && (
-                  <p className="mt-2 text-sm text-white/90">{error}</p>
+                  <p className="mt-2 text-base text-white/90">{error}</p>
                 )}
               </div>
               
@@ -241,7 +241,7 @@ export default function DirectoryPage() {
             </form>
             
             <div className="mt-4 text-center">
-              <p className="text-sm text-white/90">
+              <p className="text-base text-white/90">
                 Need the password? Contact the church office at{" "}
                 <a 
                   href="mailto:office@fccgranbury.org" 

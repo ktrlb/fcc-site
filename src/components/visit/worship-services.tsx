@@ -60,7 +60,7 @@ export function WorshipServices() {
                         <div>
                           <div className="flex items-center space-x-2 mb-2">
                             <h4 className="text-xl font-semibold text-white">{service.time}</h4>
-                            <span className="bg-white text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            <span className="bg-white text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
                               Weekly
                             </span>
                           </div>
