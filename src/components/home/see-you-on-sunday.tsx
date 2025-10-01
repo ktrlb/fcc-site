@@ -7,6 +7,7 @@ import { CalendarCacheService } from "@/lib/calendar-cache";
 import { db } from "@/lib/db";
 import { sundays, sermonSeries } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
+import { SermonSeriesDescription } from "./sermon-series-description";
 
 // Helper function to get the next Sunday's events
 async function getUpcomingSundayEvents() {
@@ -165,92 +166,69 @@ export async function SeeYouOnSunday() {
   return (
     <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4 font-serif">
-            See You On Sunday
-          </h2>
-          <p className="text-xl text-white max-w-3xl mx-auto">
-            Join us for worship, fellowship, and community as we gather together in faith.
-          </p>
-        </div>
+        {/* Full-width Sunday Schedule Card */}
+        <Card className="mb-12 !bg-red-600 border-0 text-white shadow-none max-w-4xl mx-auto" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+          <CardContent className="pt-4 pb-2 px-6 md:pt-4 md:pb-3 md:px-8">
+            {/* Main Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 font-serif">
+                See You On Sunday
+              </h2>
+              
+              {/* Schedule Header */}
+              <h3 className="text-2xl md:text-3xl font-bold text-white font-serif mb-4">
+                {sundayData.isFallback 
+                  ? 'Our Usual Sunday Schedule'
+                  : `${sundayData.isToday ? 'Today' : 'Upcoming Sunday'}: ${sundayData.date.toLocaleDateString('en-US', {
+                      timeZone: 'America/Chicago', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}`
+                }
+              </h3>
+              
+              <p className="text-xl md:text-2xl text-white max-w-3xl mx-auto mb-6">
+                Join us for worship, fellowship, and community as we gather together in faith.
+              </p>
+              
+              {sundayData.isFallback && (
+                <p className="text-lg text-white/80">
+                  Standard service times shown
+                </p>
+              )}
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-7xl mx-auto">
-          {/* Service Schedule */}
-          <Card className="p-4 md:p-6 lg:p-8 !bg-red-600 border-0 text-white shadow-none h-full flex flex-col" style={{ backgroundColor: 'rgb(220 38 38)' }}>
-            <CardContent className="!px-0 text-white flex flex-col h-full">
-              <div className="px-8 py-8 flex-1 flex flex-col">
-                <div className="mb-6">
-                  <h3 className="text-xl md:text-2xl font-bold text-white text-center">
-                    {sundayData.isFallback 
-                      ? 'Our Usual Sunday Schedule is'
-                      : `${sundayData.isToday ? 'Today' : 'Upcoming Sunday'}: ${sundayData.date.toLocaleDateString('en-US', {
-                          timeZone: 'America/Chicago', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}`
-                    }
-                  </h3>
-                  {sundayData.isFallback && (
-                    <p className="text-base text-white/70 text-center mt-2">
-                      Standard service times shown
-                    </p>
-                  )}
-                </div>
-                
-                <div className="flex-1 flex flex-col">
-                  {sundayData.isFallback ? (
-                    // Static fallback schedule
-                    <div className="space-y-8">
-                      <div className="flex flex-col items-center text-center">
-                        <div className="bg-white rounded-full p-2 mb-4">
-                          <Music className="h-6 w-6" style={{ color: 'rgb(220 38 38)' }} />
-                        </div>
-                        <p className="font-semibold text-lg md:text-xl text-white">9:00 AM</p>
-                        <p className="text-white">Modern Worship</p>
-                        <p className="text-base text-white/80">Sanctuary</p>
-                      </div>
-                      <div className="flex flex-col items-center text-center">
-                        <div className="bg-white rounded-full p-2 mb-4">
-                          <BookOpen className="h-6 w-6" style={{ color: 'rgb(220 38 38)' }} />
-                        </div>
-                        <p className="font-semibold text-lg md:text-xl text-white">10:00 AM</p>
-                        <p className="text-white">Sunday School</p>
-                        <p className="text-base text-white/80">Various Classrooms</p>
-                      </div>
-                      <div className="flex flex-col items-center text-center">
-                        <div className="bg-white rounded-full p-2 mb-4">
-                          <Music className="h-6 w-6" style={{ color: 'rgb(220 38 38)' }} />
-                        </div>
-                        <p className="font-semibold text-lg md:text-xl text-white">11:00 AM</p>
-                        <p className="text-white">Traditional Worship</p>
-                        <p className="text-base text-white/80">Sanctuary</p>
-                      </div>
+            {/* Schedule in horizontal columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-6 mb-4">
+              {sundayData.isFallback ? (
+                // Static fallback schedule
+                <>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-white rounded-full p-3 mb-4">
+                      <Music className="h-8 w-8" style={{ color: 'rgb(220 38 38)' }} />
                     </div>
-                  ) : (
-                    // Dynamic events from calendar
-                    <div className="space-y-8">
-                      {sundayData.events.map((event, index) => {
-                        const IconComponent = getEventIcon(event.title);
-                        return (
-                          <div key={index} className="flex flex-col items-center text-center">
-                            <div className="bg-white rounded-full p-2 mb-4">
-                              <IconComponent className="h-6 w-6" style={{ color: 'rgb(220 38 38)' }} />
-                            </div>
-                            <p className="font-semibold text-lg md:text-xl text-white">
-                              {formatTime(new Date(event.startTime))}
-                            </p>
-                            <p className="text-white">{event.title}</p>
-                            {event.location && (
-                              <p className="text-base text-white/80">{event.location}</p>
-                            )}
-                          </div>
-                        );
-                      })}
+                    <p className="font-bold text-xl text-white mb-2">9:00 AM</p>
+                    <p className="text-white text-lg">Modern Worship</p>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-white rounded-full p-3 mb-4">
+                      <BookOpen className="h-8 w-8" style={{ color: 'rgb(220 38 38)' }} />
                     </div>
-                  )}
-                </div>
-                  
-                  <div className="flex justify-center mt-8">
+                    <p className="font-bold text-xl text-white mb-2">10:00 AM</p>
+                    <p className="text-white text-lg">Sunday School</p>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-white rounded-full p-3 mb-4">
+                      <Music className="h-8 w-8" style={{ color: 'rgb(220 38 38)' }} />
+                    </div>
+                    <p className="font-bold text-xl text-white mb-2">11:00 AM</p>
+                    <p className="text-white text-lg">Traditional Worship</p>
+                  </div>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-white rounded-full p-3 mb-4">
+                      <ArrowRight className="h-8 w-8" style={{ color: 'rgb(220 38 38)' }} />
+                    </div>
+                    <p className="font-bold text-xl text-white mb-2">Plan Your Visit</p>
                     <Button 
                       asChild 
                       variant="outline" 
@@ -258,55 +236,93 @@ export async function SeeYouOnSunday() {
                       className="bg-white border-white text-red-600 hover:bg-white/90 hover:text-red-700 transition-colors"
                     >
                       <Link href="/visit" className="flex items-center">
-                        Plan Your Visit
+                        Learn More
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
                   </div>
-                </div>
-            </CardContent>
-          </Card>
-
-          {/* Sermon Series */}
-          <Card className="p-0 overflow-hidden !bg-red-600 border-0 shadow-none text-white h-full flex flex-col" style={{ backgroundColor: 'rgb(220 38 38)' }}>
-            <CardContent className="!px-0 text-white flex flex-col h-full">
-              {sermonSeries?.imageUrl && (
-                <div className="w-full">
-                  <img
-                    src={sermonSeries.imageUrl}
-                    alt={sermonSeries.title}
-                    className="w-full h-auto object-cover"
-                  />
-                </div>
-              )}
-              <div className="px-8 py-8 flex-1 flex flex-col">
-              <div className="mb-4 text-center">
-                <h3 className="text-2xl font-bold text-white">Current Sermon Series</h3>
-              </div>
-
-              {sermonSeries ? (
-                <>
-                  <h4 className="text-xl font-bold text-white">
-                    {sermonSeries.title}
-                  </h4>
-                  {sermonSeries.description && (
-                    <p className="text-white mt-2 text-lg">
-                      {sermonSeries.description}
-                    </p>
-                  )}
                 </>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-white text-lg">No current sermon series available</p>
-                  <p className="text-base text-white/80 mt-2">
-                    Create a sermon series in the admin panel to display it here.
-                  </p>
+                // Dynamic events from calendar
+                <>
+                  {sundayData.events.map((event, index) => {
+                    const IconComponent = getEventIcon(event.title);
+                    return (
+                      <div key={index} className="flex flex-col items-center text-center">
+                        <div className="bg-white rounded-full p-3 mb-4">
+                          <IconComponent className="h-8 w-8" style={{ color: 'rgb(220 38 38)' }} />
+                        </div>
+                        <p className="font-bold text-xl text-white mb-2">
+                          {formatTime(new Date(event.startTime))}
+                        </p>
+                        <p className="text-white text-lg">{event.title}</p>
+                      </div>
+                    );
+                  })}
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-white rounded-full p-3 mb-4">
+                      <ArrowRight className="h-8 w-8" style={{ color: 'rgb(220 38 38)' }} />
+                    </div>
+                    <p className="font-bold text-xl text-white mb-2">Plan Your Visit</p>
+                    <Button 
+                      asChild 
+                      variant="outline" 
+                      size="lg"
+                      className="bg-white border-white text-red-600 hover:bg-white/90 hover:text-red-700 transition-colors"
+                    >
+                      <Link href="/visit" className="flex items-center">
+                        Learn More
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sermon Series Card */}
+        <Card className="p-0 overflow-hidden !bg-teal-800 border-0 shadow-none text-white max-w-4xl mx-auto" style={{ backgroundColor: 'rgb(17 94 89)' }}>
+          <CardContent className="!px-0 text-white">
+            <div className="flex flex-col lg:flex-row">
+              {sermonSeries?.imageUrl && (
+                <div className="w-full lg:w-1/2">
+                  {/* Image only on the left */}
+                  <div className="bg-teal-800 flex items-center justify-center h-64 lg:h-auto" style={{ backgroundColor: 'rgb(17 94 89)' }}>
+                    <img
+                      src={sermonSeries.imageUrl}
+                      alt={sermonSeries.title}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                 </div>
               )}
+              <div className={`px-6 pt-2 pb-4 md:px-8 md:pt-3 md:pb-6 ${sermonSeries?.imageUrl ? 'lg:w-1/2' : 'w-full'} text-center lg:text-left flex flex-col justify-center`}>
+                {sermonSeries ? (
+                  <>
+                    <p className="text-white/90 text-sm md:text-base mb-2">
+                      Current Sermon Series Theme
+                    </p>
+                    <h4 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                      {sermonSeries.title}
+                    </h4>
+                    {sermonSeries.description && (
+                      <SermonSeriesDescription description={sermonSeries.description} />
+                    )}
+                  </>
+                ) : (
+                  <div className="py-8">
+                    <p className="text-white text-xl">No current sermon series available</p>
+                    <p className="text-lg text-white/80 mt-4">
+                      Create a sermon series in the admin panel to display it here.
+                    </p>
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );

@@ -91,11 +91,36 @@ export function MinistryDatabase({ initialMinistries }: Props) {
 
   // Define the five things categories - memoized to prevent infinite re-renders
   const fiveThingsCategories = useMemo(() => [
-    { key: "prayer-worship", label: "Prayer & Worship", searchTerms: ["prayer", "worship", "music", "choir", "praise"] },
-    { key: "study", label: "Study", searchTerms: ["study", "education", "bible", "sunday school", "discipleship", "learning"] },
-    { key: "service", label: "Service", searchTerms: ["service", "outreach", "missions", "community", "volunteer", "help"] },
-    { key: "presence", label: "Presence", searchTerms: ["fellowship", "community", "hospitality", "care", "support", "relationship"] },
-    { key: "generosity", label: "Generosity", searchTerms: ["giving", "stewardship", "finance", "administration", "resources"] }
+    { 
+      key: "prayer-worship", 
+      label: "Prayer & Worship", 
+      filterType: "categories",
+      categories: ["prayer", "worship", "music", "choir", "praise", "liturgy", "spiritual", "faith", "devotion"]
+    },
+    { 
+      key: "study", 
+      label: "Study", 
+      filterType: "categories",
+      categories: ["education", "bible", "sunday school", "discipleship", "learning", "teaching", "class", "book", "scripture"]
+    },
+    { 
+      key: "service", 
+      label: "Service", 
+      filterType: "categories",
+      categories: ["service", "outreach", "missions", "community", "volunteer", "help", "ministry", "care", "support", "assistance"]
+    },
+    { 
+      key: "presence", 
+      label: "Presence", 
+      filterType: "categories",
+      categories: ["fellowship", "special interest", "special interest groups", "hospitality", "care", "support", "relationship", "community"]
+    },
+    { 
+      key: "generosity", 
+      label: "Generosity", 
+      filterType: "categories",
+      categories: ["partner organizations", "Partner Organizations", "partner ministry", "stewardship", "administration", "finance", "resources"]
+    }
   ], []);
 
   // Initialize search term from URL parameters
@@ -114,16 +139,17 @@ export function MinistryDatabase({ initialMinistries }: Props) {
       const fiveThing = fiveThingsCategories.find(ft => ft.key === selectedFiveThings);
       if (fiveThing) {
         results = results.filter((m) => {
-          const searchText = [
-            m.name,
-            m.description,
+          // Use category-based filtering for all five things
+          const allCategories = [
             m.category,
-            ...(m.categories || []),
-            ...(m.skillsNeeded || [])
-          ].join(' ').toLowerCase();
+            ...(m.categories || [])
+          ].map(cat => cat?.toLowerCase().trim()).filter(Boolean);
           
-          return fiveThing.searchTerms.some(term => 
-            searchText.includes(term.toLowerCase())
+          return fiveThing.categories?.some(filterCategory => 
+            allCategories.some(ministryCategory => 
+              ministryCategory.includes(filterCategory.toLowerCase()) || 
+              filterCategory.toLowerCase().includes(ministryCategory)
+            )
           );
         });
       }
@@ -210,7 +236,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           {/* Five Things Quick Filter */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Quick Filter by Area of Discipleship:</h3>
+            <h3 className="text-lg font-semibold text-white mb-3">Explore Ministries by Area of Discipleship:</h3>
             <div className="flex gap-2 flex-wrap">
               <Button
                 variant={selectedFiveThings === "all" ? "default" : "outline"}
