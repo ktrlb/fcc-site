@@ -24,12 +24,21 @@ export function MinistryDatabase({ initialMinistries }: Props) {
     const categorySet = new Set<string>();
     if (initialMinistries && Array.isArray(initialMinistries)) {
       initialMinistries.forEach(ministry => {
-        if (ministry.categories && ministry.categories.length > 0) {
-          ministry.categories.forEach(cat => categorySet.add(cat));
-        }
-        // Also check legacy category field
+        // Add primary category
         if (ministry.category) {
-          categorySet.add(ministry.category);
+          const normalizedCat = ministry.category.trim();
+          if (normalizedCat) {
+            categorySet.add(normalizedCat);
+          }
+        }
+        // Add additional categories that are different from primary category
+        if (ministry.categories && ministry.categories.length > 0) {
+          ministry.categories.forEach(cat => {
+            const normalizedCat = cat?.trim();
+            if (normalizedCat && normalizedCat !== (ministry.category || '').trim()) {
+              categorySet.add(normalizedCat);
+            }
+          });
         }
       });
     }
@@ -123,11 +132,11 @@ export function MinistryDatabase({ initialMinistries }: Props) {
     // Then filter by specific category
     if (selectedCategory !== "all") {
       results = results.filter((m) => {
-        // Handle URL encoding issues with ampersands
-        const selectedCategoryNormalized = selectedCategory.replace(/\u0026/g, '&');
+        // Handle URL encoding issues with ampersands and normalize whitespace
+        const selectedCategoryNormalized = selectedCategory.replace(/\u0026/g, '&').trim();
         
         // Check legacy category field
-        const ministryCategory = m.category?.replace(/\u0026/g, '&') || '';
+        const ministryCategory = (m.category?.replace(/\u0026/g, '&') || '').trim();
         if (ministryCategory === selectedCategoryNormalized) {
           return true;
         }
@@ -135,7 +144,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
         // Check new categories array field
         if (m.categories && m.categories.length > 0) {
           return m.categories.some(cat => {
-            const normalizedCat = cat?.replace(/\u0026/g, '&') || '';
+            const normalizedCat = (cat?.replace(/\u0026/g, '&') || '').trim();
             return normalizedCat === selectedCategoryNormalized;
           });
         }
@@ -327,19 +336,20 @@ export function MinistryDatabase({ initialMinistries }: Props) {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredMinistries.map((ministry, index) => {
-                // Get color based on primary category
-                const primaryCategory = ministry.categories?.[0] || ministry.category || 'Other';
+                // Get color based on primary category (normalized)
+                const primaryCategory = (ministry.categories?.[0] || ministry.category || 'Other').trim();
                 const colorScheme = getCategoryColor(primaryCategory);
                 console.log(`Ministry: ${ministry.name}, Category: ${primaryCategory}, Color: ${colorScheme.hex}`);
                 
                 return (
                   <Card key={ministry.id} className="hover:shadow-lg transition-shadow overflow-hidden bg-white flex flex-col" style={{ borderColor: colorScheme.hex, borderWidth: '2px' }}>
-                    <div className="relative w-full aspect-[4/3]">
+                    <div className="relative w-full aspect-[1200/630] bg-gray-100 flex items-center justify-center">
                       {ministry.imageUrl || ministry.graphicImage ? (
                         <img
                           src={ministry.imageUrl || ministry.graphicImage || undefined}
                           alt={ministry.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
+                          style={{ objectPosition: 'center center' }}
                         />
                       ) : (
                         <MinistryPlaceholder
@@ -352,12 +362,16 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                       <div className="space-y-3">
                         <CardTitle className="text-lg text-white">{ministry.name}</CardTitle>
                         <div className="flex flex-wrap gap-1">
-                          {/* Show legacy category */}
-                          <Badge variant="secondary" className="bg-white/20 text-white border-white/30">{ministry.category}</Badge>
-                          {/* Show additional categories */}
-                          {ministry.categories && ministry.categories.map((cat, index) => (
-                            <Badge key={index} variant="outline" className="bg-white/20 text-white border-white/30">{cat}</Badge>
-                          ))}
+                          {/* Show primary category */}
+                          {ministry.category && (
+                            <Badge variant="secondary" className="bg-white/20 text-white border-white/30">{ministry.category.trim()}</Badge>
+                          )}
+                          {/* Show additional categories that are different from the primary category */}
+                          {ministry.categories && ministry.categories
+                            .filter(cat => cat.trim() !== (ministry.category || '').trim())
+                            .map((cat, index) => (
+                              <Badge key={index} variant="outline" className="bg-white/20 text-white border-white/30">{cat.trim()}</Badge>
+                            ))}
                         </div>
                       </div>
                     </CardHeader>

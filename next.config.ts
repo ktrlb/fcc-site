@@ -5,11 +5,8 @@ const nextConfig: NextConfig = {
     // Allow production builds to succeed even if there are ESLint errors
     ignoreDuringBuilds: true,
   },
+  outputFileTracingRoot: process.cwd(),
   images: {
-    domains: [
-      'images.unsplash.com',
-      'public.blob.vercel-storage.com',
-    ],
     remotePatterns: [
       {
         protocol: 'https',
