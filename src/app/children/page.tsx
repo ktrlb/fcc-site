@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, BookOpen, Heart, Music, Gamepad2, Calendar } from "lucide-react";
+import Image from "next/image";
 
 export default function ChildrenPage() {
   return (
@@ -42,7 +43,15 @@ export default function ChildrenPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-8 rounded-lg" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+            <div className="text-center p-8 rounded-lg overflow-hidden" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+              <div className="relative h-32 mb-4 rounded-lg overflow-hidden">
+                <Image
+                  src="/images/assorted-images/fcc-childrens-ministry-asset-b.jpeg"
+                  alt="Children learning together"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <Heart className="h-12 w-12 text-white mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Love-Centered</h3>
               <p className="text-white/90">
@@ -50,7 +59,15 @@ export default function ChildrenPage() {
                 understand they are beloved children of God.
               </p>
             </div>
-            <div className="text-center p-8 rounded-lg" style={{ backgroundColor: 'rgb(17 94 89)' }}>
+            <div className="text-center p-8 rounded-lg overflow-hidden" style={{ backgroundColor: 'rgb(17 94 89)' }}>
+              <div className="relative h-32 mb-4 rounded-lg overflow-hidden">
+                <Image
+                  src="/images/assorted-images/fcc-asset-easter-egg-hunt.jpeg"
+                  alt="Children's activities"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <BookOpen className="h-12 w-12 text-white mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Story-Based</h3>
               <p className="text-white/90">
@@ -58,7 +75,15 @@ export default function ChildrenPage() {
                 timeless truths to their daily experiences.
               </p>
             </div>
-            <div className="text-center p-8 rounded-lg" style={{ backgroundColor: 'rgb(49 46 129)' }}>
+            <div className="text-center p-8 rounded-lg overflow-hidden" style={{ backgroundColor: 'rgb(49 46 129)' }}>
+              <div className="relative h-32 mb-4 rounded-lg overflow-hidden">
+                <Image
+                  src="/images/assorted-images/fcc-intergenerational ministry.jpeg"
+                  alt="Intergenerational community"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <Users className="h-12 w-12 text-white mx-auto mb-4" />
               <h3 className="text-xl font-bold text-white mb-3">Community-Focused</h3>
               <p className="text-white/90">

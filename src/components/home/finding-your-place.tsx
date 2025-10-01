@@ -9,6 +9,7 @@ import {
   ArrowRight 
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function FindingYourPlace() {
   const fiveThings = [
@@ -29,7 +30,8 @@ export function FindingYourPlace() {
         "Prayer Groups",
         "Prayer Concerns List",
         "Weekly Worship Services"
-      ]
+      ],
+      image: "/images/assorted-images/fcc-outdoor-worship.jpg"
     },
     {
       title: "Study",
@@ -46,7 +48,8 @@ export function FindingYourPlace() {
         "Sunday School Classes",
         "Seasonal Bible Studies",
         "Small Group Studies"
-      ]
+      ],
+      image: "/images/assorted-images/fcc-intergenerational ministry.jpeg"
     },
     {
       title: "Service",
@@ -63,7 +66,8 @@ export function FindingYourPlace() {
         "Community Partners",
         "Miracle Days",
         "Volunteer Opportunities"
-      ]
+      ],
+      image: "/images/assorted-images/fcc-asset-volunteers-smiling.jpg"
     },
     {
       title: "Presence",
@@ -80,7 +84,8 @@ export function FindingYourPlace() {
         "Fellowship Events",
         "Small Groups",
         "Community Gatherings"
-      ]
+      ],
+      image: "/images/assorted-images/fcc-asset-kitchen-smiling.jpeg"
     },
     {
       title: "Generosity",
@@ -97,7 +102,8 @@ export function FindingYourPlace() {
         "Online Giving",
         "Stewardship Campaign",
         "Outreach Support"
-      ]
+      ],
+      image: "/images/assorted-images/fcc-food-pantry-image-asset.jpeg"
     }
   ];
 
@@ -116,40 +122,56 @@ export function FindingYourPlace() {
         <div className="mb-12">
           <div className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
             {fiveThings.map((item, index) => (
-              <Card key={index} className={`p-6 hover:shadow-lg transition-shadow w-full max-w-sm text-white ${item.cardBg}`} style={{ backgroundColor: (item as any).bgInline }}>
-                <CardContent className="p-0">
-                  <div className="flex items-center mb-4">
-                    <div className={`p-3 rounded-full bg-white mr-4`}>
-                      <item.icon className={`h-6 w-6 ${item.iconText}`} style={{ color: (item as any).iconHex }} />
-                    </div>
-                    <h4 className="text-2xl font-bold text-white">{item.title}</h4>
+              <Card key={index} className={`hover:shadow-lg transition-shadow w-full max-w-sm text-white ${item.cardBg} overflow-hidden border-0 py-0`} style={{ backgroundColor: (item as any).bgInline }}>
+                <CardContent className="p-0 m-0">
+                  {/* Image Section - Full width at top */}
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src={(item as any).image}
+                      alt={item.title}
+                      fill
+                      className="object-cover"
+                      style={{
+                        objectPosition: item.title === "Presence" ? "center -15px" : "center center"
+                      }}
+                    />
                   </div>
                   
-                  <p className="text-white mb-4 text-lg">{item.description}</p>
-                  
-                  <ul className="space-y-2 mb-6">
-                    {item.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-base text-white">
-                        <div className="w-1.5 h-1.5 bg-white rounded-full mr-2"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <div className="space-y-3">
-                    <Button asChild className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${item.textColor}`}>
-                      <Link href={item.href} className="transition-colors">
-                        {item.buttonText}
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </Button>
-                    {(item as any).secondaryButtonText && (
-                      <Button asChild variant="outline" className={`w-full group bg-transparent border-white text-white hover:bg-white hover:${item.textColor} transition-colors`}>
-                        <Link href={(item as any).secondaryButtonHref} className="transition-colors">
-                          {(item as any).secondaryButtonText}
+                  {/* Content Section */}
+                  <div className="p-6">
+                    <div className="flex items-center mb-4">
+                      <div className={`p-3 rounded-full bg-white mr-4`}>
+                        <item.icon className={`h-6 w-6 ${item.iconText}`} style={{ color: (item as any).iconHex }} />
+                      </div>
+                      <h4 className="text-2xl font-bold text-white">{item.title}</h4>
+                    </div>
+                    
+                    <p className="text-white mb-4 text-lg">{item.description}</p>
+                    
+                    <ul className="space-y-2 mb-6">
+                      {item.features.map((feature, featureIndex) => (
+                        <li key={featureIndex} className="flex items-center text-base text-white">
+                          <div className="w-1.5 h-1.5 bg-white rounded-full mr-2"></div>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    <div className="space-y-3">
+                      <Button asChild className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${item.textColor}`}>
+                        <Link href={item.href} className="transition-colors">
+                          {item.buttonText}
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </Link>
                       </Button>
-                    )}
+                      {(item as any).secondaryButtonText && (
+                        <Button asChild variant="outline" className={`w-full group bg-transparent border-white text-white hover:bg-white hover:${item.textColor} transition-colors`}>
+                          <Link href={(item as any).secondaryButtonHref} className="transition-colors">
+                            {(item as any).secondaryButtonText}
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -2,28 +2,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, BookOpen, Clock } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function LearnMore() {
   const coreValues = [
     {
       title: "Relationship",
       description: "All are welcome as we seek genuine connection with God and one another. We care for and respect each other more than we worry about our differences.",
-      icon: Heart
+      icon: Heart,
+      image: "/images/assorted-images/fcc-asset-women-ministry.JPG"
     },
     {
       title: "Discipleship",
       description: "We seek to be remade in the image of Jesus as revealed through Holy Scripture and prayer, and to lead by example as we dedicate ourselves to his work of bringing wholeness to a fragmented world.",
-      icon: BookOpen
+      icon: BookOpen,
+      image: "/images/assorted-images/fcc-service.jpg"
     },
     {
       title: "Humility",
       description: "Only God is God. We are imperfect people motivated by the sacrificial love of Jesus. It's not about us, but about working together to lift up hungry and hurting people.",
-      icon: Users
+      icon: Users,
+      image: "/images/assorted-images/fcc-mission-database-background-header.jpg"
     },
     {
       title: "Dignity",
       description: "Everyone is made in God's image, loved unconditionally by their Creator. Everyone. We seek to serve our community and world in ways that reveal the infinite value of each person.",
-      icon: Clock
+      icon: Clock,
+      image: "/images/assorted-images/fcc-asset-easter-egg-hunt.jpeg"
     }
   ];
 
@@ -100,16 +105,32 @@ export function LearnMore() {
               const colorScheme = colors[index % colors.length];
               
               return (
-                <Card key={index} className="p-6 text-center hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: colorScheme.hex }}>
-                  <CardContent className="p-0">
-                    <div className="flex justify-center mb-4">
-                      <div className="p-3 bg-white rounded-full">
-                        <value.icon className="h-6 w-6" style={{ color: colorScheme.hex }} />
+                <Card key={index} className="hover:shadow-lg transition-shadow border-0 shadow-none py-0 overflow-hidden flex flex-col" style={{ backgroundColor: colorScheme.hex }}>
+                  <CardContent className="p-0 flex flex-col h-full">
+                    {/* Content Section */}
+                    <div className="p-6 text-center flex-1">
+                      <div className="flex justify-center mb-4">
+                        <div className="p-3 bg-white rounded-full">
+                          <value.icon className="h-6 w-6" style={{ color: colorScheme.hex }} />
+                        </div>
                       </div>
+                      
+                      <h4 className="text-2xl font-bold text-white mb-2">{value.title}</h4>
+                      <p className="text-white text-lg">{value.description}</p>
                     </div>
                     
-                    <h4 className="text-2xl font-bold text-white mb-2">{value.title}</h4>
-                    <p className="text-white text-lg">{value.description}</p>
+                    {/* Image Section - At Bottom */}
+                    <div className="relative h-32 overflow-hidden">
+                      <Image
+                        src={value.image}
+                        alt={value.title}
+                        fill
+                        className="object-cover"
+                        style={{
+                          objectPosition: "center 30%"
+                        }}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               );

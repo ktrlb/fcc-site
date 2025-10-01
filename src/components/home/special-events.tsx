@@ -93,9 +93,19 @@ export async function SpecialEvents() {
           </Card>
 
           {/* Regular Groups */}
-          <Card className="p-8 !bg-teal-800 border-0 shadow-none" style={{ backgroundColor: 'rgb(17 94 89)' }}>
+          <Card className="!bg-teal-800 border-0 shadow-none overflow-hidden py-0" style={{ backgroundColor: 'rgb(17 94 89)' }}>
             <CardContent className="p-0">
-              <div className="flex items-center mb-6">
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src="/images/assorted-images/fcc-life-together.jpg"
+                  alt="Life together fellowship"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              
+              <div className="p-8">
+                <div className="flex items-center mb-6">
                 <Users className="h-8 w-8 text-white mr-3" />
                 <h3 className="text-2xl font-bold text-white">Regular Groups</h3>
               </div>
@@ -131,6 +141,7 @@ export async function SpecialEvents() {
                     <a href="/calendar">View Full Calendar</a>
                   </Button>
                 </div>
+              </div>
               </div>
             </CardContent>
           </Card>

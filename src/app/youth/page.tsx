@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Mountain, Users, Calendar, MapPin, Star } from "lucide-react";
+import Image from "next/image";
 
 export default function YouthPage() {
   return (
@@ -43,7 +44,15 @@ export default function YouthPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-6 rounded-lg" style={{ backgroundColor: 'rgb(49 46 129)' }}>
+            <div className="p-6 rounded-lg overflow-hidden" style={{ backgroundColor: 'rgb(49 46 129)' }}>
+              <div className="relative h-48 mb-6 rounded-lg overflow-hidden">
+                <Image
+                  src="/images/assorted-images/fcc-youth-mission-3.jpg"
+                  alt="Chi-Rho youth group"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <h3 className="text-2xl font-bold text-white mb-4">Chi-Rho (6th through 8th grade)</h3>
               <p className="text-white/90 mb-4 text-lg">
                 A time of exploration and growth as young people begin to 
@@ -57,7 +66,15 @@ export default function YouthPage() {
               </ul>
             </div>
 
-            <div className="p-6 rounded-lg" style={{ backgroundColor: 'rgb(77 124 15)' }}>
+            <div className="p-6 rounded-lg overflow-hidden" style={{ backgroundColor: 'rgb(77 124 15)' }}>
+              <div className="relative h-48 mb-6 rounded-lg overflow-hidden">
+                <Image
+                  src="/images/assorted-images/fcc-mission-database-background-header.jpg"
+                  alt="CYF youth mission work"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <h3 className="text-2xl font-bold text-white mb-4">CYF - Christian Youth Fellowship (9th through 12th grade)</h3>
               <p className="text-white/90 mb-4 text-lg">
                 A time of deepening faith and preparing for life beyond high school, 

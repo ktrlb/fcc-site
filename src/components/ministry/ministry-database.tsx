@@ -333,8 +333,8 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                 console.log(`Ministry: ${ministry.name}, Category: ${primaryCategory}, Color: ${colorScheme.hex}`);
                 
                 return (
-                  <Card key={ministry.id} className="hover:shadow-lg transition-shadow overflow-hidden bg-white" style={{ borderColor: colorScheme.hex, borderWidth: '2px' }}>
-                    <div className="relative h-48 w-full">
+                  <Card key={ministry.id} className="hover:shadow-lg transition-shadow overflow-hidden bg-white flex flex-col" style={{ borderColor: colorScheme.hex, borderWidth: '2px' }}>
+                    <div className="relative w-full aspect-[4/3]">
                       {ministry.imageUrl || ministry.graphicImage ? (
                         <img
                           src={ministry.imageUrl || ministry.graphicImage || undefined}

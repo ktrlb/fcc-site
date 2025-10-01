@@ -36,7 +36,7 @@ export function ChildrenYouthMinistries() {
       cardColor: "indigo-900",
       textColor: "text-indigo-900",
       ageRange: "6th through 12th grade",
-      image: "/images/assorted-images/fcc-youth-mission.jpg"
+      image: "/images/assorted-images/fcc-youth-mission-2.jpg"
     }
   ];
 
