@@ -282,7 +282,7 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
           </Button>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off" data-lpignore="true" data-form-type="other">
+          <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off" data-lpignore="true" data-form-type="other" data-1p-ignore="true">
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -311,9 +311,8 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   disabled={loadingCategories}
                   autoComplete="off"
                   data-form-type="other"
+                  data-1p-ignore="true"
                 >
-                  {/* WebKit autofill workaround: real DOM sibling before trigger */}
-                  <div aria-hidden="true" style={{ visibility: 'hidden' }}>Primary Category</div>
                   <SelectTrigger aria-labelledby="primaryCategoryLabel" id="primaryCategoryTrigger" form="__none">
                     <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
                   </SelectTrigger>
@@ -367,12 +366,11 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
                   disabled={loadingCategories}
                   autoComplete="off"
                   data-form-type="other"
+                  data-1p-ignore="true"
                 >
-                    {/* WebKit autofill workaround: real DOM sibling before trigger */}
-                    <div aria-hidden="true" style={{ visibility: 'hidden' }}>Additional Categories</div>
-                    <SelectTrigger aria-labelledby="additionalCategoriesLabel" id="additionalCategoriesTrigger" form="__none">
-                      <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Add additional category..."} />
-                    </SelectTrigger>
+                  <SelectTrigger aria-labelledby="additionalCategoriesLabel" id="additionalCategoriesTrigger" form="__none">
+                    <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Add additional category..."} />
+                  </SelectTrigger>
                     <SelectContent className="z-[100] relative">
                       {availableCategories
                         .filter(cat => !formData.categories.includes(cat) && cat !== formData.category)

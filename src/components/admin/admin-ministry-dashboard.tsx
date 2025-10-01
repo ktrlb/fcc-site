@@ -10,6 +10,8 @@ import { Plus, Edit, Trash2, LogOut, Eye, Search, FileText } from "lucide-react"
 import type { MinistryTeam } from "@/lib/schema";
 import { MinistryEditModal } from "./ministry-edit-modal";
 import { CSVManagement } from "./csv-management";
+import { KeywordManagement } from "./keyword-management";
+import { MinistryTypesManagement } from "./ministry-types-management";
 
 export function AdminMinistryDashboard() {
   const [ministries, setMinistries] = useState<MinistryTeam[]>([]);
@@ -19,6 +21,8 @@ export function AdminMinistryDashboard() {
   const [editingMinistry, setEditingMinistry] = useState<MinistryTeam | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showCSVManagement, setShowCSVManagement] = useState(false);
+  const [showKeywordManagement, setShowKeywordManagement] = useState(false);
+  const [showMinistryTypesManagement, setShowMinistryTypesManagement] = useState(false);
 
   const loadMinistries = async () => {
     try {
@@ -102,33 +106,56 @@ export function AdminMinistryDashboard() {
     <div className="py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Ministry Administration</h1>
-            <p className="text-gray-600">Manage ministry teams and opportunities</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => window.open('/ministry-database', '_blank')}
               variant="outline"
+              size="sm"
             >
               <Eye className="h-4 w-4 mr-2" />
-              View Public Site
+              <span className="hidden sm:inline">View Public Site</span>
+              <span className="sm:hidden">View Site</span>
             </Button>
             <Button
               onClick={() => setShowCSVManagement(!showCSVManagement)}
               variant="outline"
+              size="sm"
             >
               <FileText className="h-4 w-4 mr-2" />
-              CSV Tools
+              <span className="hidden sm:inline">CSV Tools</span>
+              <span className="sm:hidden">CSV</span>
             </Button>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Button
+              onClick={() => setShowKeywordManagement(!showKeywordManagement)}
+              variant="outline"
+              size="sm"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Manage Keywords</span>
+              <span className="sm:hidden">Keywords</span>
+            </Button>
+            <Button
+              onClick={() => setShowMinistryTypesManagement(!showMinistryTypesManagement)}
+              variant="outline"
+              size="sm"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Manage Types</span>
+              <span className="sm:hidden">Types</span>
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add Ministry
+              <span className="hidden sm:inline">Add Ministry</span>
+              <span className="sm:hidden">Add</span>
             </Button>
-            <Button onClick={handleLogout} variant="outline">
+            <Button onClick={handleLogout} variant="outline" size="sm">
               <LogOut className="h-4 w-4 mr-2" />
-              Logout
+              <span className="hidden sm:inline">Logout</span>
+              <span className="sm:hidden">Exit</span>
             </Button>
           </div>
         </div>
@@ -140,8 +167,22 @@ export function AdminMinistryDashboard() {
           </div>
         )}
 
+        {/* Keyword Management */}
+        {showKeywordManagement && (
+          <div className="mb-8">
+            <KeywordManagement onDataUpdated={loadMinistries} />
+          </div>
+        )}
+
+        {/* Ministry Types Management */}
+        {showMinistryTypesManagement && (
+          <div className="mb-8">
+            <MinistryTypesManagement onDataUpdated={loadMinistries} />
+          </div>
+        )}
+
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="text-2xl font-bold text-blue-600">
@@ -165,13 +206,24 @@ export function AdminMinistryDashboard() {
           </Card>
           <Card>
             <CardContent className="p-6">
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-2xl font-bold text-purple-600">
                 {searchTerm 
-                  ? filteredMinistries.filter(m => !m.isActive).length
-                  : ministries.filter(m => !m.isActive).length
+                  ? filteredMinistries.filter(m => m.imageUrl).length
+                  : ministries.filter(m => m.imageUrl).length
                 }
               </div>
-              <div className="text-gray-600">Inactive Ministries</div>
+              <div className="text-gray-600">With Images</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-2xl font-bold text-orange-600">
+                {searchTerm 
+                  ? filteredMinistries.filter(m => !m.imageUrl).length
+                  : ministries.filter(m => !m.imageUrl).length
+                }
+              </div>
+              <div className="text-gray-600">Missing Images</div>
             </CardContent>
           </Card>
         </div>
@@ -214,6 +266,7 @@ export function AdminMinistryDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Ministry Teams</CardTitle>
+            <p className="text-sm text-gray-600">Thumbnails show ministry images - "No Image" indicates missing graphics</p>
           </CardHeader>
           <CardContent>
             {filteredMinistries.length === 0 ? (
@@ -239,36 +292,58 @@ export function AdminMinistryDashboard() {
                 {filteredMinistries.map((ministry) => (
                   <div
                     key={ministry.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-gray-50 gap-4"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{ministry.name}</h3>
-                        <Badge variant={ministry.isActive ? "default" : "secondary"}>
-                          {ministry.isActive ? "Active" : "Inactive"}
-                        </Badge>
-                        <Badge variant="outline">{ministry.category}</Badge>
+                    <div className="flex gap-4 flex-1 min-w-0">
+                      {/* Ministry Image Thumbnail */}
+                      <div className="flex-shrink-0">
+                        {ministry.imageUrl ? (
+                          <img
+                            src={ministry.imageUrl}
+                            alt={`${ministry.name} thumbnail`}
+                            className="w-16 h-16 object-cover rounded-md border border-gray-200"
+                            onError={(e) => {
+                              // Fallback to placeholder if image fails to load
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-16 h-16 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xs ${ministry.imageUrl ? 'hidden' : ''}`}>
+                          <span>No Image</span>
+                        </div>
                       </div>
-                      <p className="text-gray-600 text-sm mb-2">{ministry.description}</p>
-                      <div className="text-sm text-gray-500">
-                        <span className="font-medium">Contact:</span> {ministry.contactPerson}
-                        {ministry.contactHeading && (
-                          <span className="text-gray-400"> ({ministry.contactHeading})</span>
-                        )}
-                        <br />
-                        {ministry.contactEmail && (
-                          <>
-                            <span className="font-medium">Email:</span> {ministry.contactEmail}
-                            {ministry.contactPhone && <span className="mx-1">•</span>}
-                          </>
-                        )}
-                        {ministry.contactPhone && (
-                          <span className="font-medium">Phone:</span>
-                        )}
-                        {ministry.contactPhone && ` ${ministry.contactPhone}`}
+                      
+                      {/* Ministry Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-lg break-words">{ministry.name}</h3>
+                          <Badge variant={ministry.isActive ? "default" : "secondary"}>
+                            {ministry.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                          <Badge variant="outline" className="break-words">{ministry.category}</Badge>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-2 break-words">{ministry.description}</p>
+                        <div className="text-sm text-gray-500 break-words">
+                          <span className="font-medium">Contact:</span> {ministry.contactPerson}
+                          {ministry.contactHeading && (
+                            <span className="text-gray-400"> ({ministry.contactHeading})</span>
+                          )}
+                          <br />
+                          {ministry.contactEmail && (
+                            <>
+                              <span className="font-medium">Email:</span> <span className="break-all">{ministry.contactEmail}</span>
+                              {ministry.contactPhone && <span className="mx-1">•</span>}
+                            </>
+                          )}
+                          {ministry.contactPhone && (
+                            <span className="font-medium">Phone:</span>
+                          )}
+                          {ministry.contactPhone && ` ${ministry.contactPhone}`}
+                        </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       <Button
                         size="sm"
                         variant="outline"

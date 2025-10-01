@@ -12,7 +12,7 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "Visit", href: "/visit" },
   { name: "About Us", href: "/about" },
-  { name: "Serve", href: "/ministry-database" },
+  { name: "Ministries", href: "/ministry-database" },
   { 
     name: "Resources", 
     href: "#",

@@ -13,8 +13,8 @@ import Link from "next/link";
 export function FindingYourPlace() {
   const fiveThings = [
     {
-      title: "Prayer",
-      description: "Connect with God and our community through prayer",
+      title: "Prayer & Worship",
+      description: "Connect with God and our community through prayer and worship",
       icon: Heart,
       href: "/ministry-database?search=prayer",
       cardBg: "!bg-red-600",
@@ -22,11 +22,13 @@ export function FindingYourPlace() {
       iconHex: "#dc2626",
       bgInline: "#dc2626",
       textColor: "text-red-600",
-      buttonText: "Explore Prayer Ministries",
+      buttonText: "Explore Prayer & Worship",
+      secondaryButtonText: "Submit a prayer request",
+      secondaryButtonHref: "https://fccgranbury.breezechms.com/form/prayers",
       features: [
         "Prayer Groups",
         "Prayer Concerns List",
-        "Weekly Prayer Meetings"
+        "Weekly Worship Services"
       ]
     },
     {
@@ -112,17 +114,6 @@ export function FindingYourPlace() {
         </div>
 
         <div className="mb-12">
-          <div className="bg-stone-700 p-8 rounded-lg mb-8 max-w-4xl mx-auto">
-            <h3 className="text-3xl font-bold text-white mb-4 text-center">
-              The Five Things
-            </h3>
-            <p className="text-xl text-white text-center max-w-4xl mx-auto">
-              Each year, usually in October, we challenge each person in our church to assess where they are 
-              in these five areas of discipleship. These are opportunities to give of our time, our love, 
-              and our financial resources.
-            </p>
-          </div>
-
           <div className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
             {fiveThings.map((item, index) => (
               <Card key={index} className={`p-6 hover:shadow-lg transition-shadow w-full max-w-sm text-white ${item.cardBg}`} style={{ backgroundColor: (item as any).bgInline }}>
@@ -145,12 +136,21 @@ export function FindingYourPlace() {
                     ))}
                   </ul>
                   
-                  <Button asChild className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${item.textColor}`}>
-                    <Link href={item.href} className="transition-colors">
-                      {item.buttonText}
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
+                  <div className="space-y-3">
+                    <Button asChild className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${item.textColor}`}>
+                      <Link href={item.href} className="transition-colors">
+                        {item.buttonText}
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </Button>
+                    {(item as any).secondaryButtonText && (
+                      <Button asChild variant="outline" className={`w-full group bg-transparent border-white text-white hover:bg-white hover:${item.textColor} transition-colors`}>
+                        <Link href={(item as any).secondaryButtonHref} className="transition-colors">
+                          {(item as any).secondaryButtonText}
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}

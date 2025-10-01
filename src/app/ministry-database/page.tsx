@@ -14,7 +14,7 @@ export default async function MinistryDatabasePage() {
           style={{
             backgroundImage: "url('/images/mission-database-background-header.jpg')",
             backgroundSize: "cover",
-            backgroundPosition: "center calc(50% + 60px)",
+            backgroundPosition: "center calc(50% + 160px)",
             backgroundRepeat: "no-repeat"
           }}
         />

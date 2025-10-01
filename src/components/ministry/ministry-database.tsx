@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,8 +76,18 @@ export function MinistryDatabase({ initialMinistries }: Props) {
   };
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedFiveThings, setSelectedFiveThings] = useState("all");
   const [isLoading, setIsLoading] = useState(false); // Start with false since we have initial data
   const [error] = useState<string | null>(null);
+
+  // Define the five things categories - memoized to prevent infinite re-renders
+  const fiveThingsCategories = useMemo(() => [
+    { key: "prayer-worship", label: "Prayer & Worship", searchTerms: ["prayer", "worship", "music", "choir", "praise"] },
+    { key: "study", label: "Study", searchTerms: ["study", "education", "bible", "sunday school", "discipleship", "learning"] },
+    { key: "service", label: "Service", searchTerms: ["service", "outreach", "missions", "community", "volunteer", "help"] },
+    { key: "presence", label: "Presence", searchTerms: ["fellowship", "community", "hospitality", "care", "support", "relationship"] },
+    { key: "generosity", label: "Generosity", searchTerms: ["giving", "stewardship", "finance", "administration", "resources"] }
+  ], []);
 
   // Initialize search term from URL parameters
   useEffect(() => {
@@ -89,6 +99,28 @@ export function MinistryDatabase({ initialMinistries }: Props) {
 
   useEffect(() => {
     let results = ministries;
+    
+    // Filter by five things category first
+    if (selectedFiveThings !== "all") {
+      const fiveThing = fiveThingsCategories.find(ft => ft.key === selectedFiveThings);
+      if (fiveThing) {
+        results = results.filter((m) => {
+          const searchText = [
+            m.name,
+            m.description,
+            m.category,
+            ...(m.categories || []),
+            ...(m.skillsNeeded || [])
+          ].join(' ').toLowerCase();
+          
+          return fiveThing.searchTerms.some(term => 
+            searchText.includes(term.toLowerCase())
+          );
+        });
+      }
+    }
+    
+    // Then filter by specific category
     if (selectedCategory !== "all") {
       results = results.filter((m) => {
         // Handle URL encoding issues with ampersands
@@ -111,6 +143,8 @@ export function MinistryDatabase({ initialMinistries }: Props) {
         return false;
       });
     }
+    
+    // Finally filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       results = results.filter((m) =>
@@ -122,7 +156,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
       );
     }
     setFilteredMinistries(results);
-  }, [searchTerm, selectedCategory, ministries]);
+  }, [searchTerm, selectedCategory, selectedFiveThings, ministries, fiveThingsCategories]);
 
   if (isLoading) {
     return (
@@ -165,6 +199,46 @@ export function MinistryDatabase({ initialMinistries }: Props) {
       {/* Search and Filter Section */}
       <div className="py-8 border-b" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          {/* Five Things Quick Filter */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">Quick Filter by Area of Discipleship:</h3>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant={selectedFiveThings === "all" ? "default" : "outline"}
+                onClick={() => setSelectedFiveThings("all")}
+                className={selectedFiveThings === "all" ? "text-white border-2 border-white shadow-lg" : "border-2 border-white/50 text-white hover:bg-white/10 bg-white/10"}
+                style={selectedFiveThings === "all" ? { backgroundColor: 'rgb(68 64 60)' } : {}}
+              >
+                All Areas
+              </Button>
+              {fiveThingsCategories.map((fiveThing) => {
+                const categoryColors = {
+                  'prayer-worship': { bg: 'red-600', hex: '#dc2626' },
+                  'study': { bg: 'indigo-900', hex: '#312e81' },
+                  'service': { bg: 'amber-500', hex: '#f59e0b' },
+                  'presence': { bg: 'teal-800', hex: '#115e59' },
+                  'generosity': { bg: 'lime-700', hex: '#4d7c0f' }
+                };
+                const color = categoryColors[fiveThing.key as keyof typeof categoryColors] || { bg: 'indigo-900', hex: '#312e81' };
+                
+                return (
+                  <Button
+                    key={fiveThing.key}
+                    variant={selectedFiveThings === fiveThing.key ? "default" : "outline"}
+                    onClick={() => setSelectedFiveThings(fiveThing.key)}
+                    className={`${selectedFiveThings === fiveThing.key ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2 border-white/50 bg-white/10"}`}
+                    style={selectedFiveThings === fiveThing.key ? 
+                      { backgroundColor: color.hex, borderColor: 'white' } : 
+                      { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.5)' }
+                    }
+                  >
+                    {fiveThing.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Full Width Search Bar */}
           <div className="relative">
             <div className="flex items-center gap-3">
@@ -199,33 +273,36 @@ export function MinistryDatabase({ initialMinistries }: Props) {
             )}
           </div>
 
-          {/* Category Filter */}
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              variant={selectedCategory === "all" ? "default" : "outline"}
-              onClick={() => setSelectedCategory("all")}
-              className={selectedCategory === "all" ? "text-white border-2 border-white shadow-lg" : "border-2 border-white/50 text-white hover:bg-white/10 bg-white/10"}
-              style={selectedCategory === "all" ? { backgroundColor: 'rgb(68 64 60)' } : {}}
-            >
-              All Categories
-            </Button>
-            {categories.map((category) => {
-              const categoryColor = getCategoryColor(category);
-              return (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`capitalize ${selectedCategory === category ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2 border-white/50 bg-white/10"}`}
-                  style={selectedCategory === category ? 
-                    { backgroundColor: categoryColor.hex, borderColor: 'white' } : 
-                    { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.5)' }
-                  }
-                >
-                  {category}
-                </Button>
-              );
-            })}
+          {/* Keyword Category Filter */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">Filter by Keywords:</h3>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant={selectedCategory === "all" ? "default" : "outline"}
+                onClick={() => setSelectedCategory("all")}
+                className={selectedCategory === "all" ? "text-white border-2 border-white shadow-lg" : "border-2 border-white/50 text-white hover:bg-white/10 bg-white/10"}
+                style={selectedCategory === "all" ? { backgroundColor: 'rgb(68 64 60)' } : {}}
+              >
+                All Keywords
+              </Button>
+              {categories.map((category) => {
+                const categoryColor = getCategoryColor(category);
+                return (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? "default" : "outline"}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`capitalize ${selectedCategory === category ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2 border-white/50 bg-white/10"}`}
+                    style={selectedCategory === category ? 
+                      { backgroundColor: categoryColor.hex, borderColor: 'white' } : 
+                      { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.5)' }
+                    }
+                  >
+                    {category}
+                  </Button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
