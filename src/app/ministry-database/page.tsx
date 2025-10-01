@@ -18,13 +18,13 @@ export default async function MinistryDatabasePage() {
             backgroundRepeat: "no-repeat"
           }}
         />
-        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(68 64 60, 0.7)' }}></div>
-        <div className="relative flex items-center justify-center h-full">
+        <div className="absolute inset-0 z-10" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}></div>
+        <div className="relative z-20 flex items-center justify-center h-full">
           <div className="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ transform: 'translateY(50px)' }}>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-serif text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-serif text-white drop-shadow-2xl">
               Ministry Database
             </h1>
-            <p className="text-xl text-white max-w-3xl mx-auto">
+            <p className="text-xl text-white max-w-3xl mx-auto drop-shadow-lg">
               Discover ways to get involved in our church community. Find ministry opportunities that match your interests, skills, and availability.
             </p>
           </div>

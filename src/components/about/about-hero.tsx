@@ -2,14 +2,14 @@ import Image from "next/image";
 
 export function AboutHero() {
   return (
-    <section className="relative h-[400px] w-full overflow-hidden">
+    <section className="relative h-[400px] w-full overflow-hidden pt-20">
       {/* Background image placeholder */}
       <div 
         className="absolute inset-0"
         style={{
           backgroundImage: "url('/images/fistpump.jpg')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "center calc(50% + 100px)",
           backgroundRepeat: "no-repeat"
         }}
       />
