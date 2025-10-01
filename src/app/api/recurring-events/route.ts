@@ -6,6 +6,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month') ? parseInt(searchParams.get('month')!) : undefined;
     const year = searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined;
+    const includeExternal = searchParams.get('includeExternal') === 'true';
 
     // Check if we need to refresh the cache
     const needsRefresh = await RecurringEventsCacheService.needsRefresh();
@@ -16,8 +17,8 @@ export async function GET(request: Request) {
     }
 
     // Get the cached recurring events for the specified month/year
-    const recurringEvents = await RecurringEventsCacheService.getRecurringEvents(month, year);
-    const weeklyPatterns = await RecurringEventsCacheService.getWeeklyPatterns(month, year);
+    const recurringEvents = await RecurringEventsCacheService.getRecurringEvents(month, year, includeExternal);
+    const weeklyPatterns = await RecurringEventsCacheService.getWeeklyPatterns(month, year, includeExternal);
 
     return NextResponse.json({
       recurringEvents,

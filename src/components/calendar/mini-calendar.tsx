@@ -118,7 +118,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
           const month = currentMonth.getMonth();
           const year = currentMonth.getFullYear();
           
-          const response = await fetch(`/api/recurring-events?month=${month}&year=${year}`);
+          const response = await fetch(`/api/recurring-events?month=${month}&year=${year}&includeExternal=${isAdminMode}`);
           if (response.ok) {
             const data = await response.json();
             const cachedEvents = data.recurringEvents || [];
@@ -208,7 +208,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
 
   const fetchRecurringPatterns = async () => {
     try {
-      const res = await fetch('/api/recurring-events');
+      const res = await fetch(`/api/recurring-events?includeExternal=${isAdminMode}`);
       if (res.ok) {
         const data = await res.json();
         setRecurringPatterns(data.recurringEvents || []);
@@ -590,27 +590,40 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                                 })
                                 .sort((a: CalendarEvent, b: CalendarEvent) => new Date(a.start).getTime() - new Date(b.start).getTime())
                                 .slice(0, 3) // Show only the next 3 exceptions
-                                .map((event: CalendarEvent, eventIndex: number) => (
-                                  <div
-                                    key={eventIndex}
-                                    className="p-2 rounded text-base cursor-pointer hover:shadow-sm transition-shadow bg-white"
-                                    onClick={() => {
-                                      setSelectedEvent(event);
-                                      setIsModalOpen(true);
-                                    }}
-                                  >
-                                    <div className="space-y-1">
-                                      <div className="text-sm font-mono" style={{ color: colorScheme.bg }}>
-                                        {new Date(event.start).toLocaleDateString('en-US', {
-                                          month: 'short',
-                                          day: 'numeric',
-                                          timeZone: 'America/Chicago'
-                                        })}
+                                .map((event: CalendarEvent, eventIndex: number) => {
+                                  const isExternal = event.isExternal;
+                                  const textColor = isAdminMode && isExternal ? '#6b7280' : colorScheme.bg;
+                                  
+                                  return (
+                                    <div
+                                      key={eventIndex}
+                                      className="p-2 rounded text-base cursor-pointer hover:shadow-sm transition-shadow"
+                                      style={{
+                                        backgroundColor: isAdminMode && isExternal ? '#f3f4f6' : 'white'
+                                      }}
+                                      onClick={() => {
+                                        setSelectedEvent(event);
+                                        setIsModalOpen(true);
+                                      }}
+                                    >
+                                      <div className="space-y-1">
+                                        <div className="text-sm font-mono" style={{ color: textColor }}>
+                                          {new Date(event.start).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            timeZone: 'America/Chicago'
+                                          })}
+                                        </div>
+                                        <div className="font-bold text-base break-words" style={{ color: textColor }}>
+                                          {event.title}
+                                          {isAdminMode && isExternal && (
+                                            <span className="ml-2 text-xs font-normal opacity-75">(External)</span>
+                                          )}
+                                        </div>
                                       </div>
-                                      <div className="font-bold text-base break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                             </div>
                           </div>
                         )}
@@ -618,18 +631,37 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                     ) : hasEvents ? (
                       visibleDayEvents
                         .sort((a: RecurringEvent, b: RecurringEvent) => a.time.localeCompare(b.time))
-                        .map((event: RecurringEvent, eventIndex: number) => (
-                          <div
-                            key={eventIndex}
-                            className="p-2 rounded text-base cursor-pointer hover:shadow-sm transition-shadow bg-white"
-                            onClick={() => handleEventClick(event)}
-                          >
-                            <div className="space-y-1">
-                              <div className="text-sm font-mono" style={{ color: colorScheme.bg }}>{formatTime(event.time)}</div>
-                              <div className="font-bold text-base break-words" style={{ color: colorScheme.bg }}>{event.title}</div>
+                        .map((event: RecurringEvent, eventIndex: number) => {
+                          const isExternal = (event as any).isExternal;
+                          const eventStyle = isAdminMode && isExternal ? {
+                            backgroundColor: '#f3f4f6', // grey-100
+                            color: '#6b7280', // grey-500
+                            border: '1px solid #d1d5db' // grey-300
+                          } : {};
+                          const textColor = isAdminMode && isExternal ? '#6b7280' : colorScheme.bg;
+                          
+                          return (
+                            <div
+                              key={eventIndex}
+                              className="p-2 rounded text-base cursor-pointer hover:shadow-sm transition-shadow"
+                              style={{
+                                backgroundColor: isAdminMode && isExternal ? '#f3f4f6' : 'white',
+                                ...eventStyle
+                              }}
+                              onClick={() => handleEventClick(event)}
+                            >
+                              <div className="space-y-1">
+                                <div className="text-sm font-mono" style={{ color: textColor }}>{formatTime(event.time)}</div>
+                                <div className="font-bold text-base break-words" style={{ color: textColor }}>
+                                  {event.title}
+                                  {isAdminMode && isExternal && (
+                                    <span className="ml-2 text-xs font-normal opacity-75">(External)</span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          );
+                        })
                     ) : (
                       <div className="text-center text-white text-sm py-4">
                         No recurring events

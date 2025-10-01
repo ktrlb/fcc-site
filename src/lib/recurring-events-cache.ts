@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from './db';
-import { recurringEventsCache } from './schema';
+import { recurringEventsCache, calendarEvents as calendarEventsTable } from './schema';
 import { CalendarCacheService } from './calendar-cache';
 import { analyzeEvents } from './event-analyzer';
 import { desc, and, eq } from 'drizzle-orm';
@@ -34,20 +34,25 @@ export class RecurringEventsCacheService {
   /**
    * Get cached recurring events analysis for a specific month
    */
-  static async getRecurringEvents(month?: number, year?: number): Promise<CachedRecurringEvent[]> {
+  static async getRecurringEvents(month?: number, year?: number, includeExternal: boolean = false): Promise<CachedRecurringEvent[]> {
     const now = new Date();
     const targetMonth = month ?? now.getMonth();
     const targetYear = year ?? now.getFullYear();
 
+    const whereConditions = [
+      eq(recurringEventsCache.month, targetMonth),
+      eq(recurringEventsCache.year, targetYear),
+    ];
+
+    // Only filter out external events if not including them
+    if (!includeExternal) {
+      whereConditions.push(eq(recurringEventsCache.isExternal, false));
+    }
+
     const cachedEvents = await db
       .select()
       .from(recurringEventsCache)
-      .where(
-        and(
-          eq(recurringEventsCache.month, targetMonth),
-          eq(recurringEventsCache.year, targetYear)
-        )
-      )
+      .where(and(...whereConditions))
       .orderBy(desc(recurringEventsCache.dayOfWeek), recurringEventsCache.time);
 
     return cachedEvents.map(event => ({
@@ -116,8 +121,36 @@ export class RecurringEventsCacheService {
       await db.delete(recurringEventsCache);
       console.log('Cleared existing recurring events cache');
 
-      // External series keys are computed upstream; keep empty set here
+      // Get external events from calendar_events table
+      const externalEventsList: Array<{
+        title: string;
+        location: string | null;
+        startTime: Date;
+      }> = await db
+        .select({
+          title: calendarEventsTable.title,
+          location: calendarEventsTable.location,
+          startTime: calendarEventsTable.startTime,
+        })
+        .from(calendarEventsTable)
+        .where(eq(calendarEventsTable.isExternal, true));
+
+      // Create external series keys for pattern matching
       const externalSeriesKeys = new Set<string>();
+      externalEventsList.forEach(event => {
+        const eventDate = new Date(event.startTime);
+        const dayOfWeek = eventDate.getDay();
+        const time = eventDate.toTimeString().slice(0, 5);
+        const seriesKey = [
+          (event.title || '').trim(),
+          dayOfWeek,
+          time,
+          (event.location || '').trim(),
+        ].join('|');
+        externalSeriesKeys.add(seriesKey);
+      });
+
+      console.log(`Found ${externalEventsList.length} external events to mark in cache`);
 
       // Process each month separately
       const allCachePromises: Promise<any>[] = [];
@@ -233,8 +266,8 @@ export class RecurringEventsCacheService {
   /**
    * Get recurring events organized by day of week for easy display
    */
-  static async getWeeklyPatterns(month?: number, year?: number): Promise<{ [dayOfWeek: number]: CachedRecurringEvent[] }> {
-    const events = await this.getRecurringEvents(month, year);
+  static async getWeeklyPatterns(month?: number, year?: number, includeExternal: boolean = false): Promise<{ [dayOfWeek: number]: CachedRecurringEvent[] }> {
+    const events = await this.getRecurringEvents(month, year, includeExternal);
     const patterns: { [dayOfWeek: number]: CachedRecurringEvent[] } = {
       0: [], // Sunday
       1: [], // Monday

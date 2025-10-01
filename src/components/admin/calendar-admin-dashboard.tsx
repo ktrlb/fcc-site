@@ -118,8 +118,13 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
         // Use the analysis from the API response if available, otherwise analyze locally
         const analysis = data.analysis || analyzeEvents(events);
         
-        // Filter out recurring events for the main calendar
+        // Filter out recurring events for the main calendar, but keep special events
         const nonRecurringEvents = events.filter((event: CalendarEvent) => {
+          // Always show special events, even if they match recurring patterns
+          if (event.isSpecialEvent) {
+            return true;
+          }
+          
           const eventDate = new Date(event.start);
           const dayOfWeek = eventDate.getDay();
           const time = eventDate.toTimeString().slice(0, 5);

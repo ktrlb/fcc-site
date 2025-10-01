@@ -24,6 +24,7 @@ interface SpecialEvent {
   contactPerson?: string;
   isActive: boolean;
   sortOrder: number;
+  isFeatured?: boolean;
   specialEventType?: {
     id: string;
     name: string;
@@ -59,6 +60,8 @@ export function AdminSpecialEventsListDashboard() {
     specialEventId: 'none',
     ministryTeamId: 'none',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchSpecialEvents();
@@ -90,6 +93,24 @@ export function AdminSpecialEventsListDashboard() {
     }
   };
 
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch('/api/admin/special-event-image/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to upload image');
+    }
+
+    const data = await response.json();
+    return data.url;
+  };
+
   const fetchSpecialEvents = async () => {
     setLoading(true);
     setError(null);
@@ -112,12 +133,28 @@ export function AdminSpecialEventsListDashboard() {
     try {
       if (!editingEvent) return;
 
+      setIsUploading(true);
+      let imageUrl = formData.specialEventImage;
+
+      // Upload image if a new file was selected
+      if (imageFile) {
+        try {
+          imageUrl = await uploadImage(imageFile);
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          alert('Image upload failed, but event will be updated without new image.');
+        }
+      }
+
       const response = await fetch(`/api/admin/special-events-list/${editingEvent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          specialEventImage: imageUrl,
+        }),
       });
 
       if (!response.ok) {
@@ -125,11 +162,12 @@ export function AdminSpecialEventsListDashboard() {
       }
 
       await fetchSpecialEvents();
-      setIsEditModalOpen(false);
-      setEditingEvent(null);
+      handleCloseModal();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to update event');
       console.error('Error updating event:', err);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -148,7 +186,18 @@ export function AdminSpecialEventsListDashboard() {
       specialEventId: event.specialEventType?.id || 'none',
       ministryTeamId: event.ministryTeam?.id || 'none',
     });
+    setImageFile(null);
     setIsEditModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false);
+    setEditingEvent(null);
+    setImageFile(null);
+    // Clean up any object URLs
+    if (formData.specialEventImage && formData.specialEventImage.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.specialEventImage);
+    }
   };
 
   const handleDelete = (event: SpecialEvent) => {
@@ -293,6 +342,12 @@ export function AdminSpecialEventsListDashboard() {
           </h2>
           <p className="text-gray-600 mt-1">
             Events marked as special that can be featured on the homepage
+            {displayEvents.filter(e => e.isFeatured).length > 0 && (
+              <span className="ml-2 inline-flex items-center gap-1 text-amber-600 font-medium">
+                <Star className="h-4 w-4" />
+                {displayEvents.filter(e => e.isFeatured).length} currently featured
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -317,7 +372,7 @@ export function AdminSpecialEventsListDashboard() {
           const isPastEvent = eventDate < now;
           
           return (
-            <Card key={event.id} className={`w-full transition-all duration-200 hover:shadow-lg ${isPastEvent ? 'opacity-75' : ''}`}>
+            <Card key={event.id} className={`w-full transition-all duration-200 hover:shadow-lg ${isPastEvent ? 'opacity-75' : ''} ${event.isFeatured ? 'border-2 border-amber-400 bg-amber-50/30' : ''}`}>
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   {/* Event Image or Icon */}
@@ -369,6 +424,12 @@ export function AdminSpecialEventsListDashboard() {
                       
                       {/* Badges */}
                       <div className="flex gap-2 ml-4 flex-shrink-0">
+                        {event.isFeatured && (
+                          <Badge className="bg-amber-500 text-white border-amber-500">
+                            <Star className="h-3 w-3 mr-1" />
+                            Featured on Homepage
+                          </Badge>
+                        )}
                         {event.specialEventType && (
                           <Badge 
                             variant="outline" 
@@ -442,7 +503,7 @@ export function AdminSpecialEventsListDashboard() {
       </div>
 
       {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+      <Dialog open={isEditModalOpen} onOpenChange={handleCloseModal}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -601,35 +662,56 @@ export function AdminSpecialEventsListDashboard() {
                 </div>
 
                 <div>
-                  <Label htmlFor="specialEventImage">Event Image URL</Label>
+                  <Label htmlFor="specialEventImage">Event Image</Label>
                   <Input
+                    type="file"
                     id="specialEventImage"
-                    value={formData.specialEventImage}
-                    onChange={(e) => setFormData({ ...formData, specialEventImage: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setImageFile(file);
+                        // Create a preview URL for immediate display
+                        const previewUrl = URL.createObjectURL(file);
+                        setFormData({ ...formData, specialEventImage: previewUrl });
+                      }
+                    }}
+                    className="mt-1"
                   />
-                  {formData.specialEventImage && (
-                    <div className="mt-2">
+                  <p className="text-sm text-gray-500 mt-1">
+                    Upload a new image or keep the current one
+                  </p>
+                  
+                  {/* Image Preview */}
+                  {(formData.specialEventImage || imageFile) && (
+                    <div className="mt-3">
                       <p className="text-sm text-gray-500 mb-2">Image preview:</p>
-                      <img 
-                        src={formData.specialEventImage} 
-                        alt="Event preview" 
-                        className="w-32 h-32 object-cover rounded-lg border"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
+                      <div className="relative inline-block">
+                        <img 
+                          src={formData.specialEventImage} 
+                          alt="Event preview" 
+                          className="w-32 h-32 object-cover rounded-lg border"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        {imageFile && (
+                          <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                            New
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
 
 
                 <div className="flex justify-end space-x-2 pt-4 border-t">
-                  <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                  <Button type="button" variant="outline" onClick={handleCloseModal}>
                     Cancel
                   </Button>
-                  <Button type="submit">
-                    Save Changes
+                  <Button type="submit" disabled={isUploading}>
+                    {isUploading ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </form>

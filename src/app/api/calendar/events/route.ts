@@ -335,6 +335,7 @@ export async function GET(request: Request) {
         start: event.start.toISOString(),
         end: event.end.toISOString(),
         isExternal: existingConnection?.isExternal ?? externalSeriesKeys.has(seriesKey),
+        isSpecialEvent: existingConnection?.isSpecialEvent ?? false,
         ministryConnection,
         ministryInfo: matchedMinistry,
         specialEventInfo

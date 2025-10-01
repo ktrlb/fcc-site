@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { featuredSpecialEvents, specialEventTypes, ministryTeams } from '@/lib/schema';
+import { calendarEvents, specialEventTypes, ministryTeams, featuredSpecialEvents } from '@/lib/schema';
 import { eq, and } from 'drizzle-orm';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
@@ -10,21 +10,35 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch all featured special events
+    // First, get all featured events to check against
+    const featuredEvents = await db
+      .select({
+        title: featuredSpecialEvents.title,
+        startTime: featuredSpecialEvents.startTime,
+      })
+      .from(featuredSpecialEvents)
+      .where(eq(featuredSpecialEvents.isActive, true));
+
+    // Create a set of featured event identifiers (title + startTime for matching)
+    const featuredEventSet = new Set(
+      featuredEvents.map(event => `${event.title}|${event.startTime.toISOString()}`)
+    );
+
+    // Fetch all special events from calendar events table
     const events = await db
       .select({
-        id: featuredSpecialEvents.id,
-        title: featuredSpecialEvents.title,
-        description: featuredSpecialEvents.description,
-        location: featuredSpecialEvents.location,
-        startTime: featuredSpecialEvents.startTime,
-        endTime: featuredSpecialEvents.endTime,
-        allDay: featuredSpecialEvents.allDay,
-        specialEventNote: featuredSpecialEvents.specialEventNote,
-        specialEventImage: featuredSpecialEvents.specialEventImage,
-        contactPerson: featuredSpecialEvents.contactPerson,
-        isActive: featuredSpecialEvents.isActive,
-        sortOrder: featuredSpecialEvents.sortOrder,
+        id: calendarEvents.id,
+        title: calendarEvents.title,
+        description: calendarEvents.description,
+        location: calendarEvents.location,
+        startTime: calendarEvents.startTime,
+        endTime: calendarEvents.endTime,
+        allDay: calendarEvents.allDay,
+        specialEventNote: calendarEvents.specialEventNote,
+        specialEventImage: calendarEvents.specialEventImage,
+        contactPerson: calendarEvents.contactPerson,
+        isActive: calendarEvents.isActive,
+        sortOrder: calendarEvents.id, // Use ID as sort order since there's no sortOrder field
         specialEventType: {
           id: specialEventTypes.id,
           name: specialEventTypes.name,
@@ -35,13 +49,24 @@ export async function GET() {
           name: ministryTeams.name,
         },
       })
-      .from(featuredSpecialEvents)
-      .leftJoin(specialEventTypes, eq(featuredSpecialEvents.specialEventTypeId, specialEventTypes.id))
-      .leftJoin(ministryTeams, eq(featuredSpecialEvents.ministryTeamId, ministryTeams.id))
-      .where(eq(featuredSpecialEvents.isActive, true))
-      .orderBy(featuredSpecialEvents.startTime);
+      .from(calendarEvents)
+      .leftJoin(specialEventTypes, eq(calendarEvents.specialEventId, specialEventTypes.id))
+      .leftJoin(ministryTeams, eq(calendarEvents.ministryTeamId, ministryTeams.id))
+      .where(
+        and(
+          eq(calendarEvents.isSpecialEvent, true),
+          eq(calendarEvents.isActive, true)
+        )
+      )
+      .orderBy(calendarEvents.startTime);
 
-    return NextResponse.json({ events });
+    // Add featured status to each event
+    const eventsWithFeaturedStatus = events.map(event => ({
+      ...event,
+      isFeatured: featuredEventSet.has(`${event.title}|${event.startTime.toISOString()}`)
+    }));
+
+    return NextResponse.json({ events: eventsWithFeaturedStatus });
   } catch (error) {
     console.error('Error fetching special events list:', error);
     return NextResponse.json(
