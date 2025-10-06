@@ -12,13 +12,27 @@ This is a Next.js 14 church website for First Christian Church Granbury with a s
 - **File Storage**: Vercel Blob Storage
 - **Deployment**: Vercel (via GitHub)
 
-## Key Features
-- **Homepage**: Hero section, ministry info, special events, featured resources
-- **Calendar System**: Google Calendar integration with recurring event analysis
-- **Ministry Management**: Team directories, ministry database
-- **Admin Dashboard**: Content management for events, ministries, special events
-- **Special Events**: Featured events with custom properties
-- **Seasonal Guides**: PDF downloads and management
+## Site Sections & Features
+
+### **Public Site Sections**
+- **Homepage** (`/`): Hero, Sunday schedule, ministry highlights, special events, featured resources
+- **About Us** (`/about-us`): Staff, history, mission/vision/values, lay leadership
+- **Visit FCC** (`/visit`): Welcome info, worship services, location, what to expect
+- **Ministry Database** (`/ministry-database`): Searchable ministry directory with filtering
+- **Calendar** (`/calendar`): Public calendar view with event details
+- **Contact** (`/contact`): Contact form with email integration and church information
+- **Children & Youth** (`/children`, `/youth`): Age-specific ministry pages
+- **Resources** (`/resources`): Library, directory, sermon series, seasonal guides
+- **Give** (`/give`): Donation information and stewardship
+
+### **Admin Dashboard Sections**
+- **People Management** (`/admin/people`): Members, families, lay leadership
+- **Staff Management** (`/admin/staff`): Church staff directory
+- **Ministry Management** (`/admin/ministries`): Ministry teams and details
+- **Calendar Admin** (`/admin/calendar`): Event management and connections
+- **Special Events** (`/admin/special-events`): Event types and featured events
+- **Content Management** (`/admin/sermon-series`, `/admin/seasonal-guides`): Sermons and guides
+- **Asset Management** (`/admin/assets`): File uploads and media
 
 ## Calendar Data Pipeline - CRITICAL FOR DEBUGGING
 
@@ -55,6 +69,11 @@ This is a Next.js 14 church website for First Christian Church Granbury with a s
 - **Cache issues**: Use `?forceRefresh=true` on `/api/calendar/events`
 
 ## Code Style & Conventions
+
+### Project-Specific Rules
+- **Use `.cursor/rules` level rules** for project-specific conventions and patterns
+- **Keep general coding practices** in this file, **project-specific rules** in `.cursor/rules`
+- **When creating new project patterns**, add them to `.cursor/rules` for better organization
 
 ### TypeScript
 - Use interfaces over types
@@ -101,9 +120,15 @@ This is a Next.js 14 church website for First Christian Church Granbury with a s
 
 ## Development Workflow
 
+### Dev Server Management
+- **Kill existing dev servers before starting new ones** to prevent conflicts
+- **Check for running processes**: `ps aux | grep node` or `lsof -ti:3000`
+- **Kill existing processes**: `kill -9 $(lsof -ti:3000)` or `pkill -f "next dev"`
+- **Clear cache if needed**: `rm -rf .next && npm run dev`
+
 ### Running the Project
 ```bash
-npm run dev          # Start development server
+npm run dev          # Start development server (after killing existing ones)
 npm run build        # Build for production
 npm run db:push      # Push schema changes
 npm run db:studio    # Open Drizzle Studio
@@ -321,6 +346,73 @@ Due to the dynamic nature of color cycling and Tailwind CSS purging, we use inli
 - **Mobile-first approach** with Tailwind CSS
 - **Grid layouts**: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` for responsive cards
 - **Consistent spacing**: `py-16` for section padding, `px-6` for container padding
+
+## Section-Specific Rules & Patterns
+
+### **Homepage Components** (`src/components/home/`)
+- **See You On Sunday**: Uses `currentMonth` prop for mini calendar, max-width constraints
+- **Featured Special Events**: Dynamic carousel with image uploads
+- **Ministry Highlights**: Static cards with consistent color schemes
+- **Email Signup**: Integration with newsletter service
+
+### **Admin Dashboard** (`src/components/admin/`)
+- **Authentication Required**: All admin components check `isAdminAuthenticated()`
+- **Modal Patterns**: Use `Dialog` components with form validation
+- **Image Uploads**: Vercel Blob Storage integration for all file uploads
+- **Drag & Drop**: Staff and lay leadership reordering
+- **Search Functionality**: Debounced search with loading states
+
+### **Ministry Database** (`src/components/ministry/`)
+- **Filtering Logic**: Category-based filtering with "five things" discipleship areas
+- **Image Handling**: Aspect ratio `aspect-[1200/630]` with `object-contain`
+- **Duplicate Categories**: Filter out duplicate category badges
+- **Color Schemes**: Consistent card colors (red-600, teal-800, indigo-900)
+
+### **Calendar System** (`src/components/calendar/`)
+- **Mini Calendar**: Requires `currentMonth` prop, monthly cache system
+- **Recurring Events**: External event filtering, admin vs public modes
+- **Event Connections**: Ministry and special event linking
+- **Cache Management**: Force refresh capabilities
+
+### **People Management** (`/admin/people`)
+- **Search Integration**: Real-time search by name/email with debouncing
+- **Family Structure**: Primary family relationships and memberships
+- **Lay Leadership**: Connection between members and leadership roles
+- **CSV Import**: Batch member and family import functionality
+
+### **About Us Section** (`src/components/about/`)
+- **Staff Display**: Image focal points and bio management
+- **Lay Leadership**: Public display of church leadership
+- **Mission/Vision**: Static content with consistent styling
+- **History**: Timeline and narrative components
+
+### **Visit Page** (`src/components/visit/`)
+- **Hero Section**: Welcome messaging and call-to-action
+- **Worship Services**: Service times and descriptions
+- **Location Info**: Address, parking, accessibility
+- **What to Expect**: First-time visitor information
+
+### **API Patterns** (`src/app/api/`)
+- **Admin Routes**: All require `isAdminAuthenticated()` middleware
+- **Calendar APIs**: Include `includeExternal` parameter for admin vs public filtering
+- **Image Upload**: Standardized Vercel Blob Storage integration
+- **Search APIs**: Debounced search with `ilike` database queries
+- **CRUD Operations**: Consistent error handling and response formats
+- **Email APIs**: Resend integration for contact forms and notifications
+
+### **Contact & Email System** (`src/components/contact/`, `src/app/contact/`)
+- **Contact Form**: Categorized inquiries with validation and confirmation
+- **Email Integration**: Resend API for reliable email delivery
+- **Privacy Protection**: Staff emails not exposed publicly
+- **Auto-responders**: Confirmation emails to form submitters
+- **Professional Templates**: HTML and text versions for all emails
+
+### **Database Patterns** (`src/lib/schema.ts`)
+- **Member Management**: `members`, `families`, `familyMemberships` relationships
+- **Leadership**: `staff` and `layLeadership` tables with image support
+- **Calendar**: `calendarEvents`, `recurringEventsCache` with external event flags
+- **Ministries**: `ministryTeams` with category arrays and image URLs
+- **Special Events**: `specialEventTypes` with color coding and featured flags
 
 ## Future Improvements
 - Better error handling for calendar API failures

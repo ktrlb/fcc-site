@@ -456,6 +456,27 @@ export function MinistryDatabase({ initialMinistries }: Props) {
               })}
             </div>
           )}
+
+          {/* New Ministry Idea Section */}
+          <div className="mt-16 pt-16 border-t border-gray-200">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">
+                Have a Ministry Idea?
+              </h2>
+              <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
+                Don't see a ministry that matches your passion? We'd love to hear your ideas for new ways to serve our community and grow in faith together.
+              </p>
+              <Button 
+                asChild 
+                size="lg" 
+                className="bg-indigo-900 text-white hover:bg-indigo-900/80 border-0 transition-all text-3xl font-bold"
+              >
+                <a href="/contact?category=ministry" className="transition-colors">
+                  Submit a Ministry Idea
+                </a>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

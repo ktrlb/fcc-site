@@ -100,9 +100,10 @@ export function Footer() {
                 <Mail className="h-5 w-5" />
               </a>
             </div>
-            <div className="text-base text-stone-400">
-              <p>Sunday Services:</p>
-              <p>9:00 AM Modern / 11:00 AM Traditional</p>
+            <div className="space-y-2 text-base">
+              <Link href="/contact" className="block text-white hover:text-white transition-colors">
+                Contact Us
+              </Link>
             </div>
           </div>
         </div>

@@ -12,50 +12,63 @@ export default function AboutUsPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
+    // Function to handle scrolling to hash
+    const scrollToHash = (hash: string) => {
+      const targetElement = document.querySelector(hash) as HTMLElement;
+      if (targetElement) {
+        // Prevent any default scroll behavior
+        window.scrollTo(0, 0);
+        
+        // Get the element's position
+        const elementTop = targetElement.offsetTop;
+        
+        // Smooth scroll to the element
+        window.scrollTo({
+          top: elementTop - 100, // Offset for header
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    // Handle initial page load with hash
     const hash = window.location.hash;
     if (hash) {
-      const targetElement = document.querySelector(hash);
-      if (targetElement) {
-        // Create an intersection observer to watch when the element is visible
-        observerRef.current = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting && !hasScrolled.current) {
-                // Element is visible and we haven't scrolled yet
-                entry.target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                hasScrolled.current = true;
-                
-                // Disconnect observer after scrolling
-                if (observerRef.current) {
-                  observerRef.current.disconnect();
-                }
-              }
-            });
-          },
-          { threshold: 0.1 }
-        );
-
-        // Start observing the target element
-        observerRef.current.observe(targetElement);
-
-        // Fallback: scroll after a delay if observer doesn't trigger
-        const fallbackTimeout = setTimeout(() => {
-          if (!hasScrolled.current && targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            hasScrolled.current = true;
-            if (observerRef.current) {
-              observerRef.current.disconnect();
-            }
-          }
-        }, 1000);
-      }
+      // Delay to ensure page is fully loaded
+      setTimeout(() => {
+        scrollToHash(hash);
+      }, 500);
     }
+
+    // Handle hash changes (from navigation)
+    const handleHashChange = (e: HashChangeEvent) => {
+      e.preventDefault();
+      const newHash = window.location.hash;
+      if (newHash) {
+        setTimeout(() => {
+          scrollToHash(newHash);
+        }, 100);
+      }
+    };
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Also listen for popstate events
+    const handlePopState = () => {
+      const newHash = window.location.hash;
+      if (newHash) {
+        setTimeout(() => {
+          scrollToHash(newHash);
+        }, 100);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
 
     // Cleanup
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
