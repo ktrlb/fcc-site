@@ -16,6 +16,7 @@ import Link from 'next/link';
 
 interface DashboardStats {
   staffCount: number;
+  layLeadershipCount: number;
   ministriesCount: number;
   sermonSeriesCount: number;
   seasonalGuidesCount: number;
@@ -26,6 +27,7 @@ interface DashboardStats {
 export function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     staffCount: 0,
+    layLeadershipCount: 0,
     ministriesCount: 0,
     sermonSeriesCount: 0,
     seasonalGuidesCount: 0,
@@ -40,8 +42,9 @@ export function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const [staffRes, ministriesRes, sermonSeriesRes, seasonalGuidesRes, specialEventsRes, assetsRes] = await Promise.all([
+      const [staffRes, layLeadershipRes, ministriesRes, sermonSeriesRes, seasonalGuidesRes, specialEventsRes, assetsRes] = await Promise.all([
         fetch('/api/admin/staff'),
+        fetch('/api/admin/lay-leadership'),
         fetch('/api/admin/ministries'),
         fetch('/api/admin/sermon-series'),
         fetch('/api/admin/seasonal-guides'),
@@ -49,8 +52,9 @@ export function AdminDashboard() {
         fetch('/api/admin/assets')
       ]);
 
-      const [staff, ministries, sermonSeries, seasonalGuides, specialEvents, assets] = await Promise.all([
+      const [staff, layLeadership, ministries, sermonSeries, seasonalGuides, specialEvents, assets] = await Promise.all([
         staffRes.ok ? staffRes.json() : [],
+        layLeadershipRes.ok ? layLeadershipRes.json() : [],
         ministriesRes.ok ? ministriesRes.json() : [],
         sermonSeriesRes.ok ? sermonSeriesRes.json() : [],
         seasonalGuidesRes.ok ? seasonalGuidesRes.json() : [],
@@ -60,6 +64,7 @@ export function AdminDashboard() {
 
       setStats({
         staffCount: Array.isArray(staff) ? staff.length : 0,
+        layLeadershipCount: layLeadership?.layLeaders ? layLeadership.layLeaders.length : 0,
         ministriesCount: Array.isArray(ministries) ? ministries.length : 0,
         sermonSeriesCount: Array.isArray(sermonSeries) ? sermonSeries.length : 0,
         seasonalGuidesCount: Array.isArray(seasonalGuides) ? seasonalGuides.length : 0,
@@ -81,6 +86,14 @@ export function AdminDashboard() {
       icon: Users,
       count: stats.staffCount,
       color: 'bg-red-50 text-red-600 border-red-200'
+    },
+    {
+      title: 'Lay Leadership',
+      description: 'Manage lay leadership positions and members',
+      href: '/admin/lay-leadership',
+      icon: Users,
+      count: stats.layLeadershipCount,
+      color: 'bg-blue-50 text-blue-600 border-blue-200'
     },
     {
       title: 'Ministries',

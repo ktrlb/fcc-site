@@ -36,6 +36,11 @@ export function AdminSidebar({ onLogout }: AdminSidebarProps) {
       icon: Users,
     },
     {
+      name: 'Lay Leadership',
+      href: '/admin/lay-leadership',
+      icon: Users,
+    },
+    {
       name: 'Ministries',
       href: '/admin/ministries',
       icon: Users,

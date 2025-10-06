@@ -56,6 +56,17 @@ export default function AdminPeoplePage() {
     checkAuth();
   }, [router]);
 
+  // Auto-search when search term or status filter changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      const timeoutId = setTimeout(() => {
+        fetchMembers();
+      }, 300); // Debounce search by 300ms
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchTerm, statusFilter, isAuthenticated]);
+
   const fetchMembers = async () => {
     try {
       const params = new URLSearchParams();
@@ -143,13 +154,28 @@ export default function AdminPeoplePage() {
                     ))}
                   </select>
                 </div>
-                <button
-                  onClick={fetchMembers}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  Search
-                </button>
+                {loading && (
+                  <div className="px-4 py-2 bg-gray-100 text-gray-600 rounded-md flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                    Searching...
+                  </div>
+                )}
               </div>
+              
+              {/* Search Results Info */}
+              {(searchTerm || statusFilter !== 'all') && (
+                <div className="text-sm text-gray-600">
+                  {loading ? (
+                    <span>Searching...</span>
+                  ) : (
+                    <span>
+                      Found {members.length} member{members.length !== 1 ? 's' : ''}
+                      {searchTerm && ` matching "${searchTerm}"`}
+                      {statusFilter !== 'all' && ` with status "${statusFilter}"`}
+                    </span>
+                  )}
+                </div>
+              )}
               
                      {/* Import Section */}
                      <div className="flex justify-between items-center">

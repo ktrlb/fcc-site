@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { members, families, familyMemberships } from '@/lib/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, or, ilike } from 'drizzle-orm';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
 export async function GET(request: NextRequest) {
@@ -22,8 +22,15 @@ export async function GET(request: NextRequest) {
     }
     
     if (search) {
-      whereConditions.push(eq(members.isActive, true));
-      // TODO: Add search functionality for name fields
+      whereConditions.push(
+        or(
+          ilike(members.firstName, `%${search}%`),
+          ilike(members.lastName, `%${search}%`),
+          ilike(members.preferredName, `%${search}%`),
+          ilike(members.email, `%${search}%`),
+          ilike(families.familyName, `%${search}%`)
+        )
+      );
     }
 
     const result = await db
