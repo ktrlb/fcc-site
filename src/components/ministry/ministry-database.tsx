@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, Clock, MapPin, Phone } from "lucide-react";
+import { Search, Users, Clock, MapPin, Phone, Mail } from "lucide-react";
 import { MinistryPlaceholder } from "./ministry-placeholder";
+import { MinistryContactModal } from "./ministry-contact-modal";
 import type { MinistryTeam } from "@/lib/schema";
 
 interface Props {
@@ -18,6 +19,8 @@ export function MinistryDatabase({ initialMinistries }: Props) {
   const searchParams = useSearchParams();
   const [ministries] = useState<MinistryTeam[]>(initialMinistries || []);
   const [filteredMinistries, setFilteredMinistries] = useState<MinistryTeam[]>(initialMinistries || []);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [selectedMinistry, setSelectedMinistry] = useState<MinistryTeam | null>(null);
   
   // Generate categories dynamically from ministries (only show categories that have ministries)
   const [categories] = useState(() => {
@@ -439,16 +442,17 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                       )}
 
                       <div className="pt-4 border-t border-gray-200">
-                        <h4 className="font-medium text-base text-gray-900 mb-2">Contact:</h4>
-                        <p className="text-base text-gray-700">{ministry.contactPerson}</p>
-                        {ministry.contactPhone && (
-                          <div className="flex items-center text-base text-gray-700 mt-1">
-                            <Phone className="h-4 w-4 mr-1" />
-                            <a href={`tel:${ministry.contactPhone}`} className="hover:text-gray-900 transition-colors">
-                              {ministry.contactPhone}
-                            </a>
-                          </div>
-                        )}
+                        <Button
+                          onClick={() => {
+                            setSelectedMinistry(ministry);
+                            setContactModalOpen(true);
+                          }}
+                          className="w-full text-white border-0 transition-all"
+                          style={{ backgroundColor: colorScheme.hex }}
+                        >
+                          <Mail className="h-4 w-4 mr-2" />
+                          Contact {ministry.contactPerson}
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -479,6 +483,20 @@ export function MinistryDatabase({ initialMinistries }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Contact Modal */}
+      {selectedMinistry && (
+        <MinistryContactModal
+          isOpen={contactModalOpen}
+          onClose={() => {
+            setContactModalOpen(false);
+            setSelectedMinistry(null);
+          }}
+          ministryName={selectedMinistry.name}
+          contactPerson={selectedMinistry.contactPerson}
+          ministryId={selectedMinistry.id}
+        />
+      )}
     </div>
   );
 }

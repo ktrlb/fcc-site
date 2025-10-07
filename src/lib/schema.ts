@@ -204,7 +204,41 @@ export const welcomeTeamTracking = pgTable('welcome_team_tracking', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Lay Leadership table for public display (filtered data only)
+// Leadership Roles - Defines all possible leadership positions
+export const leadershipRoles = pgTable('leadership_roles', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  roleName: varchar('role_name', { length: 255 }).notNull(), // e.g., "Moderator", "Elder", "Worship Leader"
+  roleType: varchar('role_type', { length: 50 }).notNull(), // 'general-board', 'elder', 'deacon', 'ministry-leader', 'volunteer'
+  description: text('description'), // Role description/responsibilities
+  ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id, { onDelete: 'set null' }), // Link to ministry if applicable
+  maxPositions: integer('max_positions').default(1), // How many people can hold this role (e.g., 14 elders, 1 moderator)
+  sortOrder: integer('sort_order').default(0),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Leadership Assignments - Links people to roles
+export const leadershipAssignments = pgTable('leadership_assignments', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  roleId: uuid('role_id').references(() => leadershipRoles.id, { onDelete: 'cascade' }).notNull(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  // Display overrides (optional - uses member data by default)
+  displayName: varchar('display_name', { length: 255 }), // Override member's name if needed
+  bio: text('bio'), // Custom bio for this role
+  imageUrl: varchar('image_url', { length: 500 }), // Custom photo for this role
+  focalPoint: text('focal_point'), // Image focal point
+  publicEmail: varchar('public_email', { length: 255 }), // Public contact email
+  publicPhone: varchar('public_phone', { length: 20 }), // Public contact phone
+  // Term tracking
+  termStart: timestamp('term_start'),
+  termEnd: timestamp('term_end'),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// LEGACY: Lay Leadership table - keeping for backward compatibility during migration
 export const layLeadership = pgTable('lay_leadership', {
   id: uuid('id').defaultRandom().primaryKey(),
   memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),

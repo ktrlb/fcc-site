@@ -1,4 +1,4 @@
-import { LayLeadershipDashboard } from '@/components/admin/lay-leadership-dashboard';
+import { LeadershipRolesDashboard } from '@/components/admin/leadership-roles-dashboard';
 import { AdminLayout } from '@/components/admin/admin-layout';
 
 export default function LayLeadershipPage() {
@@ -11,7 +11,7 @@ export default function LayLeadershipPage() {
         // Logout logic will be handled by the layout
       }}
     >
-      <LayLeadershipDashboard />
+      <LeadershipRolesDashboard />
     </AdminLayout>
   );
 }

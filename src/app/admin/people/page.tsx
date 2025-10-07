@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import { CSVImportModal } from '@/components/admin/csv-import-modal';
 import { FamilyImportModal } from '@/components/admin/family-import-modal';
+import { AddMemberModal } from '@/components/admin/add-member-modal';
 import { checkAdminAuth } from '@/lib/admin-auth-client';
 
 interface Member {
@@ -184,6 +185,7 @@ export default function AdminPeoplePage() {
                          <p className="text-sm text-gray-600">Manage church members and families</p>
                        </div>
                        <div className="flex space-x-2">
+                         <AddMemberModal onMemberAdded={fetchMembers} />
                          <CSVImportModal onImportComplete={fetchMembers} />
                          <FamilyImportModal onImportComplete={fetchMembers} />
                        </div>
