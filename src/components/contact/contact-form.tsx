@@ -23,6 +23,7 @@ const CONTACT_CATEGORIES = [
   { value: 'ministry', label: 'Ministry Interest' },
   { value: 'prayer', label: 'Prayer Request' },
   { value: 'support', label: 'Pastoral Care' },
+  { value: 'solicitation', label: 'Business/Service Inquiry' },
   { value: 'other', label: 'Other' },
 ];
 

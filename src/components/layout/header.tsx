@@ -74,57 +74,57 @@ export function Header() {
           {/* Top row - Social links, watch now, give */}
           <div className="hidden lg:flex lg:items-center lg:gap-x-4">
             {topNavigation.map((item) => {
-              if (item.isIcon) {
-                return (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noopener noreferrer" : undefined}
-                    className="text-gray-900 p-2 rounded-full transition-all duration-200 hover:scale-105"
-                    style={{ 
-                      backgroundColor: 'rgba(68, 64, 60, 0.3)',
-                      backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.3)';
-                    }}
-                    aria-label={item.name}
-                  >
-                    {item.icon && <item.icon className="h-4 w-4" />}
-                  </a>
-                );
-              }
-              
-              if (item.isButton) {
-                return (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noopener noreferrer" : undefined}
-                    className="text-gray-900 px-3 py-1 rounded-md text-sm font-semibold transition-all duration-200 flex items-center gap-1 hover:scale-105"
-                    style={{ 
-                      backgroundColor: 'rgba(68, 64, 60, 0.3)',
-                      backdropFilter: 'blur(8px)',
-                      WebkitBackdropFilter: 'blur(8px)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.3)';
-                    }}
-                  >
-                    {item.name}
-                    {item.external && <ExternalLink className="h-3 w-3" />}
-                  </a>
-                );
-              }
+          if (item.isIcon) {
+            return (
+              <a
+                key={item.name}
+                href={item.href}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noopener noreferrer" : undefined}
+                className="text-gray-900 p-2 rounded-full transition-all duration-200 hover:scale-105"
+                style={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                }}
+                aria-label={item.name}
+              >
+                {item.icon && <item.icon className="h-4 w-4" />}
+              </a>
+            );
+          }
+          
+          if (item.isButton) {
+            return (
+              <a
+                key={item.name}
+                href={item.href}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noopener noreferrer" : undefined}
+                className="text-gray-900 px-3 py-1 rounded-md text-sm font-semibold transition-all duration-200 flex items-center gap-1 hover:scale-105"
+                style={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                }}
+              >
+                {item.name}
+                {item.external && <ExternalLink className="h-3 w-3" />}
+              </a>
+            );
+          }
               
               return null;
             })}
