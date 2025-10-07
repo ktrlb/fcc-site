@@ -10,11 +10,11 @@ import { Menu, ChevronDown, Facebook, Youtube, Instagram, ExternalLink } from "l
 
 // Top row navigation (social links, watch now, give)
 const topNavigation = [
-  { name: "Facebook", href: "https://www.facebook.com/fccgranbury", icon: Facebook, external: true },
-  { name: "Instagram", href: "https://www.instagram.com/fccgranbury", icon: Instagram, external: true },
-  { name: "YouTube", href: "https://www.youtube.com/@fccgranburytx", icon: Youtube, external: true },
-  { name: "Watch Now", href: "https://www.fccgranbury.live/", external: true },
-  { name: "Give", href: "/give" },
+  { name: "Facebook", href: "https://www.facebook.com/fccgranbury", icon: Facebook, external: true, isIcon: true },
+  { name: "Instagram", href: "https://www.instagram.com/fccgranbury", icon: Instagram, external: true, isIcon: true },
+  { name: "YouTube", href: "https://www.youtube.com/@fccgranburytx", icon: Youtube, external: true, isIcon: true },
+  { name: "Watch Now", href: "https://www.fccgranbury.live/", external: true, isButton: true },
+  { name: "Give", href: "/give", isButton: true },
 ];
 
 // Bottom row navigation (main navigation)
@@ -72,35 +72,61 @@ export function Header() {
         {/* Right side - All navigation content */}
         <div className="flex flex-col items-end gap-1">
           {/* Top row - Social links, watch now, give */}
-          <div className="hidden lg:flex lg:items-center lg:gap-x-6">
+          <div className="hidden lg:flex lg:items-center lg:gap-x-4">
             {topNavigation.map((item) => {
-              if (item.icon) {
+              if (item.isIcon) {
                 return (
                   <a
                     key={item.name}
                     href={item.href}
                     target={item.external ? "_blank" : undefined}
                     rel={item.external ? "noopener noreferrer" : undefined}
-                    className="text-gray-600 hover:text-blue-600 transition-colors"
+                    className="text-gray-900 p-2 rounded-full transition-all duration-200 hover:scale-105"
+                    style={{ 
+                      backgroundColor: 'rgba(68, 64, 60, 0.3)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.3)';
+                    }}
                     aria-label={item.name}
                   >
-                    {item.icon && <item.icon className="h-5 w-5" />}
+                    {item.icon && <item.icon className="h-4 w-4" />}
                   </a>
                 );
               }
               
-              return (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  target={item.external ? "_blank" : undefined}
-                  rel={item.external ? "noopener noreferrer" : undefined}
-                  className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-1"
-                >
-                  {item.name}
-                  {item.external && <ExternalLink className="h-3 w-3" />}
-                </a>
-              );
+              if (item.isButton) {
+                return (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
+                    className="text-gray-900 px-3 py-1 rounded-md text-sm font-semibold transition-all duration-200 flex items-center gap-1 hover:scale-105"
+                    style={{ 
+                      backgroundColor: 'rgba(68, 64, 60, 0.3)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(68, 64, 60, 0.3)';
+                    }}
+                  >
+                    {item.name}
+                    {item.external && <ExternalLink className="h-3 w-3" />}
+                  </a>
+                );
+              }
+              
+              return null;
             })}
           </div>
           

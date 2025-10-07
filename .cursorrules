@@ -125,6 +125,7 @@ This is a Next.js 14 church website for First Christian Church Granbury with a s
 - **Check for running processes**: `ps aux | grep node` or `lsof -ti:3000`
 - **Kill existing processes**: `kill -9 $(lsof -ti:3000)` or `pkill -f "next dev"`
 - **Clear cache if needed**: `rm -rf .next && npm run dev`
+- **Always restart dev server after deployment** to ensure local environment matches production
 
 ### Running the Project
 ```bash
