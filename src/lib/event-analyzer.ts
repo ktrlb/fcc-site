@@ -99,7 +99,7 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
 
   // Analyze each group to determine if it's recurring
   eventGroups.forEach((groupEvents, key) => {
-    if (groupEvents.length >= 2) { // At least 2 occurrences to consider it recurring (reduced from 3)
+    if (groupEvents.length >= 3) { // At least 3 occurrences to consider it recurring (prevents 2-event false positives)
       const firstEvent = groupEvents[0];
       const eventDate = new Date(firstEvent.start);
       
@@ -201,7 +201,9 @@ function calculateConfidence(events: CalendarEvent[]): number {
       Math.abs(interval - expectedInterval) < tolerance
     ).length;
     
-    return consistentIntervals / intervals.length;
+    // Require 100% consistency - ALL intervals must be weekly (no skipped weeks)
+    const consistencyRatio = consistentIntervals / intervals.length;
+    return consistencyRatio === 1.0 ? consistencyRatio : 0;
   }
   
   // For events within a single week, consider them as potential weekly patterns

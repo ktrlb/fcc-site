@@ -281,6 +281,7 @@ export const specialEventTypes = pgTable('special_event_types', {
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   imageUrl: varchar('image_url', { length: 500 }), // Vercel Blob URL for special event image
+  contactPerson: varchar('contact_person', { length: 255 }), // Default contact person for this event type
   color: varchar('color', { length: 7 }).default('#3B82F6'), // Hex color code for display
   isDefault: boolean('is_default').default(false).notNull(), // Whether this is a default/required option
   isActive: boolean('is_active').default(true).notNull(),
@@ -330,6 +331,7 @@ export const calendarEvents = pgTable('calendar_events', {
   contactPerson: varchar('contact_person', { length: 255 }), // Contact person for special events
   recurringDescription: varchar('recurring_description', { length: 255 }), // Custom description for recurring pattern (e.g., "Tuesdays in January")
   endsBy: timestamp('ends_by'), // When to stop featuring recurring events on homepage
+  seriesName: varchar('series_name', { length: 255 }), // Group events into a series (e.g., "Fall Bible Study")
   featuredOnHomePage: boolean('featured_on_home_page').default(false).notNull(), // Whether to feature on home page
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

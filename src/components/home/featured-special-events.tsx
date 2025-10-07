@@ -92,32 +92,42 @@ export async function FeaturedSpecialEvents() {
                 />
                 
                 <div className="space-y-1 text-lg text-white">
-                  <p className="font-semibold">
-                    {new Date(event.startTime).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      timeZone: 'America/Chicago'
-                    })}
-                  </p>
-                  {!event.allDay && (
-                    <p>
-                      {new Date(event.startTime).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                        timeZone: 'America/Chicago'
-                      })}
-                      {event.endTime && (
-                        <> - {new Date(event.endTime).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                          timeZone: 'America/Chicago'
-                        })}</>
-                      )}
+                  {(event as { recurringDescription?: string }).recurringDescription ? (
+                    // Show the custom description (like "Tuesdays at 6PM")
+                    <p className="font-semibold">
+                      {(event as { recurringDescription?: string }).recurringDescription}
                     </p>
+                  ) : (
+                    // Individual event - show full date and time
+                    <>
+                      <p className="font-semibold">
+                        {new Date(event.startTime).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          timeZone: 'America/Chicago'
+                        })}
+                      </p>
+                      {!event.allDay && (
+                        <p>
+                          {new Date(event.startTime).toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true,
+                            timeZone: 'America/Chicago'
+                          })}
+                          {event.endTime && (
+                            <> - {new Date(event.endTime).toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true,
+                              timeZone: 'America/Chicago'
+                            })}</>
+                          )}
+                        </p>
+                      )}
+                    </>
                   )}
                   {event.location && (
                     <p className="flex items-center">

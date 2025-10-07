@@ -176,6 +176,7 @@ export async function POST(request: Request) {
         contactPerson: data.contactPerson,
         recurringDescription: data.recurringDescription,
         endsBy: data.endsBy ? new Date(data.endsBy) : null,
+        seriesName: data.seriesName || null,
         featuredOnHomePage: data.featuredOnHomePage || false,
         updatedAt: new Date(),
       };

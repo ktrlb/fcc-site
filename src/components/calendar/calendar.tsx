@@ -207,6 +207,19 @@ export function Calendar({ events = [] }: CalendarProps) {
             const timeMatch = recurring.time === time;
             const locationMatch = (recurring.location || '') === (location || '');
             
+            // Debug Wednesday filtering
+            if (dayOfWeek === 3) {
+              console.log('Wednesday event filtering:', {
+                eventTitle: event.title,
+                recurringTitle: recurring.title,
+                titleMatch,
+                dayMatch,
+                timeMatch,
+                locationMatch,
+                eventLocation: location,
+                recurringLocation: recurring.location
+              });
+            }
             
             return titleMatch && dayMatch && timeMatch && locationMatch;
           });
@@ -257,10 +270,15 @@ export function Calendar({ events = [] }: CalendarProps) {
   const getEventsForDate = (date: Date | null) => {
     if (!date) return [];
     
-    return calendarEvents.filter(event => {
-      const eventDate = new Date(event.start);
-      return eventDate.toDateString() === date.toDateString();
-    });
+    return calendarEvents
+      .filter(event => {
+        const eventDate = new Date(event.start);
+        return eventDate.toDateString() === date.toDateString();
+      })
+      .sort((a, b) => {
+        // Sort by start time (earliest to latest)
+        return new Date(a.start).getTime() - new Date(b.start).getTime();
+      });
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {

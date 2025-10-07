@@ -36,6 +36,7 @@ interface CalendarEvent {
   contactPerson?: string;
   recurringDescription?: string;
   endsBy?: string;
+  seriesName?: string;
   featuredOnHomePage?: boolean;
   isExternal?: boolean;
 }
@@ -71,6 +72,15 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     description?: string; 
     color?: string 
   }>>([]);
+  const [existingSpecialEventsList, setExistingSpecialEventsList] = useState<Array<{
+    id: string;
+    title: string;
+    seriesName?: string;
+    specialEventImage?: string;
+    specialEventNote?: string;
+    contactPerson?: string;
+    startTime: string;
+  }>>([]);
   const [recurringEventsData, setRecurringEventsData] = useState<any[]>([]);
 
   useEffect(() => {
@@ -78,7 +88,15 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
     fetchMinistries();
     fetchSpecialEvents();
     fetchRecurringEvents();
+    fetchExistingSpecialEvents();
   }, []);
+
+  // Refetch events when month changes to apply correct filtering
+  useEffect(() => {
+    if (calendarEvents.length > 0) {
+      fetchEvents();
+    }
+  }, [currentDate.getMonth(), currentDate.getFullYear()]);
 
   const fetchEvents = async () => {
     try {
@@ -118,25 +136,66 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
         // Use the analysis from the API response if available, otherwise analyze locally
         const analysis = data.analysis || analyzeEvents(events);
         
-        // Filter out recurring events for the main calendar, but keep special events
-        const nonRecurringEvents = events.filter((event: CalendarEvent) => {
-          // Always show special events, even if they match recurring patterns
-          if (event.isSpecialEvent) {
-            return true;
+        // Fetch recurring patterns for the current month to filter duplicates
+        const month = currentDate.getMonth();
+        const year = currentDate.getFullYear();
+        let recurringPatterns: any[] = [];
+        
+        try {
+          const recurringResponse = await fetch(`/api/recurring-events?month=${month}&year=${year}&includeExternal=true`);
+          if (recurringResponse.ok) {
+            const recurringData = await recurringResponse.json();
+            recurringPatterns = recurringData.recurringEvents || [];
+            console.log(`Admin calendar: Using ${recurringPatterns.length} cached recurring patterns for filtering`);
           }
-          
+        } catch (error) {
+          console.error('Error fetching recurring patterns:', error);
+        }
+        
+        // Filter out recurring events for the main calendar (but keep external events visible for admin)
+        const nonRecurringEvents = events.filter((event: CalendarEvent) => {
           const eventDate = new Date(event.start);
-          const dayOfWeek = eventDate.getDay();
-          const time = eventDate.toTimeString().slice(0, 5);
+          
+          // Use Intl.DateTimeFormat to get Chicago timezone components
+          const chicagoFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Chicago',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          
+          const timeParts = chicagoFormatter.formatToParts(eventDate);
+          const time = `${timeParts.find(part => part.type === 'hour')?.value}:${timeParts.find(part => part.type === 'minute')?.value}`;
+          
+          // Get day of week using a separate formatter
+          const dayFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Chicago',
+            weekday: 'long'
+          });
+          const dayName = dayFormatter.format(eventDate);
+          const dayOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].indexOf(dayName.toLowerCase());
           const location = event.location || '';
           
+          // Special handling for Sunday events
+          if (dayOfWeek === 0) {
+            const title = event.title.toLowerCase();
+            const isStandardSundayEvent = (
+              (title.includes('modern worship') && time === '09:00') ||
+              (title.includes('sunday school') && time === '10:00') ||
+              (title.includes('traditional worship') && time === '11:00')
+            );
+            return !isStandardSundayEvent;
+          }
+          
           // Check if this event matches any recurring pattern
-          const isRecurring = analysis.recurringEvents.some((recurring: RecurringEvent) => 
-            recurring.title === event.title && 
-            recurring.dayOfWeek === dayOfWeek &&
-            recurring.time === time &&
-            (recurring.location || '') === location
-          );
+          const isRecurring = recurringPatterns.some((recurring: any) => {
+            const titleMatch = recurring.title === event.title;
+            const dayMatch = recurring.dayOfWeek === dayOfWeek;
+            const timeMatch = recurring.time === time;
+            const locationMatch = (recurring.location || '') === (location || '');
+            
+            return titleMatch && dayMatch && timeMatch && locationMatch;
+          });
           
           return !isRecurring;
         });
@@ -187,6 +246,55 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
       }
     } catch (error) {
       console.error('Failed to fetch recurring events:', error);
+    }
+  };
+
+  const fetchExistingSpecialEvents = async () => {
+    try {
+      const response = await fetch('/api/calendar/special-events?includeExternal=true&includePast=true');
+      if (response.ok) {
+        const data = await response.json();
+        // Flatten both series and individual items into a list
+        const allEvents: Array<{
+          id: string;
+          title: string;
+          seriesName?: string;
+          specialEventImage?: string;
+          specialEventNote?: string;
+          contactPerson?: string;
+          startTime: string;
+        }> = [];
+        
+        data.items?.forEach((item: any) => {
+          if (item.type === 'series') {
+            // For series, use the first event's ID and data
+            allEvents.push({
+              id: item.events[0].id,
+              title: item.title,
+              seriesName: item.seriesName,
+              specialEventImage: item.image,
+              specialEventNote: item.description,
+              contactPerson: item.contactPerson,
+              startTime: item.firstEventDate,
+            });
+          } else {
+            // Individual events
+            allEvents.push({
+              id: item.id,
+              title: item.title,
+              seriesName: item.seriesName,
+              specialEventImage: item.image,
+              specialEventNote: item.description,
+              contactPerson: item.contactPerson,
+              startTime: item.startTime,
+            });
+          }
+        });
+        
+        setExistingSpecialEventsList(allEvents);
+      }
+    } catch (error) {
+      console.error('Failed to fetch existing special events:', error);
     }
   };
 
@@ -261,6 +369,8 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
           specialEventImage: eventData.specialEventImage,
           contactPerson: eventData.contactPerson,
           recurringDescription: eventData.recurringDescription,
+          endsBy: eventData.endsBy,
+          seriesName: eventData.seriesName,
           featuredOnHomePage: eventData.featuredOnHomePage,
         }),
       });
@@ -360,10 +470,15 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
   const getEventsForDate = (date: Date | null) => {
     if (!date) return [];
     
-    return calendarEvents.filter(event => {
-      const eventDate = new Date(event.start);
-      return eventDate.toDateString() === date.toDateString();
-    });
+    return calendarEvents
+      .filter(event => {
+        const eventDate = new Date(event.start);
+        return eventDate.toDateString() === date.toDateString();
+      })
+      .sort((a, b) => {
+        // Sort by start time (earliest to latest)
+        return new Date(a.start).getTime() - new Date(b.start).getTime();
+      });
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -602,6 +717,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
               event={selectedEvent}
               ministries={ministries}
               specialEvents={specialEvents}
+              existingSpecialEventsList={existingSpecialEventsList}
               onSave={handleSaveEvent}
               onCancel={() => setIsModalOpen(false)}
             />
@@ -616,11 +732,20 @@ interface AdminEventEditFormProps {
   event: CalendarEvent;
   ministries: Array<{ id: string; name: string; description?: string }>;
   specialEvents: Array<{ id: string; name: string; description?: string; color?: string }>;
+  existingSpecialEventsList: Array<{
+    id: string;
+    title: string;
+    seriesName?: string;
+    specialEventImage?: string;
+    specialEventNote?: string;
+    contactPerson?: string;
+    startTime: string;
+  }>;
   onSave: (data: Partial<CalendarEvent>) => void;
   onCancel: () => void;
 }
 
-function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel }: AdminEventEditFormProps) {
+function AdminEventEditForm({ event, ministries, specialEvents, existingSpecialEventsList, onSave, onCancel }: AdminEventEditFormProps) {
   const [formData, setFormData] = useState({
     specialEventId: 'none',
     ministryTeamId: 'none',
@@ -632,6 +757,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
     contactPerson: '',
     recurringDescription: '',
     endsBy: '',
+    seriesName: '',
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -658,6 +784,7 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
       contactPerson: event.contactPerson || '',
       recurringDescription: event.recurringDescription || '',
       endsBy: event.endsBy || '',
+      seriesName: event.seriesName || '',
     });
     
     console.log('AdminEventEditForm: Form data set to:', {
@@ -833,8 +960,64 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
             </Label>
           </div>
 
-          {formData.featuredOnHomePage && (
+          {formData.isSpecialEvent && (
             <div className="space-y-4">
+              <div>
+                <Label htmlFor="linkToEvent">Link to Existing Special Event (Optional)</Label>
+                <Select 
+                  value="none"
+                  onValueChange={(value) => {
+                    if (value !== 'none') {
+                      const linkedEvent = existingSpecialEventsList.find(e => e.id === value);
+                      if (linkedEvent) {
+                        setFormData({ 
+                          ...formData, 
+                          seriesName: linkedEvent.seriesName || '',
+                          specialEventImage: linkedEvent.specialEventImage || '',
+                          specialEventNote: linkedEvent.specialEventNote || '',
+                          contactPerson: linkedEvent.contactPerson || '',
+                          featuredOnHomePage: true, // Auto-feature when linking
+                        });
+                      }
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Link to existing or create new" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Create New / Don't Link</SelectItem>
+                    {existingSpecialEventsList
+                      .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
+                      .map(specialEvent => (
+                        <SelectItem key={specialEvent.id} value={specialEvent.id}>
+                          {specialEvent.title} - {new Date(specialEvent.startTime).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-sm text-gray-500 mt-1">
+                  Link this event to an existing special event to copy its details and group them together
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="seriesName">Series Name</Label>
+                <Input
+                  id="seriesName"
+                  value={formData.seriesName || ''}
+                  onChange={(e) => setFormData({ ...formData, seriesName: e.target.value })}
+                  placeholder="e.g., 'Paul Bible Study', 'Advent Workshop Series'"
+                  className="mt-1"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  {formData.seriesName ? 'Events with this name will be grouped together' : 'Group multiple events together by giving them the same series name'}
+                </p>
+              </div>
+
               <div>
                 <Label htmlFor="recurringDescription">Recurring Pattern Description</Label>
                 <Input
@@ -900,10 +1083,14 @@ function AdminEventEditForm({ event, ministries, specialEvents, onSave, onCancel
                         if (response.ok) {
                           const result = await response.json();
                           setFormData({ ...formData, specialEventImage: result.url });
+                          alert('Image uploaded successfully!');
                         } else {
-                          console.error('Failed to upload image');
+                          const error = await response.json();
+                          alert(`Failed to upload image: ${error.error || 'Unknown error'}`);
+                          console.error('Failed to upload image:', error);
                         }
                       } catch (error) {
+                        alert(`Error uploading image: ${error}`);
                         console.error('Error uploading image:', error);
                       }
                     }
