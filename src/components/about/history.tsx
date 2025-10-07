@@ -70,7 +70,7 @@ export function History() {
           <p className="mt-4 text-lg text-white">Over 150 years of faith, fellowship, and service in Granbury</p>
         </div>
 
-        <div className="relative">
+        <div className="relative px-6">
           {/* Timeline line - responsive positioning */}
           <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-white hidden lg:block"></div>
           <div className="absolute right-4 w-1 h-full bg-white lg:hidden"></div>
@@ -89,32 +89,32 @@ export function History() {
                 <div key={index} className="flex items-center relative">
                   {/* Timeline dot - responsive positioning */}
                   <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full border-4 border-white shadow-lg hidden lg:block" style={{ backgroundColor: colorScheme.hex }}></div>
-                  <div className="absolute right-4 w-4 h-4 rounded-full border-4 border-white shadow-lg lg:hidden" style={{ backgroundColor: colorScheme.hex }}></div>
+                  <div className="absolute right-[-16px] w-4 h-4 rounded-full border-4 border-white shadow-lg lg:hidden" style={{ backgroundColor: colorScheme.hex }}></div>
                   
                   {/* Left side content (even indices) */}
                   {index % 2 === 0 ? (
-                    <div className="lg:w-5/12 w-11/12 lg:pr-8 lg:text-right pr-12 text-left">
-                      <div className="rounded-lg shadow-sm p-6 border-0" style={{ backgroundColor: colorScheme.hex }}>
+                    <div className="lg:w-6/12 w-11/12 lg:text-right text-left">
+                      <div className="lg:mr-8 rounded-lg shadow-sm p-6 border-0" style={{ backgroundColor: colorScheme.hex }}>
                         <div className="text-2xl font-bold text-white font-serif">{event.year}</div>
                         <h3 className="text-xl font-semibold text-white mt-2 font-serif">{event.title}</h3>
                         <p className="text-white mt-2 leading-relaxed">{event.description}</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="lg:w-5/12 w-0 lg:block hidden"></div>
+                    <div className="lg:w-6/12 w-0 lg:block hidden"></div>
                   )}
                   
                   {/* Right side content (odd indices) */}
                   {index % 2 === 1 ? (
-                    <div className="lg:w-5/12 w-11/12 lg:pl-8 lg:text-left pr-12 text-left">
-                      <div className="rounded-lg shadow-sm p-6 border-0" style={{ backgroundColor: colorScheme.hex }}>
+                    <div className="lg:w-6/12 w-11/12 lg:text-left text-left">
+                      <div className="lg:ml-8 rounded-lg shadow-sm p-6 border-0" style={{ backgroundColor: colorScheme.hex }}>
                         <div className="text-2xl font-bold text-white font-serif">{event.year}</div>
                         <h3 className="text-xl font-semibold text-white mt-2 font-serif">{event.title}</h3>
                         <p className="text-white mt-2 leading-relaxed">{event.description}</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="lg:w-5/12 w-0 lg:block hidden"></div>
+                    <div className="lg:w-6/12 w-0 lg:block hidden"></div>
                   )}
                 </div>
               );

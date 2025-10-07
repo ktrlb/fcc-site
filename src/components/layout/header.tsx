@@ -116,7 +116,7 @@ export function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {item.dropdown.map((dropdownItem) => (
-                        <DropdownMenuItem key={dropdownItem.name} asChild>
+                        <DropdownMenuItem key={dropdownItem.name}>
                           {dropdownItem.external ? (
                             <a 
                               href={dropdownItem.href} 
@@ -126,6 +126,40 @@ export function Header() {
                             >
                               {dropdownItem.name}
                             </a>
+                          ) : dropdownItem.href.includes('#') ? (
+                            <button 
+                              onClick={() => {
+                                console.log('Button clicked!', dropdownItem.href);
+                                // Handle anchor links - navigate first, then scroll
+                                const hash = dropdownItem.href.split('#')[1];
+                                console.log('Hash:', hash);
+                                
+                                // Navigate to the page first
+                                window.location.href = dropdownItem.href;
+                                
+                                // Then scroll to the element after a delay
+                                setTimeout(() => {
+                                  const element = document.querySelector(`#${hash}`);
+                                  console.log('Element found:', element);
+                                  if (element) {
+                                    const headerOffset = 120;
+                                    const elementPosition = element.getBoundingClientRect().top;
+                                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                    console.log('Scrolling to:', offsetPosition);
+                                    
+                                    window.scrollTo({
+                                      top: offsetPosition,
+                                      behavior: 'smooth'
+                                    });
+                                  } else {
+                                    console.log('Element not found for hash:', hash);
+                                  }
+                                }, 500);
+                              }}
+                              className="cursor-pointer w-full text-left"
+                            >
+                              {dropdownItem.name}
+                            </button>
                           ) : (
                             <Link href={dropdownItem.href} className="cursor-pointer">
                               {dropdownItem.name}
@@ -207,6 +241,37 @@ export function Header() {
                                     {dropdownItem.name}
                                     <ExternalLink className="h-3 w-3" />
                                   </a>
+                                ) : dropdownItem.href.includes('#') ? (
+                                  <button
+                                    key={dropdownItem.name}
+                                    onClick={() => {
+                                      // Handle anchor links - navigate first, then scroll
+                                      const hash = dropdownItem.href.split('#')[1];
+                                      
+                                      // Navigate to the page first
+                                      window.location.href = dropdownItem.href;
+                                      
+                                      // Then scroll to the element after a delay
+                                      setTimeout(() => {
+                                        const element = document.querySelector(`#${hash}`);
+                                        if (element) {
+                                          const headerOffset = 120;
+                                          const elementPosition = element.getBoundingClientRect().top;
+                                          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                                          
+                                          window.scrollTo({
+                                            top: offsetPosition,
+                                            behavior: 'smooth'
+                                          });
+                                        }
+                                      }, 500);
+                                      
+                                      setMobileMenuOpen(false);
+                                    }}
+                                    className="block text-base text-gray-600 hover:text-blue-600 transition-colors w-full text-left"
+                                  >
+                                    {dropdownItem.name}
+                                  </button>
                                 ) : (
                                   <Link
                                     key={dropdownItem.name}

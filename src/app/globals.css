@@ -87,9 +87,10 @@
   body {
     @apply bg-background text-foreground text-lg;
   }
-  html {
-    font-size: 18px; /* Increase base font size from 16px to 18px */
-  }
+       html {
+         font-size: 18px; /* Increase base font size from 16px to 18px */
+         scroll-padding-top: 120px; /* Handle anchor link scrolling with proper offset for header */
+       }
 }
 
 @layer components {
