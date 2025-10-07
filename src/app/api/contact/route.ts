@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Send email to church staff (Karlie and office)
     const emailData = await resend.emails.send({
-      from: 'FCC Website <noreply@fccgranbury.org>',
+      from: 'FCC Website <noreply@communications.fccgranbury.org>',
       to: ['karlie@fccgranbury.org', 'office@fccgranbury.org'],
       subject: `[FCC Website] ${categoryLabel}: ${subject}`,
       html: `
@@ -82,7 +82,7 @@ To respond, simply reply to this email.
     const isSolicitation = category === 'solicitation';
     
     await resend.emails.send({
-      from: 'FCC Granbury <noreply@fccgranbury.org>',
+      from: 'FCC Granbury <noreply@communications.fccgranbury.org>',
       to: [email],
       subject: isSolicitation 
         ? 'Thank you for your inquiry - First Christian Church' 
