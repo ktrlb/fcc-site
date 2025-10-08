@@ -65,18 +65,16 @@ export async function FeaturedSpecialEvents() {
             <Card key={event.id} className="p-6 hover:shadow-lg transition-shadow border-0 shadow-none max-w-md mx-auto lg:max-w-none lg:mx-0" style={{ backgroundColor: colorScheme.hex }}>
               <CardContent className="p-0">
                 {event.specialEventImage && event.specialEventImage.trim() !== '' && (
-                  <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">
-                    <Image
+                  <div className="w-full mb-4 rounded-lg overflow-hidden">
+                    <img
                       src={event.specialEventImage.startsWith('http') 
                         ? event.specialEventImage 
                         : event.specialEventImage.includes('/') 
                           ? event.specialEventImage 
                           : `/uploads/${event.specialEventImage}`}
                       alt={event.title}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="w-full h-auto"
+                      style={{ display: 'block' }}
                     />
                   </div>
                 )}

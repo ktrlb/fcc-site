@@ -49,7 +49,7 @@ export function FindingYourPlace() {
         "Seasonal Bible Studies",
         "Small Group Studies"
       ],
-      image: "/images/assorted-images/fcc-intergenerational ministry.jpeg"
+      image: "/images/assorted-images/fcc-asset-group-learning.png"
     },
     {
       title: "Service",
@@ -85,7 +85,7 @@ export function FindingYourPlace() {
         "Small Groups",
         "Community Gatherings"
       ],
-      image: "/images/assorted-images/fcc-asset-kitchen-smiling.jpeg"
+      image: "/images/assorted-images/fcc-asset-women-ministry.JPG"
     },
     {
       title: "Generosity",
@@ -132,7 +132,10 @@ export function FindingYourPlace() {
                       fill
                       className="object-cover"
                       style={{
-                        objectPosition: item.title === "Presence" ? "center -15px" : "center center"
+                        objectPosition: item.title === "Presence" ? "center -40px" : 
+                                       item.title === "Study" ? "center -70px" : 
+                                       item.title === "Generosity" ? "center -25px" :
+                                       "center center"
                       }}
                     />
                   </div>

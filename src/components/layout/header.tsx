@@ -20,16 +20,7 @@ const topNavigation = [
 // Bottom row navigation (main navigation)
 const navigation = [
   { name: "Visit FCC", href: "/visit" },
-  { 
-    name: "Learn About FCC", 
-    href: "/about-us",
-      dropdown: [
-        { name: "Our Mission, Vision & Values", href: "/about-us#beliefs" },
-        { name: "Our Staff", href: "/about-us#staff" },
-        { name: "Our Leadership", href: "/about-us#leadership" },
-        { name: "Our History", href: "/about-us#history" },
-      ]
-  },
+  { name: "Learn About FCC", href: "/about-us" },
   { name: "Explore Ministries", href: "/ministry-database" },
   { 
     name: "Links & Resources", 

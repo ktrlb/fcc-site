@@ -10,7 +10,7 @@ export function LearnMore() {
       title: "Relationship",
       description: "All are welcome as we seek genuine connection with God and one another. We care for and respect each other more than we worry about our differences.",
       icon: Heart,
-      image: "/images/assorted-images/fcc-asset-women-ministry.JPG"
+      image: "/images/assorted-images/fcc-asset-kitchen-smiling.jpeg"
     },
     {
       title: "Discipleship",
@@ -127,7 +127,9 @@ export function LearnMore() {
                         fill
                         className="object-cover"
                         style={{
-                          objectPosition: "center 30%"
+                          objectPosition: value.title === "Relationship" ? "center -25px" :
+                                         value.title === "Dignity" ? "center -80px" :
+                                         "center 30%"
                         }}
                       />
                     </div>

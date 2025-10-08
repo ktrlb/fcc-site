@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, Clock, MapPin, Phone, Mail } from "lucide-react";
+import { Search, Users, Clock, MapPin, Phone, Mail, ChevronDown, ChevronRight } from "lucide-react";
 import { MinistryPlaceholder } from "./ministry-placeholder";
 import { MinistryContactModal } from "./ministry-contact-modal";
 import type { MinistryTeam } from "@/lib/schema";
@@ -105,6 +105,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedFiveThings, setSelectedFiveThings] = useState("all");
+  const [isKeywordFilterExpanded, setIsKeywordFilterExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Start with false since we have initial data
   const [error] = useState<string | null>(null);
 
@@ -279,7 +280,10 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                   <Button
                     key={fiveThing.key}
                     variant={selectedFiveThings === fiveThing.key ? "default" : "outline"}
-                    onClick={() => setSelectedFiveThings(fiveThing.key)}
+                    onClick={() => {
+                      setSelectedFiveThings(fiveThing.key);
+                      setSelectedCategory("all"); // Reset keyword filter when selecting area of discipleship
+                    }}
                     className={`${selectedFiveThings === fiveThing.key ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2 border-white/50 bg-white/10"}`}
                     style={selectedFiveThings === fiveThing.key ? 
                       { backgroundColor: color.hex, borderColor: 'white' } : 
@@ -329,34 +333,52 @@ export function MinistryDatabase({ initialMinistries }: Props) {
 
           {/* Keyword Category Filter */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Filter by Keywords:</h3>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant={selectedCategory === "all" ? "default" : "outline"}
-                onClick={() => setSelectedCategory("all")}
-                className={selectedCategory === "all" ? "text-white border-2 border-white shadow-lg" : "border-2 border-white/50 text-white hover:bg-white/10 bg-white/10"}
-                style={selectedCategory === "all" ? { backgroundColor: 'rgb(68 64 60)' } : {}}
-              >
-                All Keywords
-              </Button>
-              {categories.map((category) => {
-                const categoryColor = getCategoryColor(category);
-                return (
-                  <Button
-                    key={category}
-                    variant={selectedCategory === category ? "default" : "outline"}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`capitalize ${selectedCategory === category ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2 border-white/50 bg-white/10"}`}
-                    style={selectedCategory === category ? 
-                      { backgroundColor: categoryColor.hex, borderColor: 'white' } : 
-                      { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.5)' }
-                    }
-                  >
-                    {category}
-                  </Button>
-                );
-              })}
-            </div>
+            <button
+              onClick={() => setIsKeywordFilterExpanded(!isKeywordFilterExpanded)}
+              className="flex items-center gap-2 text-lg font-semibold text-white mb-3 hover:text-white/80 transition-colors"
+            >
+              {isKeywordFilterExpanded ? (
+                <ChevronDown className="h-5 w-5" />
+              ) : (
+                <ChevronRight className="h-5 w-5" />
+              )}
+              Filter by Keywords:
+            </button>
+            {isKeywordFilterExpanded && (
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant={selectedCategory === "all" ? "default" : "outline"}
+                  onClick={() => {
+                    setSelectedCategory("all");
+                    setSelectedFiveThings("all"); // Reset area of discipleship when selecting all keywords
+                  }}
+                  className={selectedCategory === "all" ? "text-white border-2 border-white shadow-lg" : "border-2 border-white/50 text-white hover:bg-white/10 bg-white/10"}
+                  style={selectedCategory === "all" ? { backgroundColor: 'rgb(68 64 60)' } : {}}
+                >
+                  All Keywords
+                </Button>
+                {categories.map((category) => {
+                  const categoryColor = getCategoryColor(category);
+                  return (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      onClick={() => {
+                        setSelectedCategory(category);
+                        setSelectedFiveThings("all"); // Reset area of discipleship when selecting a keyword
+                      }}
+                      className={`capitalize ${selectedCategory === category ? "text-white border-2 border-white shadow-lg" : "text-white hover:bg-white/10 border-2 border-white/50 bg-white/10"}`}
+                      style={selectedCategory === category ? 
+                        { backgroundColor: categoryColor.hex, borderColor: 'white' } : 
+                        { backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.5)' }
+                      }
+                    >
+                      {category}
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
