@@ -111,10 +111,10 @@ export function FindingYourPlace() {
     <section className="py-16 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-indigo-900 mb-4 font-serif">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">
             Finding Your Place Here
           </h2>
-          <p className="text-2xl text-indigo-900 max-w-3xl mx-auto">
+          <p className="text-xl text-indigo-900 max-w-3xl mx-auto">
             Discover the five areas of discipleship that help us grow in faith and serve our community.
           </p>
         </div>
@@ -184,7 +184,7 @@ export function FindingYourPlace() {
 
 
         <div className="text-center mt-8">
-          <Button asChild size="lg" className="bg-white hover:bg-emerald-100 text-stone-700 px-8 py-3">
+          <Button asChild size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3 text-lg">
             <Link href="/ministry-database">
               Explore All FCC Ministries
             </Link>

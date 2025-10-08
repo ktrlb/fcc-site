@@ -10,20 +10,18 @@ export async function SpecialEvents() {
   const seasonalGuide = await getFeaturedSeasonalGuide();
 
   const regularGroups = [
-    "Sunday School Classes",
-    "Bible Study Groups",
-    "Prayer Groups",
-    "Women's Fellowship",
-    "Men's Ministry",
-    "Youth Group",
-    "Children's Ministry"
+    "Health & Wellness",
+    "Arts & Creativity",
+    "Spiritual Growth",
+    "Community Support",
+    "Fellowship"
   ];
 
   return (
     <section className="py-16 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-black mb-4 font-serif">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-black mb-4 font-serif italic">
             Special Events & Seasonal Guide
           </h2>
           <p className="text-2xl text-black max-w-3xl mx-auto">
@@ -149,10 +147,10 @@ export async function SpecialEvents() {
 
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button size="lg" variant="outline" className="w-full sm:w-auto bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
+          <Button size="lg" variant="outline" className="w-full sm:w-auto bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3 text-lg" asChild>
             <a href="/calendar">View Full Calendar</a>
           </Button>
-          <Button size="lg" variant="outline" className="w-full sm:w-auto bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
+          <Button size="lg" variant="outline" className="w-full sm:w-auto bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3 text-lg" asChild>
             <a href="/ministry-database">Explore Ministries at FCC</a>
           </Button>
         </div>

@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { sundays, sermonSeries } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import { SermonSeriesDescription } from "./sermon-series-description";
+import { LatestSermonVideo } from "./latest-sermon-video";
 
 // Helper function to get the next Sunday's events
 async function getUpcomingSundayEvents() {
@@ -171,7 +172,7 @@ export async function SeeYouOnSunday() {
           <CardContent className="pt-4 pb-2 px-6 md:pt-4 md:pb-3 md:px-8">
             {/* Main Header */}
             <div className="text-center mb-8">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 font-serif">
+              <h2 className="text-5xl font-extrabold text-white mb-4 font-serif italic">
                 See You On Sunday
               </h2>
               
@@ -233,7 +234,7 @@ export async function SeeYouOnSunday() {
                       asChild 
                       variant="outline" 
                       size="lg"
-                      className="bg-white border-white text-red-600 hover:bg-white/90 hover:text-red-700 transition-colors"
+                      className="bg-white border-white text-red-600 hover:bg-white/90 hover:text-red-700 transition-colors px-8 py-3 text-lg"
                     >
                       <Link href="/visit" className="flex items-center">
                         Learn More
@@ -268,7 +269,7 @@ export async function SeeYouOnSunday() {
                       asChild 
                       variant="outline" 
                       size="lg"
-                      className="bg-white border-white text-red-600 hover:bg-white/90 hover:text-red-700 transition-colors"
+                      className="bg-white border-white text-red-600 hover:bg-white/90 hover:text-red-700 transition-colors px-8 py-3 text-lg"
                     >
                       <Link href="/visit" className="flex items-center">
                         Learn More
@@ -323,6 +324,9 @@ export async function SeeYouOnSunday() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Latest Sermon Video */}
+        <LatestSermonVideo />
       </div>
     </section>
   );

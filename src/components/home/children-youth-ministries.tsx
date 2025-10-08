@@ -2,11 +2,24 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Baby, Users, Heart, ArrowRight } from "lucide-react";
+import { Baby, Users, Heart, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 
 export function ChildrenYouthMinistries() {
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+
+  const toggleCard = (index: number) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedCards(newExpanded);
+  };
+
   const ministries = [
     {
       title: "Infants & Toddlers",
@@ -25,7 +38,7 @@ export function ChildrenYouthMinistries() {
       href: "/children",
       cardColor: "teal-800",
       textColor: "text-teal-800",
-      ageRange: "Age 4 through 2nd grade",
+      ageRange: "Age 4 through 5th grade",
       image: "/images/assorted-images/fcc-kids.jpg"
     },
     {
@@ -44,7 +57,7 @@ export function ChildrenYouthMinistries() {
     <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">
             Children & Youth Ministries
           </h2>
           <p className="text-xl text-white max-w-3xl mx-auto">
@@ -68,16 +81,29 @@ export function ChildrenYouthMinistries() {
                   </div>
                 </div>
                 
-                <p className="text-white mb-6 leading-relaxed text-lg">
-                  {ministry.description}
-                </p>
+                {expandedCards.has(index) && (
+                  <p className="text-white mb-6 leading-relaxed text-lg">
+                    {ministry.description}
+                  </p>
+                )}
                 
-                <Button asChild variant="outline" className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${ministry.textColor}`}>
-                  <Link href={ministry.href} className="transition-colors">
+                {expandedCards.has(index) ? (
+                  <Button asChild variant="outline" className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${ministry.textColor}`}>
+                    <Link href={ministry.href} className="transition-colors">
+                      Learn More
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" style={{ color: ministry.textColor === 'text-red-600' ? '#dc2626' : ministry.textColor === 'text-teal-800' ? '#115e59' : '#312e81' }} />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => toggleCard(index)}
+                    className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${ministry.textColor}`}
+                  >
                     Learn More
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" style={{ color: ministry.textColor === 'text-red-600' ? '#dc2626' : ministry.textColor === 'text-teal-800' ? '#115e59' : '#312e81' }} />
-                  </Link>
-                </Button>
+                    <ChevronDown className="ml-2 h-4 w-4 group-hover:translate-y-1 transition-transform" style={{ color: ministry.textColor === 'text-red-600' ? '#dc2626' : ministry.textColor === 'text-teal-800' ? '#115e59' : '#312e81' }} />
+                  </Button>
+                )}
               </CardContent>
               
               <div className="relative overflow-hidden">

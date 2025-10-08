@@ -1,0 +1,455 @@
+# FCC Church Website - Cursor Rules
+
+## Project Overview
+This is a Next.js 14 church website for First Christian Church Granbury with a sophisticated calendar system, ministry management, and content management features. The site uses TypeScript, Tailwind CSS, Shadcn UI, and Supabase with Drizzle ORM.
+
+## Tech Stack
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + Shadcn UI components
+- **Database**: Supabase (PostgreSQL) with Drizzle ORM
+- **Authentication**: Custom admin auth system
+- **File Storage**: Vercel Blob Storage
+- **Deployment**: Vercel (via GitHub)
+
+## Site Sections & Features
+
+### **Public Site Sections**
+- **Homepage** (`/`): Hero, Sunday schedule, ministry highlights, special events, featured resources
+- **About Us** (`/about-us`): Staff, history, mission/vision/values, lay leadership
+- **Visit FCC** (`/visit`): Welcome info, worship services, location, what to expect
+- **Ministry Database** (`/ministry-database`): Searchable ministry directory with filtering
+- **Calendar** (`/calendar`): Public calendar view with event details
+- **Contact** (`/contact`): Contact form with email integration and church information
+- **Children & Youth** (`/children`, `/youth`): Age-specific ministry pages
+- **Resources** (`/resources`): Library, directory, sermon series, seasonal guides
+- **Give** (`/give`): Donation information and stewardship
+
+### **Admin Dashboard Sections**
+- **People Management** (`/admin/people`): Members, families, lay leadership
+- **Staff Management** (`/admin/staff`): Church staff directory
+- **Ministry Management** (`/admin/ministries`): Ministry teams and details
+- **Calendar Admin** (`/admin/calendar`): Event management and connections
+- **Special Events** (`/admin/special-events`): Event types and featured events
+- **Content Management** (`/admin/sermon-series`, `/admin/seasonal-guides`): Sermons and guides
+- **Asset Management** (`/admin/assets`): File uploads and media
+
+## Calendar Data Pipeline - CRITICAL FOR DEBUGGING
+
+### Data Flow Overview
+1. **Google Calendar** → **Calendar Cache** → **Event Analysis** → **Recurring Events Cache** → **UI Components**
+
+### Key Tables
+- `calendar_cache`: Raw Google Calendar events (1-hour cache)
+- `calendar_events`: Custom properties for events (ministry links, special event flags)
+- `recurring_events_cache`: Analyzed recurring patterns (weekly groups)
+- `ministry_teams`: Ministry team information
+- `special_events`: Special event types and details
+
+### API Endpoints
+- `GET /api/calendar/events`: Main calendar endpoint with analysis
+- `GET /api/recurring-events`: Cached recurring patterns for weekly groups
+- `POST /api/calendar/events/by-recurring`: Lookup event connections by pattern
+- `GET /api/calendar/events/by-google-id/[id]`: Get event connections by Google ID
+- `GET /api/ministries/[id]`: Get ministry team details
+- `GET /api/special-events/[id]`: Get special event details
+
+### Event Analysis Process
+1. **Fetch**: Google Calendar events via service account
+2. **Cache**: Store in `calendar_cache` (1-hour TTL)
+3. **Analyze**: Group events by title/time/location, detect recurring patterns
+4. **Filter**: Remove external events, identify weekly groups
+5. **Store**: Save recurring patterns in `recurring_events_cache`
+6. **Connect**: Link events to ministries/special events via `calendar_events`
+
+### Common Issues & Solutions
+- **Missing weekly groups**: Check `recurring_events_cache` table
+- **No ministry connections**: Verify `calendar_events` has correct `ministryTeamId`
+- **Special events not showing**: Check `specialEventId` in `calendar_events`
+- **Cache issues**: Use `?forceRefresh=true` on `/api/calendar/events`
+
+## Code Style & Conventions
+
+### TypeScript
+- Use interfaces over types
+- Prefer functional components with hooks
+- Use proper type definitions for API responses
+- Avoid `any` - use proper typing
+
+### React Patterns
+- Server Components by default, Client Components only when needed
+- Use `'use client'` sparingly (modals, forms, interactive elements)
+- Prefer async/await over .then()
+- Use proper error boundaries and loading states
+
+### Styling
+- Mobile-first responsive design with Tailwind
+- Use Shadcn UI components consistently
+- Custom colors defined in `globals.css` as CSS variables
+- Gradient backgrounds: `linear-gradient(135deg, #dc2626 0%, #44403c 50%, #115e59 100%)`
+
+### Button Styles
+- **Primary CTA Button**: Use `px-8 py-3 text-lg` for all main call-to-action buttons
+  - Example: `<Button size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 px-8 py-3 text-lg">`
+  - Colors will vary based on context, but padding and text size should remain consistent
+  - Use this style for: "Explore All Ministries", "View Full Calendar", "Learn More About Staff", etc.
+
+### File Structure
+- Components in `/src/components/` organized by feature
+- API routes in `/src/app/api/`
+- Database queries in `/src/lib/`
+- Admin components in `/src/components/admin/`
+
+## Database Schema Notes
+
+### Calendar Events (`calendar_events`)
+- Links Google Calendar events to custom properties
+- `googleEventId`: Unique Google Calendar event ID
+- `ministryTeamId`: Links to ministry team
+- `specialEventId`: Links to special event type
+- `isExternal`: Hide from public views
+- `featuredOnHomePage`: Show on homepage
+
+### Recurring Events Cache (`recurring_events_cache`)
+- Stores analyzed weekly patterns by month
+- `dayOfWeek`: 0-6 (Sunday-Saturday)
+- `time`: HH:MM format in Chicago timezone
+- `confidence`: 0-1 pattern confidence score
+- `eventIds`: Array of Google event IDs matching pattern
+- `month`: 0-11 (January-December) - NEW: Monthly cache system
+- `year`: Full year (e.g., 2025) - NEW: Monthly cache system
+
+## Development Workflow
+
+### Dev Server Management
+- **Kill existing dev servers before starting new ones** to prevent conflicts
+- **Check for running processes**: `ps aux | grep node` or `lsof -ti:3000`
+- **Kill existing processes**: `kill -9 $(lsof -ti:3000)` or `pkill -f "next dev"`
+- **Clear cache if needed**: `rm -rf .next && npm run dev`
+- **Always restart dev server after deployment** to ensure local environment matches production
+
+### Running the Project
+```bash
+npm run dev          # Start development server (after killing existing ones)
+npm run build        # Build for production
+npm run db:push      # Push schema changes
+npm run db:studio    # Open Drizzle Studio
+```
+
+### Database Management
+- Schema changes: Update `src/lib/schema.ts`, run `npm run db:push`
+- Migrations: Located in `/drizzle/` directory
+- Admin access: Use admin routes for data management
+
+### Common Tasks
+- **Add new ministry**: Use admin dashboard or direct DB insert
+- **Link event to ministry**: Update `calendar_events` table
+- **Feature event on homepage**: Set `featuredOnHomePage = true`
+- **Cache refresh**: Call `/api/calendar/events?forceRefresh=true`
+
+## Debugging Calendar Issues
+
+### Check Data Flow
+1. Verify Google Calendar API credentials
+2. Check `calendar_cache` for recent events
+3. Verify `recurring_events_cache` has patterns
+4. Check `calendar_events` for proper links
+5. Test API endpoints individually
+
+### Logs to Watch
+- Server logs for cache refresh status
+- Browser console for API call failures
+- Database queries for missing data
+
+### Force Refresh
+- Add `?forceRefresh=true` to calendar API calls
+- Clear browser cache if needed
+- Check Vercel deployment logs
+
+## Deployment Notes
+- Deploy via GitHub to Vercel
+- Environment variables required: `GOOGLE_CALENDAR_ID`, `GOOGLE_SERVICE_ACCOUNT_KEY`
+- Database migrations run automatically
+- Test build locally before deploying
+
+## Calendar & Mini Calendar System - CRITICAL COMPONENTS
+
+### Component Architecture
+- **Main Calendar** (`/src/components/calendar/calendar.tsx`): Full monthly calendar view
+- **Mini Calendar** (`/src/components/calendar/mini-calendar.tsx`): Weekly recurring patterns display
+- **Admin Calendar** (`/src/components/admin/calendar-admin-dashboard.tsx`): Admin interface
+
+### Key Props & Dependencies
+- **MiniCalendar requires `currentMonth: Date` prop** - CRITICAL: Always pass this prop
+- **MiniCalendar uses monthly cache** - Fetches patterns for specific month/year
+- **Main calendar filters by displayed month** - Uses `currentDate` state, not `new Date()`
+
+### Monthly Cache System
+- **Cache is month-specific**: Each month has its own recurring patterns
+- **API endpoint**: `/api/recurring-events?month=8&year=2025` (month is 0-based)
+- **Cache refresh**: Analyzes events by month and stores separately
+- **Fallback logic**: If cache fails, falls back to live analysis for that month
+
+### Sunday vs Weekday Logic
+- **Sunday (dayOfWeek: 0)**: Shows standard worship times (9am, 10am, 11am) + exceptions
+- **Monday-Friday (dayOfWeek: 1-5)**: Shows recurring weekly patterns from cache
+- **Saturday (dayOfWeek: 6)**: Shows recurring weekly patterns from cache
+- **Worship exceptions**: Events with "worship" in title that aren't at standard times
+
+### Filtering Logic
+- **Main calendar filters out recurring events** to avoid duplicates
+- **Location matching**: `(recurring.location || '') === (location || '')` - handles null values
+- **Title, day, time, location must all match** for filtering
+- **Standard Sunday events**: Hard-coded filtering for 9am/10am/11am worship
+
+### Common Issues & Solutions
+- **Mini calendar stuck on "Analyzing..."**: Missing `currentMonth` prop or cache fetch failure
+- **Events not filtered from main calendar**: Check month/year parameters match displayed month
+- **Location filtering fails**: Ensure null/undefined handling in comparison
+- **Sunday events showing incorrectly**: Check worship analysis logic and exception filtering
+
+### Data Flow for Mini Calendar
+1. **Component receives `currentMonth` prop**
+2. **Fetches recurring patterns** for that specific month from `/api/recurring-events`
+3. **Sets analysis state** with cached data
+4. **Analyzes worship services** for Sunday exceptions (uses all events, not just current month)
+5. **Renders weekly patterns** for Monday-Friday, worship schedule for Sunday
+
+### Data Flow for Main Calendar
+1. **Uses `currentDate` state** (the displayed month, not current month)
+2. **Fetches recurring patterns** for the displayed month
+3. **Filters out recurring events** to prevent duplicates
+4. **Shows only unique/special events** in the main calendar grid
+
+## Current Known Issues
+- Weekly groups modal needs proper scrolling on mobile
+- Some special events not linking properly (check `specialEventId`)
+- Calendar cache may need manual refresh occasionally
+
+## Button Styling Guidelines
+
+### Standard Button Patterns
+
+#### Buttons on Colored Cards (White Background with Card Color Text)
+For buttons placed on colored card backgrounds (red-600, teal-800, indigo-900, etc.):
+
+```tsx
+// Data structure should include textColor property
+const items = [
+  {
+    cardColor: "red-600",
+    textColor: "text-red-600",  // Tailwind class, not inline style
+    // ... other properties
+  }
+];
+
+// Button implementation
+<Button 
+  asChild 
+  variant="outline" 
+  className={`w-full group bg-white border border-white hover:bg-white/10 hover:text-white transition-colors ${item.textColor}`}
+>
+  <Link href={item.href} className="transition-colors">
+    Button Text
+    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+  </Link>
+</Button>
+```
+
+**Key Points:**
+- Use `textColor` as Tailwind class (e.g., `text-red-600`) in data, not inline styles
+- Apply color via `${item.textColor}` in className, not `style={{ color: ... }}`
+- `hover:text-white` works because Tailwind classes can override each other
+- `hover:bg-white/10` creates subtle white overlay effect
+- White border (`border-white`) remains consistent in both states
+
+#### Buttons on Light Backgrounds (Dark Background with White Text)
+For buttons on light backgrounds (stone-50, white, etc.):
+
+```tsx
+<Button 
+  asChild 
+  size="lg" 
+  className="bg-indigo-900 text-white hover:bg-indigo-900/80 hover:text-lg border-0 transition-all"
+>
+  <Link href="/path">Button Text</Link>
+</Button>
+```
+
+**Key Points:**
+- Dark background (`bg-indigo-900`) with white text
+- Hover reduces opacity (`hover:bg-indigo-900/80`) and increases text size (`hover:text-lg`)
+- No border needed (`border-0`)
+
+### Why This Approach Works
+- **Tailwind classes** can override each other based on CSS specificity
+- **Inline styles** have higher specificity and prevent hover states from working
+- **CSS custom properties** can work but add complexity
+- **Consistent patterns** make maintenance easier across the site
+
+## Design Principles & Color Palette
+
+### Core Design Philosophy
+- **No black text on white backgrounds** - Creates harsh contrast and poor readability
+- **No white text on dark backgrounds** - Maintains accessibility and visual hierarchy
+- **Consistent color integration** - Use signature colors throughout to avoid "rainbow-y" appearance
+- **Professional iconography** - Use Lucide React icons instead of emojis for consistency
+
+### Signature Color Palette
+The site uses a carefully curated color palette to maintain visual cohesion:
+
+#### Primary Colors (Used for cards and accents)
+- **Red-600**: `#dc2626` - `rgb(220 38 38)` - Primary action color, featured content
+- **Teal-800**: `#115e59` - `rgb(17 94 89)` - Secondary accent, complementary content  
+- **Indigo-900**: `#312e81` - `rgb(49 46 129)` - Tertiary accent, supporting content
+- **Amber-500**: `#f59e0b` - `rgb(245 158 11)` - Accent color for variety
+- **Lime-700**: `#4d7c0f` - `rgb(77 124 15)` - Additional accent color for variety
+
+#### Seasonal Colors (Reserved for Advent/Lent promotions)
+- **Purple**: `#714E91` - `rgb(113 78 145)` - Limited use for special content, or when an additional accent value is needed (like Dignity value)
+- **Rose**: `#DB6E9A` - `rgb(219 110 154)` - Advent/Lent seasonal use
+
+#### Background Colors
+- **Stone-700**: `#44403c` - `rgb(68 64 60)` - Dark section backgrounds
+- **Stone-50**: `#fafaf9` - `rgb(250 250 249)` - Light section backgrounds
+- **White**: `#ffffff` - `rgb(255 255 255)` - Card backgrounds and text
+
+### Section Background Patterns
+- **Dark Sections** (stone-700): Featured Special Events, Learn More About FCC, Children & Youth Ministries, Finding Your Place, Featured Resources
+- **Light Sections** (stone-50): Special Events & Seasonal Guide, Stay Connected
+
+### Card Styling Patterns
+- **Colored Cards**: Use signature colors with white text and white icon badges
+- **Icon Badges**: White circular background with colored icons matching card color
+- **Text**: Always white on colored cards for maximum contrast and readability
+
+### Inline Styling Approach
+Due to the dynamic nature of color cycling and Tailwind CSS purging, we use inline styles for:
+- **Background colors**: `style={{ backgroundColor: 'rgb(220 38 38)' }}`
+- **Icon colors**: `style={{ color: '#dc2626' }}`
+- **Dynamic color application**: When colors are determined at runtime
+
+### Button Styling Hierarchy
+1. **Buttons on Colored Cards**: White background, card color text, hover reveals card color with transparency
+2. **Buttons on Light Backgrounds**: Dark background (indigo-900), white text, lighter on hover
+3. **Large Action Buttons**: H1-sized text for maximum impact (newsletter signup)
+
+### Typography Scale
+- **Headings**: `text-4xl font-bold` for section titles, `text-3xl` for subsections
+- **Body Text**: `text-lg` for primary content, `text-sm` for secondary
+- **Button Text**: `text-3xl font-bold` for primary actions, standard sizing for others
+
+### Icon Usage
+- **Replace all emojis** with Lucide React icons for consistency
+- **Consistent sizing**: `h-4 w-4` for small icons, `h-6 w-6` for medium, `h-8 w-8` for large
+- **Color matching**: Icons should match their container's accent color
+
+### Responsive Design
+- **Mobile-first approach** with Tailwind CSS
+- **Grid layouts**: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` for responsive cards
+- **Consistent spacing**: `py-16` for section padding, `px-6` for container padding
+
+## Section-Specific Rules & Patterns
+
+### **Homepage Components** (`src/components/home/`)
+- **See You On Sunday**: Uses `currentMonth` prop for mini calendar, max-width constraints
+- **Featured Special Events**: Dynamic carousel with image uploads
+- **Ministry Highlights**: Static cards with consistent color schemes
+- **Email Signup**: Integration with newsletter service
+
+### **Admin Dashboard** (`src/components/admin/`)
+- **Authentication Required**: All admin components check `isAdminAuthenticated()`
+- **Modal Patterns**: Use `Dialog` components with form validation
+- **Image Uploads**: Vercel Blob Storage integration for all file uploads
+- **Drag & Drop**: Staff and lay leadership reordering
+- **Search Functionality**: Debounced search with loading states
+
+### **Ministry Database** (`src/components/ministry/`)
+- **Filtering Logic**: Category-based filtering with "five things" discipleship areas
+- **Image Handling**: Aspect ratio `aspect-[1200/630]` with `object-contain`
+- **Duplicate Categories**: Filter out duplicate category badges
+- **Color Schemes**: Consistent card colors (red-600, teal-800, indigo-900)
+
+### **Calendar System** (`src/components/calendar/`)
+- **Mini Calendar**: Requires `currentMonth` prop, monthly cache system
+- **Recurring Events**: External event filtering, admin vs public modes
+- **Event Connections**: Ministry and special event linking
+- **Cache Management**: Force refresh capabilities
+
+### **People Management** (`/admin/people`)
+- **Search Integration**: Real-time search by name/email with debouncing
+- **Family Structure**: Primary family relationships and memberships
+- **Lay Leadership**: Connection between members and leadership roles
+- **CSV Import**: Batch member and family import functionality
+
+### **About Us Section** (`src/components/about/`)
+- **Staff Display**: Image focal points and bio management
+- **Lay Leadership**: Public display of church leadership
+- **Mission/Vision**: Static content with consistent styling
+- **History**: Timeline and narrative components
+
+### **Visit Page** (`src/components/visit/`)
+- **Hero Section**: Welcome messaging and call-to-action
+- **Worship Services**: Service times and descriptions
+- **Location Info**: Address, parking, accessibility
+- **What to Expect**: First-time visitor information
+
+### **API Patterns** (`src/app/api/`)
+- **Admin Routes**: All require `isAdminAuthenticated()` middleware
+- **Calendar APIs**: Include `includeExternal` parameter for admin vs public filtering
+- **Image Upload**: Standardized Vercel Blob Storage integration
+- **Search APIs**: Debounced search with `ilike` database queries
+- **CRUD Operations**: Consistent error handling and response formats
+- **Email APIs**: Resend integration for contact forms and notifications
+
+### **Contact & Email System** (`src/components/contact/`, `src/app/contact/`)
+- **Contact Form**: Categorized inquiries with validation and confirmation
+- **Email Integration**: Resend API for reliable email delivery
+- **Privacy Protection**: Staff emails not exposed publicly
+- **Auto-responders**: Confirmation emails to form submitters
+- **Professional Templates**: HTML and text versions for all emails
+
+### **Database Patterns** (`src/lib/schema.ts`)
+- **Member Management**: `members`, `families`, `familyMemberships` relationships
+- **Leadership**: `staff` and `layLeadership` tables with image support
+- **Calendar**: `calendarEvents`, `recurringEventsCache` with external event flags
+- **Ministries**: `ministryTeams` with category arrays and image URLs
+- **Special Events**: `specialEventTypes` with color coding and featured flags
+
+## Future Improvements
+- Better error handling for calendar API failures
+- Improved mobile responsiveness
+- Enhanced admin UX for event management
+- Better caching strategy for better performance
+
+## Database Protection Strategy - NEW
+
+### Environment Management
+- **Dev Branch**: `br-long-leaf-adr76wpk` (endpoint: `ep-rapid-mountain-ad1psnld`)
+- **Switch Script**: `scripts/switch-env.js` for environment switching
+- **Usage**: `node scripts/switch-env.js dev` (switch to dev) or `node scripts/switch-env.js prod` (switch to production)
+- **Always restart dev server** after switching environments
+- **Production backup**: `.env.local.backup` contains production database URL
+
+### Safe Database Development Workflow
+1. Switch to dev database: `node scripts/switch-env.js dev`
+2. Restart dev server: `npm run dev`
+3. Make database changes safely on dev branch
+4. Test thoroughly
+5. Switch back to production: `node scripts/switch-env.js prod`
+6. Deploy changes when ready
+
+### Neon CLI Commands
+- **List projects**: `neonctl projects list`
+- **Create branch**: `neonctl branches create --project-id [ID] --name [branch-name]`
+- **List branches**: `neonctl branches list --project-id [ID]`
+- **Project ID**: `proud-mode-68565004` (from Vercel integration)
+
+## NEXT TASK: Site Image Updating Tools
+The next major feature to implement is enhanced site image management tools in the admin assets dashboard. This should include:
+- Bulk image upload capabilities
+- Image optimization and resizing
+- Image metadata management
+- Integration with existing Vercel Blob Storage
+- Preview and management interface
+- Batch operations for multiple images

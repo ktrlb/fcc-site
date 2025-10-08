@@ -36,8 +36,8 @@ export function LearnMore() {
     <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4 font-serif">
-            Learn More About FCC
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">
+            Things to Know About FCC
           </h2>
           <p className="text-2xl text-white max-w-3xl mx-auto">
             Discover our mission, meet our team, and learn about our rich history in the Granbury community.
