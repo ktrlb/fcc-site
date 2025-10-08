@@ -298,7 +298,7 @@ export async function SeeYouOnSunday() {
                   </div>
                 </div>
               )}
-              <div className={`px-6 pt-2 pb-4 md:px-8 md:pt-3 md:pb-6 ${sermonSeries?.imageUrl ? 'lg:w-1/2' : 'w-full'} text-center lg:text-left flex flex-col justify-center`}>
+              <div className={`px-6 pt-6 pb-4 md:px-8 md:pt-8 md:pb-6 ${sermonSeries?.imageUrl ? 'lg:w-1/2' : 'w-full'} text-center lg:text-left flex flex-col justify-center`}>
                 {sermonSeries ? (
                   <>
                     <p className="text-white/90 text-sm md:text-base mb-2">

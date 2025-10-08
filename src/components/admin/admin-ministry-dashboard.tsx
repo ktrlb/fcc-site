@@ -13,12 +13,28 @@ import { CSVManagement } from "./csv-management";
 import { KeywordManagement } from "./keyword-management";
 import { MinistryTypesManagement } from "./ministry-types-management";
 
+interface MinistryWithLeaders extends MinistryTeam {
+  leaders?: Array<{
+    id: string;
+    memberId: string;
+    role: string | null;
+    isPrimary: boolean;
+    sortOrder: number | null;
+    member: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      preferredName: string | null;
+    } | null;
+  }>;
+}
+
 export function AdminMinistryDashboard() {
-  const [ministries, setMinistries] = useState<MinistryTeam[]>([]);
-  const [filteredMinistries, setFilteredMinistries] = useState<MinistryTeam[]>([]);
+  const [ministries, setMinistries] = useState<MinistryWithLeaders[]>([]);
+  const [filteredMinistries, setFilteredMinistries] = useState<MinistryWithLeaders[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [editingMinistry, setEditingMinistry] = useState<MinistryTeam | null>(null);
+  const [editingMinistry, setEditingMinistry] = useState<MinistryWithLeaders | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [showCSVManagement, setShowCSVManagement] = useState(false);
   const [showKeywordManagement, setShowKeywordManagement] = useState(false);
@@ -52,14 +68,30 @@ export function AdminMinistryDashboard() {
       return;
     }
 
-    const filtered = ministries.filter((ministry) =>
-      ministry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.contactEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ministry.contactHeading?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = ministries.filter((ministry) => {
+      // Check basic fields
+      if (
+        ministry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ministry.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ministry.category.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        return true;
+      }
+      
+      // Check leaders
+      if (ministry.leaders && ministry.leaders.length > 0) {
+        return ministry.leaders.some(leader => {
+          if (!leader.member) return false;
+          const firstName = leader.member.preferredName || leader.member.firstName;
+          const lastName = leader.member.lastName;
+          const fullName = `${firstName} ${lastName}`;
+          return fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                 leader.role?.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+      }
+      
+      return false;
+    });
     setFilteredMinistries(filtered);
   }, [searchTerm, ministries]);
 
@@ -325,21 +357,27 @@ export function AdminMinistryDashboard() {
                         </div>
                         <p className="text-gray-600 text-sm mb-2 break-words">{ministry.description}</p>
                         <div className="text-sm text-gray-500 break-words">
-                          <span className="font-medium">Contact:</span> {ministry.contactPerson}
-                          {ministry.contactHeading && (
-                            <span className="text-gray-400"> ({ministry.contactHeading})</span>
-                          )}
-                          <br />
-                          {ministry.contactEmail && (
+                          {ministry.leaders && ministry.leaders.length > 0 ? (
                             <>
-                              <span className="font-medium">Email:</span> <span className="break-all">{ministry.contactEmail}</span>
-                              {ministry.contactPhone && <span className="mx-1">•</span>}
+                              <span className="font-medium">
+                                {ministry.leaders.length === 1 ? 'Leader:' : 'Leaders:'}
+                              </span>{' '}
+                              {ministry.leaders.map((leader, idx) => {
+                                if (!leader.member) return null;
+                                const firstName = leader.member.preferredName || leader.member.firstName;
+                                const lastName = leader.member.lastName;
+                                const name = `${firstName} ${lastName}`;
+                                return (
+                                  <span key={leader.id}>
+                                    {idx > 0 && ', '}
+                                    {name}
+                                  </span>
+                                );
+                              })}
                             </>
+                          ) : (
+                            <span className="text-gray-400 italic">No leaders assigned</span>
                           )}
-                          {ministry.contactPhone && (
-                            <span className="font-medium">Phone:</span>
-                          )}
-                          {ministry.contactPhone && ` ${ministry.contactPhone}`}
                         </div>
                       </div>
                     </div>

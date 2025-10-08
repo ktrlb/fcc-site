@@ -8,18 +8,18 @@ export function VisitHero() {
       {/* YouTube Video Background - autoplay on load */}
       <iframe
         className="absolute z-0"
-        src="https://www.youtube.com/embed/rA2MiVB7iCc?autoplay=1&mute=1&loop=1&playlist=rA2MiVB7iCc&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&start=0&end=0&enablejsapi=1"
+        src="https://www.youtube.com/embed/cmSpf6ZiO4I?autoplay=1&mute=1&loop=1&playlist=cmSpf6ZiO4I&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&start=0&end=0&enablejsapi=1"
         title="FCC Visit Video"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
         frameBorder="0"
         style={{
           position: 'absolute',
-          top: '50%',
+          top: 'calc(50% + 110px)',
           left: '50%',
           width: '115vw',
-          height: '64.6875vw',
-          minHeight: '115%',
+          height: 'calc(64.6875vw + 50px)',
+          minHeight: 'calc(115% + 50px)',
           minWidth: '204.44vh',
           transform: 'translate(-50%, -50%)',
           border: 'none',

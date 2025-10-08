@@ -29,7 +29,7 @@ export const ministryTeams = pgTable('ministry_teams', {
   // Legacy fields for backward compatibility
   category: varchar('category', { length: 100 }).notNull(),
   categories: text('categories').array(), // Array of category names for multiple categorization
-  contactPerson: varchar('contact_person', { length: 255 }).notNull(), // Primary contact person
+  contactPerson: varchar('contact_person', { length: 255 }), // Legacy: Primary contact person (deprecated - use ministryLeaders table)
   contactEmail: varchar('contact_email', { length: 255 }), // Primary contact email (optional)
   contactPhone: varchar('contact_phone', { length: 20 }), // Primary contact phone
   meetingSchedule: text('meeting_schedule'),
@@ -58,6 +58,18 @@ export const ministryTeamSkills = pgTable('ministry_team_skills', {
   ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id, { onDelete: 'cascade' }).notNull(),
   skillId: uuid('skill_id').references(() => ministrySkills.id, { onDelete: 'cascade' }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Ministry leaders - links members to ministry teams as leaders/contacts
+export const ministryLeaders = pgTable('ministry_leaders', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  ministryTeamId: uuid('ministry_team_id').references(() => ministryTeams.id, { onDelete: 'cascade' }).notNull(),
+  memberId: uuid('member_id').references(() => members.id, { onDelete: 'cascade' }).notNull(),
+  role: varchar('role', { length: 100 }), // e.g., "Lead", "Co-Lead", "Coordinator"
+  isPrimary: boolean('is_primary').default(false).notNull(), // Primary contact for the ministry
+  sortOrder: integer('sort_order').default(0), // Display order
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // Content tables for structured data
@@ -462,6 +474,9 @@ export type NewMinistryApplication = typeof ministryApplications.$inferInsert;
 
 export type MinistryTeamSkill = typeof ministryTeamSkills.$inferSelect;
 export type NewMinistryTeamSkill = typeof ministryTeamSkills.$inferInsert;
+
+export type MinistryLeader = typeof ministryLeaders.$inferSelect;
+export type NewMinistryLeader = typeof ministryLeaders.$inferInsert;
 
 export type SermonSeries = typeof sermonSeries.$inferSelect;
 export type NewSermonSeries = typeof sermonSeries.$inferInsert;

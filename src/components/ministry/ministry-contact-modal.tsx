@@ -8,11 +8,24 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Mail, CheckCircle, AlertCircle } from 'lucide-react';
 
+interface Leader {
+  id: string;
+  memberId: string;
+  role: string | null;
+  isPrimary: boolean;
+  member: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    preferredName: string | null;
+  } | null;
+}
+
 interface MinistryContactModalProps {
   isOpen: boolean;
   onClose: () => void;
   ministryName: string;
-  contactPerson: string;
+  leaders?: Leader[];
   ministryId: string;
 }
 
@@ -20,7 +33,7 @@ export function MinistryContactModal({
   isOpen,
   onClose,
   ministryName,
-  contactPerson,
+  leaders,
   ministryId,
 }: MinistryContactModalProps) {
   const [formData, setFormData] = useState({
@@ -32,6 +45,30 @@ export function MinistryContactModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Format contact display name from leaders
+  const getContactDisplayName = () => {
+    if (leaders && leaders.length > 0) {
+      const leaderNames = leaders
+        .filter(l => l.member)
+        .map(l => {
+          const firstName = l.member!.preferredName || l.member!.firstName;
+          const lastName = l.member!.lastName;
+          return `${firstName} ${lastName}`;
+        });
+      
+      if (leaderNames.length === 1) {
+        return leaderNames[0];
+      } else if (leaderNames.length === 2) {
+        return `${leaderNames[0]} & ${leaderNames[1]}`;
+      } else if (leaderNames.length > 2) {
+        return `${leaderNames.slice(0, -1).join(', ')} & ${leaderNames[leaderNames.length - 1]}`;
+      }
+    }
+    return 'FCC';
+  };
+
+  const contactDisplayName = getContactDisplayName();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +86,8 @@ export function MinistryContactModal({
           ...formData,
           ministryId,
           ministryName,
-          contactPerson,
+          contactPerson: contactDisplayName,
+          leaders: leaders?.map(l => l.memberId) || [],
         }),
       });
 
@@ -82,10 +120,10 @@ export function MinistryContactModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-indigo-900" />
-            Contact {contactPerson}
+            Contact {contactDisplayName}
           </DialogTitle>
           <DialogDescription>
-            Send a message about <strong>{ministryName}</strong>. Your message will be sent to {contactPerson} and the church office.
+            Send a message about <strong>{ministryName}</strong>. Your message will be sent to {contactDisplayName === 'FCC' ? 'the church office' : `${contactDisplayName} and the church office`}.
           </DialogDescription>
         </DialogHeader>
 
@@ -94,7 +132,7 @@ export function MinistryContactModal({
             <CheckCircle className="h-16 w-16 text-green-600 mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Message Sent!</h3>
             <p className="text-gray-600">
-              {contactPerson} will get back to you soon.
+              {contactDisplayName === 'FCC' ? 'Someone from the church' : contactDisplayName} will get back to you soon.
             </p>
           </div>
         ) : (

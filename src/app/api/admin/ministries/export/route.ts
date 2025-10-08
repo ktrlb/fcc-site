@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMinistryTeams } from '@/lib/ministry-queries';
+import { getMinistryTeamsWithLeaders } from '@/lib/ministry-queries';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
 export async function GET() {
@@ -8,13 +8,12 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const ministries = await getMinistryTeams();
+    const ministries = await getMinistryTeamsWithLeaders(true); // Include inactive for admin export
     
     // Convert ministries to CSV format
     const csvHeaders = [
       'id',
       'name',
-      'contactHeading',
       'type',
       'regularMeetingType',
       'regularMeetingTime',
@@ -23,9 +22,7 @@ export async function GET() {
       'recurringType',
       'category',
       'categories',
-      'contactPerson',
-      'contactEmail',
-      'contactPhone',
+      'leaders',
       'meetingSchedule',
       'location',
       'skillsNeeded',
@@ -41,26 +38,46 @@ export async function GET() {
     
     ministries.forEach(ministry => {
       const row = csvHeaders.map(header => {
-        let value = ministry[header as keyof typeof ministry];
+        let value: any;
         
-        // Handle array fields (convert to pipe-separated string)
-        if (Array.isArray(value)) {
-          value = value.join('|');
-        }
-        
-        // Handle boolean values
-        if (typeof value === 'boolean') {
-          value = value ? 'true' : 'false';
-        }
-        
-        // Handle dates
-        if (value instanceof Date) {
-          value = value.toISOString();
-        }
-        
-        // Handle null/undefined
-        if (value === null || value === undefined) {
-          value = '';
+        // Special handling for leaders field
+        if (header === 'leaders') {
+          // Format leaders as "FirstName LastName (Role)|FirstName LastName (Role)"
+          if (ministry.leaders && ministry.leaders.length > 0) {
+            value = ministry.leaders
+              .filter(l => l.member)
+              .map(l => {
+                const firstName = l.member!.preferredName || l.member!.firstName;
+                const lastName = l.member!.lastName;
+                const role = l.role ? ` (${l.role})` : '';
+                return `${firstName} ${lastName}${role}`;
+              })
+              .join('|');
+          } else {
+            value = '';
+          }
+        } else {
+          value = ministry[header as keyof typeof ministry];
+          
+          // Handle array fields (convert to pipe-separated string)
+          if (Array.isArray(value)) {
+            value = value.join('|');
+          }
+          
+          // Handle boolean values
+          if (typeof value === 'boolean') {
+            value = value ? 'true' : 'false';
+          }
+          
+          // Handle dates
+          if (value instanceof Date) {
+            value = value.toISOString();
+          }
+          
+          // Handle null/undefined
+          if (value === null || value === undefined) {
+            value = '';
+          }
         }
         
         // Escape commas and quotes in CSV

@@ -15,7 +15,7 @@ export function SermonSeriesDescription({ description }: SermonSeriesDescription
   
   return (
     <div>
-      <p className="text-white text-base md:text-lg leading-relaxed">
+      <p className="text-white text-base md:text-lg leading-[1.25]">
         {displayText}
         {shouldTruncate && !isExpanded && '...'}
       </p>

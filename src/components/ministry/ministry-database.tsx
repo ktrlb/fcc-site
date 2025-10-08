@@ -11,16 +11,32 @@ import { MinistryPlaceholder } from "./ministry-placeholder";
 import { MinistryContactModal } from "./ministry-contact-modal";
 import type { MinistryTeam } from "@/lib/schema";
 
+interface MinistryWithLeaders extends MinistryTeam {
+  leaders?: Array<{
+    id: string;
+    memberId: string;
+    role: string | null;
+    isPrimary: boolean;
+    sortOrder: number | null;
+    member: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      preferredName: string | null;
+    } | null;
+  }>;
+}
+
 interface Props {
-  initialMinistries: MinistryTeam[];
+  initialMinistries: MinistryWithLeaders[];
 }
 
 export function MinistryDatabase({ initialMinistries }: Props) {
   const searchParams = useSearchParams();
-  const [ministries] = useState<MinistryTeam[]>(initialMinistries || []);
-  const [filteredMinistries, setFilteredMinistries] = useState<MinistryTeam[]>(initialMinistries || []);
+  const [ministries] = useState<MinistryWithLeaders[]>(initialMinistries || []);
+  const [filteredMinistries, setFilteredMinistries] = useState<MinistryWithLeaders[]>(initialMinistries || []);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const [selectedMinistry, setSelectedMinistry] = useState<MinistryTeam | null>(null);
+  const [selectedMinistry, setSelectedMinistry] = useState<MinistryWithLeaders | null>(null);
   
   // Generate categories dynamically from ministries (only show categories that have ministries)
   const [categories] = useState(() => {
@@ -451,7 +467,28 @@ export function MinistryDatabase({ initialMinistries }: Props) {
                           style={{ backgroundColor: colorScheme.hex }}
                         >
                           <Mail className="h-4 w-4 mr-2" />
-                          Contact {ministry.contactPerson}
+                          {ministry.leaders && ministry.leaders.length > 0 ? (
+                            (() => {
+                              const leaderNames = ministry.leaders
+                                .filter(l => l.member)
+                                .map(l => {
+                                  const firstName = l.member!.preferredName || l.member!.firstName;
+                                  const lastName = l.member!.lastName;
+                                  return `${firstName} ${lastName}`;
+                                });
+                              
+                              if (leaderNames.length === 1) {
+                                return `Contact ${leaderNames[0]}`;
+                              } else if (leaderNames.length === 2) {
+                                return `Contact ${leaderNames[0]} & ${leaderNames[1]}`;
+                              } else if (leaderNames.length > 2) {
+                                return `Contact ${leaderNames.slice(0, -1).join(', ')} & ${leaderNames[leaderNames.length - 1]}`;
+                              }
+                              return 'Contact FCC';
+                            })()
+                          ) : (
+                            'Contact FCC'
+                          )}
                         </Button>
                       </div>
                     </CardContent>
@@ -493,7 +530,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
             setSelectedMinistry(null);
           }}
           ministryName={selectedMinistry.name}
-          contactPerson={selectedMinistry.contactPerson}
+          leaders={selectedMinistry.leaders}
           ministryId={selectedMinistry.id}
         />
       )}

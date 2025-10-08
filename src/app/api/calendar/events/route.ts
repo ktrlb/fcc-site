@@ -149,7 +149,7 @@ export async function GET(request: Request) {
         name: ministry.name,
         description: ministry.description,
         imageUrl: ministry.imageUrl || ministry.graphicImage || undefined,
-        contactPerson: ministry.contactPerson,
+        contactPerson: ministry.contactPerson || undefined,
         contactEmail: ministry.contactEmail || undefined,
         contactPhone: ministry.contactPhone || undefined,
         categories: ministry.categories || undefined

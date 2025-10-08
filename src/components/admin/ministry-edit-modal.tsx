@@ -26,7 +26,6 @@ const RECURRING_TYPES = [
 export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditModalProps) {
   const [formData, setFormData] = useState({
     name: "",
-    contactHeading: "",
     type: [] as string[],
     regularMeetingType: "",
     regularMeetingTime: "",
@@ -35,9 +34,6 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
     recurringType: "regular",
     category: "Children",
     categories: [] as string[],
-    contactPerson: "",
-    contactEmail: "",
-    contactPhone: "",
     meetingSchedule: "",
     location: "",
     skillsNeeded: [] as string[],
@@ -53,6 +49,9 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
   const [uploadingImage, setUploadingImage] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [availableMembers, setAvailableMembers] = useState<Array<{ id: string; firstName: string; lastName: string; preferredName: string | null }>>([]);
+  const [loadingMembers, setLoadingMembers] = useState(true);
+  const [selectedLeaders, setSelectedLeaders] = useState<Array<{ memberId: string; role: string; isPrimary: boolean }>>([]);
 
   // Load available categories from the database
   useEffect(() => {
@@ -95,11 +94,40 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
     loadCategories();
   }, []);
 
+  // Load available members from the database
+  useEffect(() => {
+    const loadMembers = async () => {
+      setLoadingMembers(true);
+      try {
+        const response = await fetch('/api/admin/members');
+        if (response.ok) {
+          const data = await response.json();
+          const membersList = data.members || [];
+          // Sort by last name, then first name
+          membersList.sort((a: any, b: any) => {
+            const lastNameCompare = a.lastName.localeCompare(b.lastName);
+            if (lastNameCompare !== 0) return lastNameCompare;
+            return a.firstName.localeCompare(b.firstName);
+          });
+          setAvailableMembers(membersList);
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Error loading members:', error);
+        setAvailableMembers([]);
+      } finally {
+        setLoadingMembers(false);
+      }
+    };
+    
+    loadMembers();
+  }, []);
+
   useEffect(() => {
     if (ministry) {
       setFormData({
         name: ministry.name || "",
-        contactHeading: ministry.contactHeading || "",
         type: ministry.type || [],
         regularMeetingType: ministry.regularMeetingType || "",
         regularMeetingTime: ministry.regularMeetingTime || "",
@@ -108,9 +136,6 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         recurringType: ministry.recurringType || "regular",
         category: ministry.category || "Children",
         categories: ministry.categories || [],
-        contactPerson: ministry.contactPerson || "",
-        contactEmail: ministry.contactEmail || "",
-        contactPhone: ministry.contactPhone || "",
         meetingSchedule: ministry.meetingSchedule || "",
         location: ministry.location || "",
         skillsNeeded: ministry.skillsNeeded || [],
@@ -122,6 +147,27 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
       if (ministry.imageUrl) {
         setImagePreview(ministry.imageUrl);
       }
+      
+      // Load leaders for this ministry
+      const loadLeaders = async () => {
+        try {
+          const response = await fetch(`/api/admin/ministries/${ministry.id}/leaders`);
+          if (response.ok) {
+            const data = await response.json();
+            setSelectedLeaders(
+              data.leaders.map((leader: any) => ({
+                memberId: leader.memberId,
+                role: leader.role || '',
+                isPrimary: leader.isPrimary,
+              }))
+            );
+          }
+        } catch (error) {
+          console.error('Error loading leaders:', error);
+        }
+      };
+      
+      loadLeaders();
     }
   }, [ministry]);
 
@@ -217,6 +263,13 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         if (imageFile) {
           await handleImageUpload(imageFile);
         }
+        
+        // Save leaders
+        await fetch(`/api/admin/ministries/${ministry.id}/leaders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ leaders: selectedLeaders }),
+        });
       } else {
         const response = await fetch('/api/admin/ministries', {
           method: 'POST',
@@ -225,6 +278,17 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
         });
         if (!response.ok) {
           throw new Error('Failed to create ministry');
+        }
+        
+        const newMinistry = await response.json();
+        
+        // Save leaders for new ministry
+        if (selectedLeaders.length > 0) {
+          await fetch(`/api/admin/ministries/${newMinistry.id}/leaders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ leaders: selectedLeaders }),
+          });
         }
       }
       onSave();
@@ -396,64 +460,101 @@ export function MinistryEditModal({ ministry, onClose, onSave }: MinistryEditMod
               />
             </div>
 
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contact Heading
-                </label>
-                <Input
-                  value={formData.contactHeading}
-                  onChange={(e) => setFormData(prev => ({ ...prev, contactHeading: e.target.value }))}
-                  placeholder="e.g., Outreach Chair, Team Lead"
-                  autoComplete="off"
-                  data-form-type="other"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Title/role of the contact person (e.g., &quot;Outreach Chair&quot; for partner organizations)
-                </p>
+            {/* Ministry Leaders */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ministry Leaders
+              </label>
+              
+              {/* Display selected leaders */}
+              <div className="space-y-2 mb-3">
+                {selectedLeaders.map((leader, index) => {
+                  const member = availableMembers.find(m => m.id === leader.memberId);
+                  if (!member) return null;
+                  const displayName = member.preferredName || `${member.firstName} ${member.lastName}`;
+                  
+                  return (
+                    <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded border">
+                      <div className="flex-1">
+                        <div className="font-medium">{displayName}</div>
+                        <Input
+                          type="text"
+                          value={leader.role}
+                          onChange={(e) => {
+                            const newLeaders = [...selectedLeaders];
+                            newLeaders[index].role = e.target.value;
+                            setSelectedLeaders(newLeaders);
+                          }}
+                          placeholder="Role (e.g., Lead, Co-Lead)"
+                          className="mt-1 text-sm"
+                          autoComplete="off"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="flex items-center gap-1 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={leader.isPrimary}
+                            onChange={(e) => {
+                              const newLeaders = selectedLeaders.map((l, i) => ({
+                                ...l,
+                                isPrimary: i === index ? e.target.checked : false,
+                              }));
+                              setSelectedLeaders(newLeaders);
+                            }}
+                            className="rounded"
+                          />
+                          Primary
+                        </label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedLeaders(selectedLeaders.filter((_, i) => i !== index));
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contact Person Name *
-                </label>
-                <Input
-                  value={formData.contactPerson}
-                  onChange={(e) => setFormData(prev => ({ ...prev, contactPerson: e.target.value }))}
-                  autoComplete="off"
-                  data-form-type="other"
-                  required
-                />
-              </div>
+              
+              {/* Add leader dropdown */}
+              <Select
+                onValueChange={(memberId) => {
+                  if (memberId && !selectedLeaders.find(l => l.memberId === memberId)) {
+                    setSelectedLeaders([
+                      ...selectedLeaders,
+                      { memberId, role: '', isPrimary: selectedLeaders.length === 0 }
+                    ]);
+                  }
+                }}
+                disabled={loadingMembers}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingMembers ? "Loading members..." : "Add a leader..."} />
+                </SelectTrigger>
+                <SelectContent className="z-[100]">
+                  {availableMembers
+                    .filter(m => !selectedLeaders.find(l => l.memberId === m.id))
+                    .map(member => {
+                      const displayName = member.preferredName || `${member.firstName} ${member.lastName}`;
+                      return (
+                        <SelectItem key={member.id} value={member.id}>
+                          {displayName}
+                        </SelectItem>
+                      );
+                    })}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select church members who lead this ministry. Mark one as primary contact.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contact Email
-                </label>
-                <Input
-                  value={formData.contactEmail}
-                  onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                  type="email"
-                  placeholder="email@example.com (optional)"
-                  autoComplete="off"
-                  data-form-type="other"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contact Phone
-                </label>
-                <Input
-                  value={formData.contactPhone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                  placeholder="(555) 123-4567"
-                  autoComplete="off"
-                  data-form-type="other"
-                />
-              </div>
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

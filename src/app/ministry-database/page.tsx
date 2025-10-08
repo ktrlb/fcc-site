@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { MinistryDatabase } from "@/components/ministry/ministry-database";
-import { getMinistryTeams } from "@/lib/ministry-queries";
+import { getMinistryTeamsWithLeaders } from "@/lib/ministry-queries";
 
 export default async function MinistryDatabasePage() {
-  const ministries = await getMinistryTeams();
+  const ministries = await getMinistryTeamsWithLeaders();
 
   return (
     <div className="min-h-screen">

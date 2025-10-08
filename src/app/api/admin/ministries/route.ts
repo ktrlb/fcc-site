@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMinistryTeams, createMinistryTeam } from '@/lib/ministry-queries';
+import { getMinistryTeamsWithLeaders, createMinistryTeam } from '@/lib/ministry-queries';
 import { isAdminAuthenticated } from '@/lib/admin-auth';
 
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const ministries = await getMinistryTeams();
+    const ministries = await getMinistryTeamsWithLeaders(true); // Include inactive for admin view
     return NextResponse.json(ministries);
   } catch (error) {
     console.error('Error fetching ministries:', error);

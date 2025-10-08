@@ -47,7 +47,7 @@ interface QuickAddLeaderModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  category: 'general-board' | 'elders' | 'deacons';
+  category: 'general-board' | 'elders' | 'deacons' | 'volunteers';
 }
 
 export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: QuickAddLeaderModalProps) {
@@ -56,6 +56,7 @@ export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: Qu
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
+  const [customRole, setCustomRole] = useState('');
 
   const categoryConfig = {
     'general-board': {
@@ -76,14 +77,27 @@ export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: Qu
         'Chair of the Elders',
         'Chair of the Deacons',
       ],
+      allowCustom: false,
     },
     'elders': {
       title: 'Add Elder',
       roles: ['Elder', 'Chair of the Elders'],
+      allowCustom: false,
     },
     'deacons': {
       title: 'Add Deacon',
       roles: ['Deacon', 'Chair of the Deacons'],
+      allowCustom: false,
+    },
+    'volunteers': {
+      title: 'Add Volunteer',
+      roles: [
+        'Church Historian',
+        'Communication Coordinator',
+        'Recycling Volunteer',
+        'custom', // Special option to enable custom input
+      ],
+      allowCustom: true,
     },
   };
 
@@ -95,6 +109,7 @@ export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: Qu
       setSearchTerm('');
       setSelectedMemberId('');
       setSelectedRole('');
+      setCustomRole('');
     }
   }, [isOpen]);
 
@@ -127,8 +142,17 @@ export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: Qu
         return;
       }
 
+      // Determine the actual role to use
+      const finalRole = selectedRole === 'custom' ? customRole.trim() : selectedRole;
+      
+      if (!finalRole) {
+        alert('Please enter a custom role');
+        setLoading(false);
+        return;
+      }
+
       const displayName = member.preferredName || member.firstName;
-      const roleDescription = ROLE_DEFINITIONS[selectedRole as keyof typeof ROLE_DEFINITIONS] || '';
+      const roleDescription = ROLE_DEFINITIONS[finalRole as keyof typeof ROLE_DEFINITIONS] || '';
 
       const response = await fetch('/api/admin/lay-leadership', {
         method: 'POST',
@@ -136,7 +160,7 @@ export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: Qu
         body: JSON.stringify({
           memberId: selectedMemberId,
           displayName: `${displayName} ${member.lastName}`,
-          role: selectedRole,
+          role: finalRole,
           roleDescription: roleDescription,
           leadershipTypes: [category],
           isActive: true,
@@ -219,18 +243,39 @@ export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: Qu
                 <SelectContent className="max-h-[300px]">
                   {config.roles.map(role => (
                     <SelectItem key={role} value={role}>
-                      {role}
+                      {role === 'custom' ? '+ Add Custom Role' : role}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {selectedRole && ROLE_DEFINITIONS[selectedRole as keyof typeof ROLE_DEFINITIONS] && (
+              {selectedRole && selectedRole !== 'custom' && ROLE_DEFINITIONS[selectedRole as keyof typeof ROLE_DEFINITIONS] && (
                 <p className="text-sm text-gray-600 mt-2 p-3 bg-blue-50 rounded-md">
                   {ROLE_DEFINITIONS[selectedRole as keyof typeof ROLE_DEFINITIONS]}
                 </p>
               )}
             </div>
           </fieldset>
+
+          {/* Custom role input for volunteers */}
+          {config.allowCustom && selectedRole === 'custom' && (
+            <fieldset className="border-0 p-0 m-0">
+              <div>
+                <Label htmlFor="custom-role">Custom Role Name *</Label>
+                <Input
+                  id="custom-role"
+                  name="custom-role"
+                  placeholder="Enter custom volunteer role..."
+                  value={customRole}
+                  onChange={(e) => setCustomRole(e.target.value)}
+                  autoComplete="off"
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  This role will be added to the volunteers section
+                </p>
+              </div>
+            </fieldset>
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button
@@ -244,7 +289,7 @@ export function QuickAddLeaderModal({ isOpen, onClose, onSuccess, category }: Qu
             </Button>
             <Button
               type="submit"
-              disabled={loading || !selectedMemberId || !selectedRole}
+              disabled={loading || !selectedMemberId || !selectedRole || (selectedRole === 'custom' && !customRole.trim())}
               className="flex-1 bg-indigo-900 hover:bg-indigo-900/90 text-white"
             >
               {loading ? 'Adding...' : 'Add Leader'}

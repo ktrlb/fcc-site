@@ -1,5 +1,5 @@
 import { db } from './db';
-import { ministryTeams, ministryCategories, ministryApplications } from './schema';
+import { ministryTeams, ministryCategories, ministryApplications, ministryLeaders, members } from './schema';
 import { eq } from 'drizzle-orm';
 import type { NewMinistryTeam } from './schema';
 
@@ -30,6 +30,49 @@ export async function getMinistryTeams() {
       return await db.select().from(ministryTeams).where(eq(ministryTeams.isActive, true));
     }
     
+    throw error;
+  }
+}
+
+export async function getMinistryTeamsWithLeaders(includeInactive: boolean = false) {
+  try {
+    // Get ministries (active only for public, all for admin)
+    const ministries = includeInactive 
+      ? await db.select().from(ministryTeams)
+      : await db.select().from(ministryTeams).where(eq(ministryTeams.isActive, true));
+    
+    // For each ministry, fetch its leaders
+    const ministriesWithLeaders = await Promise.all(
+      ministries.map(async (ministry) => {
+        const leaders = await db
+          .select({
+            id: ministryLeaders.id,
+            memberId: ministryLeaders.memberId,
+            role: ministryLeaders.role,
+            isPrimary: ministryLeaders.isPrimary,
+            sortOrder: ministryLeaders.sortOrder,
+            member: {
+              id: members.id,
+              firstName: members.firstName,
+              lastName: members.lastName,
+              preferredName: members.preferredName,
+            },
+          })
+          .from(ministryLeaders)
+          .leftJoin(members, eq(ministryLeaders.memberId, members.id))
+          .where(eq(ministryLeaders.ministryTeamId, ministry.id))
+          .orderBy(ministryLeaders.sortOrder, ministryLeaders.isPrimary);
+        
+        return {
+          ...ministry,
+          leaders,
+        };
+      })
+    );
+    
+    return ministriesWithLeaders;
+  } catch (error) {
+    console.log('Database query error:', error instanceof Error ? error.message : 'Unknown error');
     throw error;
   }
 }
