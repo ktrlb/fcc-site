@@ -3,9 +3,7 @@
 import { useState, useEffect } from "react";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { SeasonalGuidesDashboard } from "@/components/admin/seasonal-guides-dashboard";
 
 export default function SeasonalGuidesAdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -69,24 +67,7 @@ export default function SeasonalGuidesAdminPage() {
             <p className="text-gray-600">Manage seasonal guides and resources</p>
           </div>
           <div className="flex-1 p-6 overflow-auto">
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Seasonal Guides</h2>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add New Guide
-                </Button>
-              </div>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Seasonal Guides Dashboard</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">Seasonal guides management interface coming soon...</p>
-                </CardContent>
-              </Card>
-            </div>
+            <SeasonalGuidesDashboard onLogout={handleLogout} />
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -21,13 +21,15 @@ interface ImageCarouselProps {
 export function ImageCarousel({ 
   category, 
   title, 
-  autoPlay = false, 
-  interval = 5000 
+  autoPlay = true, 
+  interval = 4000 
 }: ImageCarouselProps) {
   const [images, setImages] = useState<Image[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     async function fetchImages() {
@@ -47,24 +49,48 @@ export function ImageCarousel({
     fetchImages();
   }, [category]);
 
+  // Auto-advance effect that respects paused state
   useEffect(() => {
-    if (!autoPlay || images.length === 0) return;
+    if (!autoPlay || images.length === 0 || isPaused) {
+      if (autoPlayTimerRef.current) {
+        clearInterval(autoPlayTimerRef.current);
+        autoPlayTimerRef.current = null;
+      }
+      return;
+    }
 
-    const timer = setInterval(() => {
+    autoPlayTimerRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, interval);
 
-    return () => clearInterval(timer);
-  }, [autoPlay, interval, images.length]);
+    return () => {
+      if (autoPlayTimerRef.current) {
+        clearInterval(autoPlayTimerRef.current);
+      }
+    };
+  }, [autoPlay, interval, images.length, isPaused]);
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) => 
       prevIndex === 0 ? images.length - 1 : prevIndex - 1
     );
+    // Pause auto-play when user manually navigates
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 10000); // Resume after 10 seconds
   };
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    // Pause auto-play when user manually navigates
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 10000); // Resume after 10 seconds
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+    // Pause auto-play when user clicks a dot
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 10000); // Resume after 10 seconds
   };
 
   if (isLoading) {
@@ -129,7 +155,7 @@ export function ImageCarousel({
             {images.map((_, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => goToSlide(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
                   index === currentIndex
                     ? 'bg-white w-4'

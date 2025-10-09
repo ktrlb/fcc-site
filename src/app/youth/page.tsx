@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Mountain, Users, Calendar, MapPin, Star } from "lucide-react";
 import Image from "next/image";
+import { ImageCarousel } from "@/components/image-carousel";
+import { YouthEvents } from "@/components/youth/youth-events";
 
 export default function YouthPage() {
   return (
@@ -16,7 +18,7 @@ export default function YouthPage() {
             backgroundRepeat: "no-repeat"
           }}
         />
-        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(68 64 60, 0.7)' }}></div>
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}></div>
         <div className="relative flex items-center justify-center h-full">
           <div className="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Heart className="h-16 w-16 mx-auto mb-6" />
@@ -29,6 +31,9 @@ export default function YouthPage() {
           </div>
         </div>
       </section>
+
+      {/* Youth Events Section */}
+      <YouthEvents />
 
       {/* Program Overview Section */}
       <section className="py-16" style={{ backgroundColor: 'rgb(68 64 60)' }}>
@@ -84,53 +89,6 @@ export default function YouthPage() {
                 <li>• Weekly gatherings with deeper theological discussions</li>
                 <li>• Leadership roles in church and community</li>
                 <li>• Mission trips and service immersion experiences</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Youth Gatherings Section */}
-      <section className="py-16 bg-stone-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif">Youth Gatherings</h2>
-            <p className="mt-4 text-lg text-indigo-700">Regular opportunities for fellowship and growth</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-8 rounded-lg" style={{ backgroundColor: 'rgb(49 46 129)' }}>
-              <div className="flex items-center mb-4">
-                <Users className="h-8 w-8 text-white mr-3" />
-                <h3 className="text-xl font-bold text-white">Weekly Schedule</h3>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <p className="font-semibold text-white">Sunday School</p>
-                  <p className="text-white/90">Sunday mornings from 10:00 - 11:00 AM</p>
-                </div>
-                <div>
-                  <p className="font-semibold text-white">Wednesday Youth Group</p>
-                  <p className="text-white/90">Wednesday evenings from 5:30 - 7:00 PM (dinner included)</p>
-                </div>
-                <p className="text-white/90">
-                  Weekly gatherings include games, worship, Bible study, discussion, and fellowship. 
-                  Each week focuses on relevant topics that help youth navigate their faith in everyday life.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-8 rounded-lg" style={{ backgroundColor: 'rgb(220 38 38)' }}>
-              <div className="flex items-center mb-4">
-                <Calendar className="h-8 w-8 text-white mr-3" />
-                <h3 className="text-xl font-bold text-white">Special Events</h3>
-              </div>
-              <ul className="space-y-3 text-white/90">
-                <li>• Service projects and community outreach</li>
-                <li>• Campouts, retreats and lock-ins</li>
-                <li>• Seasonal celebrations and traditions</li>
-                <li>• Intergenerational events with the church family</li>
-                <li>• Social events and recreational activities</li>
               </ul>
             </div>
           </div>
@@ -199,6 +157,11 @@ export default function YouthPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-indigo-900 font-serif">Camps & Retreats</h2>
             <p className="mt-4 text-lg text-indigo-700">Special experiences for spiritual growth and community building</p>
+          </div>
+
+          {/* Youth Camp Photos Carousel */}
+          <div className="mb-12">
+            <ImageCarousel category="youth-camp" />
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">

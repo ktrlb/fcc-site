@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, DragEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +29,8 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const [isCoverDragging, setIsCoverDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -48,25 +50,89 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
     { value: "general", label: "General" },
   ];
 
+  const validateAndSetFile = (selectedFile: File) => {
+    // Validate file size (max 10MB)
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      setError("File size must be less than 10MB");
+      return false;
+    }
+    
+    setFile(selectedFile);
+    setError("");
+    
+    // Auto-fill name if not provided
+    if (!formData.name) {
+      setFormData(prev => ({
+        ...prev,
+        name: selectedFile.name.replace(/\.[^/.]+$/, ""), // Remove extension
+      }));
+    }
+    return true;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
+      validateAndSetFile(selectedFile);
+    }
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile) {
+      validateAndSetFile(droppedFile);
+    }
+  };
+
+  const handleCoverDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsCoverDragging(true);
+  };
+
+  const handleCoverDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsCoverDragging(false);
+  };
+
+  const handleCoverDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsCoverDragging(false);
+    
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile) {
       // Validate file size (max 10MB)
-      if (selectedFile.size > 10 * 1024 * 1024) {
-        setError("File size must be less than 10MB");
+      if (droppedFile.size > 10 * 1024 * 1024) {
+        setError("Cover image size must be less than 10MB");
         return;
       }
       
-      setFile(selectedFile);
-      setError("");
-      
-      // Auto-fill name if not provided
-      if (!formData.name) {
-        setFormData(prev => ({
-          ...prev,
-          name: selectedFile.name.replace(/\.[^/.]+$/, ""), // Remove extension
-        }));
+      // Validate file type (images only)
+      if (!droppedFile.type.startsWith('image/')) {
+        setError("Cover image must be an image file");
+        return;
       }
+      
+      setCoverImage(droppedFile);
+      setError("");
     }
   };
 
@@ -201,6 +267,8 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
     setFile(null);
     setCoverImage(null);
     setError("");
+    setIsDragging(false);
+    setIsCoverDragging(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -236,7 +304,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
 
         <div className="flex-1 overflow-y-auto pr-2">
           <form onSubmit={handleSubmit} className="space-y-4">
-          {/* File Upload */}
+          {/* File Upload with Drag & Drop */}
           <div>
             <Label htmlFor="file">
               {formData.type === "sermon_series" ? "Sermon Series Image *" : 
@@ -252,33 +320,41 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
                 className="hidden"
                 accept={formData.type === "sermon_series" ? "image/*" : 
                        formData.type === "seasonal_guide" ? ".pdf" : 
+                       formData.type === "image" ? "image/*" :
                        ".pdf,.jpg,.jpeg,.png,.gif,.mp4,.mov,.doc,.docx,.txt"}
               />
-              <Button
-                type="button"
-                variant="outline"
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-20 border-dashed"
+                className={`w-full h-24 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
+                  isDragging 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                }`}
               >
-                <div className="text-center">
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm text-gray-600">
-                    {file ? file.name : 
-                     formData.type === "sermon_series" ? "Click to select image" :
-                     formData.type === "seasonal_guide" ? "Click to select PDF" :
-                     "Click to select file"}
+                <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                  <Upload className={`h-8 w-8 mb-2 ${isDragging ? 'text-blue-500' : 'text-gray-400'}`} />
+                  <p className={`text-sm ${isDragging ? 'text-blue-600 font-medium' : 'text-gray-600'}`}>
+                    {isDragging ? 'Drop file here' :
+                     file ? file.name : 
+                     formData.type === "sermon_series" ? "Drag & drop image or click to select" :
+                     formData.type === "seasonal_guide" ? "Drag & drop PDF or click to select" :
+                     formData.type === "image" ? "Drag & drop image or click to select" :
+                     "Drag & drop file or click to select"}
                   </p>
-                  {file && (
-                    <p className="text-xs text-gray-500">
+                  {file && !isDragging && (
+                    <p className="text-xs text-gray-500 mt-1">
                       {formatFileSize(file.size)}
                     </p>
                   )}
                 </div>
-              </Button>
+              </div>
             </div>
           </div>
 
-          {/* Cover Image Upload - Only for Seasonal Guide */}
+          {/* Cover Image Upload with Drag & Drop - Only for Seasonal Guide */}
           {formData.type === "seasonal_guide" && (
             <div>
               <Label htmlFor="coverImage">Cover Image *</Label>
@@ -291,24 +367,31 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
                   className="hidden"
                   accept="image/*"
                 />
-                <Button
-                  type="button"
-                  variant="outline"
+                <div
+                  onDragOver={handleCoverDragOver}
+                  onDragLeave={handleCoverDragLeave}
+                  onDrop={handleCoverDrop}
                   onClick={() => coverImageInputRef.current?.click()}
-                  className="w-full h-20 border-dashed"
+                  className={`w-full h-24 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
+                    isCoverDragging 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                  }`}
                 >
-                  <div className="text-center">
-                    <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm text-gray-600">
-                      {coverImage ? coverImage.name : "Click to select cover image"}
+                  <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                    <Upload className={`h-8 w-8 mb-2 ${isCoverDragging ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <p className={`text-sm ${isCoverDragging ? 'text-blue-600 font-medium' : 'text-gray-600'}`}>
+                      {isCoverDragging ? 'Drop cover image here' :
+                       coverImage ? coverImage.name : 
+                       "Drag & drop cover image or click to select"}
                     </p>
-                    {coverImage && (
-                      <p className="text-xs text-gray-500">
+                    {coverImage && !isCoverDragging && (
+                      <p className="text-xs text-gray-500 mt-1">
                         {formatFileSize(coverImage.size)}
                       </p>
                     )}
                   </div>
-                </Button>
+                </div>
               </div>
             </div>
           )}

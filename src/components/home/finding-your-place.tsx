@@ -111,9 +111,9 @@ export function FindingYourPlace() {
     <section className="py-16 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">
-            Finding Your Place Here
-          </h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">
+              Find Your Place Here
+            </h2>
           <p className="text-xl text-indigo-900 max-w-3xl mx-auto">
             Discover the five areas of discipleship that help us grow in faith and serve our community.
           </p>

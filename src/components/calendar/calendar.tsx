@@ -62,7 +62,7 @@ export function Calendar({ events = [] }: CalendarProps) {
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [currentDate]); // Refetch when month changes
 
   // Check if screen is mobile-sized
   useEffect(() => {

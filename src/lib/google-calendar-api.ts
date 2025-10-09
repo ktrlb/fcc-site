@@ -190,17 +190,34 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
 
     // Transform events to our format
     const transformedEvents: CalendarEvent[] = events.map(event => {
+      const isAllDay = !event.start?.dateTime;
       const start = event.start?.dateTime || event.start?.date;
       const end = event.end?.dateTime || event.end?.date;
+      
+      // Fix timezone issue for all-day events
+      // Google Calendar returns all-day events as date strings (e.g., "2025-10-15")
+      // When parsed by new Date(), they're treated as UTC midnight, which shows as previous day in Chicago
+      // Solution: Append Chicago timezone offset to force correct local date
+      let startDate: Date;
+      let endDate: Date;
+      
+      if (isAllDay && start) {
+        // For all-day events, append time to ensure correct date in Chicago timezone
+        startDate = new Date(start + 'T00:00:00-05:00'); // Chicago is UTC-5 (CDT) or UTC-6 (CST)
+        endDate = new Date((end || start) + 'T00:00:00-05:00');
+      } else {
+        startDate = new Date(start || '');
+        endDate = new Date(end || '');
+      }
       
       return {
         id: event.id || '',
         title: event.summary || 'No Title',
-        start: new Date(start || ''),
-        end: new Date(end || ''),
+        start: startDate,
+        end: endDate,
         description: event.description || undefined,
         location: event.location || undefined,
-        allDay: !event.start?.dateTime, // If no time, it's all day
+        allDay: isAllDay,
         recurring: !!event.recurrence?.length
       };
     });

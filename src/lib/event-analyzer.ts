@@ -99,7 +99,9 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
 
   // Analyze each group to determine if it's recurring
   eventGroups.forEach((groupEvents, key) => {
-    if (groupEvents.length >= 3) { // At least 3 occurrences to consider it recurring (prevents 2-event false positives)
+    // For a monthly analysis, require at least 4 occurrences to be considered "weekly recurring"
+    // This ensures events happening 2-3 times don't get filtered from the main calendar
+    if (groupEvents.length >= 4) {
       const firstEvent = groupEvents[0];
       const eventDate = new Date(firstEvent.start);
       
@@ -145,7 +147,7 @@ export function analyzeEvents(events: CalendarEvent[]): EventAnalysis {
         uniqueEvents.push(...groupEvents);
       }
     } else {
-      // Not enough occurrences, add to unique events
+      // Not enough occurrences (less than 4 in the month), add to unique events
       uniqueEvents.push(...groupEvents);
     }
   });
