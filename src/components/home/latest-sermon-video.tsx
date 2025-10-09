@@ -65,29 +65,27 @@ export function LatestSermonVideo() {
 
   return (
     <div ref={containerRef} className="max-w-4xl mx-auto mt-8">
-      <div className="relative w-full overflow-hidden rounded-lg">
+      <div className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '16 / 9' }}>
         <iframe
           ref={iframeRef}
           src={`${video.embedUrl}?autoplay=1&mute=1&rel=0`}
           title={video.title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
-          className="w-full rounded-lg"
+          className="w-full h-full rounded-lg"
           style={{ 
             border: 'none', 
             display: 'block', 
-            verticalAlign: 'bottom', 
-            aspectRatio: '16 / 9',
-            height: '450px'
+            verticalAlign: 'bottom'
           }}
         />
           
           {/* Auto-fading Overlay */}
           <div 
             className={`absolute top-0 left-0 w-full flex items-center pointer-events-none transition-opacity duration-1000 px-8 rounded-t-lg ${showOverlay ? 'opacity-100' : 'opacity-0'}`}
-            style={{ height: '100px', backgroundColor: 'rgb(49 46 129)' }}
+            style={{ height: '70px', backgroundColor: 'rgb(49 46 129)' }}
           >
-            <h3 className="text-3xl md:text-4xl font-bold font-serif italic text-white">
+            <h3 className="text-2xl md:text-3xl font-bold font-serif italic text-white">
               A Recent Message from FCC
             </h3>
           </div>
