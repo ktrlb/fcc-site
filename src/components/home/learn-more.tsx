@@ -1,8 +1,11 @@
+'use client';
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, BookOpen, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { ImageCarousel } from "@/components/image-carousel";
 
 export function LearnMore() {
   const coreValues = [
@@ -46,21 +49,27 @@ export function LearnMore() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Mission */}
-          <Card className="p-8 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+          <Card className="border-0 shadow-none overflow-hidden p-0 gap-0" style={{ backgroundColor: 'rgb(220 38 38)' }}>
             <CardContent className="p-0">
-              <h3 className="text-3xl font-bold text-white mb-3">Our Mission is...</h3>
-              
-              <div className="space-y-4 text-center flex flex-col justify-center h-full py-8">
-                <p className="text-white text-3xl font-bold">
-                  to share with <em className="text-4xl font-black animate-pulse">ALL people</em>
-                </p>
-                <p className="text-white text-3xl font-bold">
-                  the unconditional love of God
-                </p>
-                <p className="text-white text-3xl font-bold">
-                  that we experience in <i>Jesus Christ</i> our Lord.
-                </p>
+              <div className="p-8 pb-0">
+                <h3 className="text-3xl font-bold text-white mb-6">Our Mission is...</h3>
+                
+                <div className="space-y-3 text-center mb-6">
+                  <p className="text-white text-xl leading-relaxed">
+                    to share with <strong className="font-bold">ALL people</strong>
+                  </p>
+                  <p className="text-white text-xl leading-relaxed">
+                    the unconditional love of God
+                  </p>
+                  <p className="text-white text-xl leading-relaxed">
+                    that we experience in <em>Jesus Christ</em> our Lord.
+                  </p>
+                </div>
               </div>
+              
+              {/* Mission Images Carousel */}
+              <ImageCarousel category="mission" height="aspect-[16/9]" />
+
             </CardContent>
           </Card>
 

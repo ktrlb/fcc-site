@@ -7,9 +7,9 @@ export function AboutHero() {
       <div 
         className="absolute inset-0"
         style={{
-          backgroundImage: "url('/images/fistpump.jpg')",
+          backgroundImage: "url('/images/assorted-images/fcc-food-pantry-image-asset.jpeg')",
           backgroundSize: "cover",
-          backgroundPosition: "center calc(50% + 100px)",
+          backgroundPosition: "center",
           backgroundRepeat: "no-repeat"
         }}
       />

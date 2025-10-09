@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Asset } from "@/lib/schema";
 import { AssetUploadModal } from "./asset-upload-modal";
+import { AssetEditModal } from "./asset-edit-modal";
 
 interface AssetDashboardProps {
   onLogout: () => void;
@@ -36,6 +37,10 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+  const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAssets();
@@ -84,6 +89,36 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
 
   const handleUploadSuccess = () => {
     fetchAssets(); // Refresh the assets list
+  };
+
+  const handleEdit = (asset: Asset) => {
+    setEditingAsset(asset);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdate = async (updatedData: { name: string; description: string; categories: string[] }) => {
+    if (!editingAsset) return;
+
+    try {
+      const response = await fetch(`/api/admin/assets/${editingAsset.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (response.ok) {
+        fetchAssets(); // Refresh the list
+        setIsEditModalOpen(false);
+        setEditingAsset(null);
+      } else {
+        alert("Failed to update asset");
+      }
+    } catch (error) {
+      console.error("Error updating asset:", error);
+      alert("Error updating asset");
+    }
   };
 
 
@@ -173,10 +208,23 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
 
   const filteredAssets = assets.filter(asset => {
     const matchesFilter = filter === "all" || asset.type === filter;
+    const categoriesText = asset.categories?.join(' ') || asset.category || '';
     const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         asset.description?.toLowerCase().includes(searchTerm.toLowerCase());
+                         asset.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         categoriesText.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredAssets.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedAssets = filteredAssets.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search term or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filter]);
 
   const formatFileSize = (size: string | null) => {
     if (!size) return "Unknown";
@@ -249,7 +297,7 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Upload Button */}
+        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Image Gallery</h2>
@@ -262,6 +310,22 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
             <Plus className="h-4 w-4 mr-2" />
             Upload Image
           </Button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <Input
+            type="text"
+            placeholder="Search images by name, description, or category..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-md"
+          />
+          {searchTerm && (
+            <p className="text-sm text-gray-600 mt-2">
+              Found {filteredAssets.length} {filteredAssets.length === 1 ? 'result' : 'results'}
+            </p>
+          )}
         </div>
 
         {filteredAssets.length === 0 ? (
@@ -278,9 +342,34 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
             </CardContent>
           </Card>
         ) : (
+          <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAssets.map((asset) => (
-              <Card key={asset.id} className="hover:shadow-lg transition-shadow">
+            {paginatedAssets.map((asset) => (
+              <Card key={asset.id} className="hover:shadow-lg transition-shadow overflow-hidden">
+                {/* Image Preview Thumbnail */}
+                {asset.type === 'image' && asset.fileUrl && (
+                  <div className="w-full h-48 bg-gray-100 relative">
+                    <img 
+                      src={asset.fileUrl} 
+                      alt={asset.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {((asset.categories && asset.categories.length > 0) || asset.category) && (
+                      <div className="absolute top-2 right-2 flex flex-wrap gap-1">
+                        {asset.categories?.map((category, index) => (
+                          <Badge key={index} className="bg-white/90 text-gray-800 text-xs">
+                            {category}
+                          </Badge>
+                        )) || (
+                          <Badge className="bg-white/90 text-gray-800 text-xs">
+                            {asset.category}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-2">
@@ -293,10 +382,18 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
                       </div>
                     </div>
                     <div className="flex space-x-1">
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => window.open(asset.fileUrl, '_blank')}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => handleEdit(asset)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button 
@@ -342,11 +439,21 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
                   </div>
                   <div className="mt-4 space-y-2">
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => window.open(asset.fileUrl, '_blank')}
+                      >
                         <Download className="h-4 w-4 mr-1" />
                         Download
                       </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => handleEdit(asset)}
+                      >
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
@@ -364,15 +471,71 @@ export function AssetDashboard({ onLogout }: AssetDashboardProps) {
               </Card>
             ))}
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                    className={currentPage === page ? "bg-blue-600 text-white" : ""}
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+
+          {/* Results Info */}
+          <div className="mt-4 text-center text-sm text-gray-600">
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredAssets.length)} of {filteredAssets.length} images
+          </div>
+          </>
         )}
       </div>
 
-      {/* Upload Modals */}
+      {/* Upload Modal */}
       <AssetUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         onUploadSuccess={handleUploadSuccess}
       />
+
+      {/* Edit Modal */}
+      {editingAsset && (
+        <AssetEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingAsset(null);
+          }}
+          asset={editingAsset}
+          onUpdate={handleUpdate}
+        />
+      )}
     </div>
   );
 }

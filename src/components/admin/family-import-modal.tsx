@@ -100,7 +100,7 @@ export function FamilyImportModal({ onImportComplete }: FamilyImportModalProps) 
           <Upload className="mr-2 h-4 w-4" /> Import Families
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import Families from CSV</DialogTitle>
           <DialogDescription>

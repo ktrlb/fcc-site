@@ -116,7 +116,7 @@ export async function YouthEvents() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Regular Youth Events */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-indigo-900 font-serif text-center mb-8">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic text-center mb-8">
             Regular Youth Events
           </h2>
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -155,7 +155,7 @@ export async function YouthEvents() {
         {/* Youth Special Events */}
         <div>
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif mb-4">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">
               Youth Special Events
             </h2>
             <p className="text-lg text-indigo-700 max-w-3xl mx-auto">

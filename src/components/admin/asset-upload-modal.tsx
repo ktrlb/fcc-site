@@ -21,7 +21,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
     name: "",
     description: "",
     type: "",
-    category: "",
+    categories: [] as string[],
     isFeatured: false,
     title: "", // For structured content
   });
@@ -47,6 +47,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
     { value: "fellowship", label: "Fellowship" },
     { value: "service", label: "Service & Missions" },
     { value: "worship", label: "Worship" },
+    { value: "mission", label: "Mission" },
     { value: "general", label: "General" },
   ];
 
@@ -237,8 +238,8 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
         uploadData.append("name", formData.name);
         uploadData.append("description", formData.description);
         uploadData.append("type", formData.type);
-        if (formData.category) {
-          uploadData.append("category", formData.category);
+        if (formData.categories.length > 0) {
+          uploadData.append("categories", JSON.stringify(formData.categories));
         }
         uploadData.append("isFeatured", formData.isFeatured.toString());
 
@@ -263,7 +264,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
   };
 
   const handleClose = () => {
-    setFormData({ name: "", description: "", type: "", category: "", isFeatured: false, title: "" });
+    setFormData({ name: "", description: "", type: "", categories: [], isFeatured: false, title: "" });
     setFile(null);
     setCoverImage(null);
     setError("");
@@ -422,25 +423,41 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
             </Select>
           </div>
 
-          {/* Category - Show only for image type */}
+          {/* Categories - Show only for image type */}
           {formData.type === "image" && (
             <div>
-              <Label htmlFor="category">Image Category *</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select image category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {imageCategories.map((category) => (
-                    <SelectItem key={category.value} value={category.value}>
+              <Label>Image Categories</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {imageCategories.map((category) => (
+                  <div key={category.value} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={`category-${category.value}`}
+                      checked={formData.categories.includes(category.value)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            categories: [...prev.categories, category.value] 
+                          }));
+                        } else {
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            categories: prev.categories.filter(c => c !== category.value) 
+                          }));
+                        }
+                      }}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <Label 
+                      htmlFor={`category-${category.value}`} 
+                      className="text-sm font-medium text-gray-700 cursor-pointer"
+                    >
                       {category.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

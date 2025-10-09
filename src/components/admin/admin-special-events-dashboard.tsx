@@ -197,7 +197,7 @@ export function AdminSpecialEventsDashboard() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingEvent ? 'Edit Special Event' : 'Create Special Event'}

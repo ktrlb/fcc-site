@@ -8,24 +8,16 @@ export default async function MinistryDatabasePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative text-white overflow-hidden" style={{ height: '450px' }}>
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "url('/images/mission-database-background-header.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center calc(50% + 160px)",
-            backgroundRepeat: "no-repeat"
-          }}
-        />
-        <div className="absolute inset-0 z-10" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}></div>
-        <div className="relative z-20 flex items-center justify-center h-full">
+      <section className="relative text-white overflow-hidden !bg-stone-700" style={{ height: '300px', backgroundColor: 'rgb(68 64 60)' }}>
+        <div className="relative flex items-center justify-center h-full">
           <div className="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ transform: 'translateY(50px)' }}>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-serif text-white drop-shadow-2xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-serif text-white">
               Ministry Database
             </h1>
-            <p className="text-xl text-white max-w-3xl mx-auto drop-shadow-lg">
-              Discover ways to get involved in our church community. Find ministry opportunities that match your interests, skills, and availability.
+            <p className="text-xl text-white max-w-3xl mx-auto">
+              Discover ways to get involved in our church community and beyond.
+              <br />
+              Find ministry opportunities that match your interests, skills, and availability.
             </p>
           </div>
         </div>

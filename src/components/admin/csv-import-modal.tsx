@@ -110,7 +110,7 @@ Jane,Smith,Jane,jane.smith@email.com,555-2345,456 Oak Ave,Anytown,TX,12345,1985-
           Import CSV
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <FileText className="h-5 w-5 mr-2" />

@@ -360,7 +360,7 @@ export function Calendar({ events = [] }: CalendarProps) {
       <Card className="p-6 bg-white">
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-indigo-900 font-serif">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">
             {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
           </h2>
           <div className="flex items-center gap-2">
@@ -505,7 +505,7 @@ export function Calendar({ events = [] }: CalendarProps) {
           setSelectedEvent(null);
         }
       }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-stone-700 font-serif">
               <CalendarIcon className="h-5 w-5" />

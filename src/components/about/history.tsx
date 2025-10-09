@@ -66,7 +66,7 @@ export function History() {
     <section id="history" className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white font-serif">Our History</h2>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Our History</h2>
           <p className="mt-4 text-lg text-white">Over 150 years of faith, fellowship, and service in Granbury</p>
         </div>
 

@@ -39,7 +39,7 @@ export default function YouthPage() {
       <section className="py-16" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white font-serif">Our Youth Programs</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Our Youth Programs</h2>
             <p className="mt-4 text-xl text-white/80 max-w-4xl mx-auto">
               Our youth ministry creates spaces where young people can explore their faith, 
               build meaningful relationships, and discover their calling to serve others. 
@@ -100,7 +100,7 @@ export default function YouthPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <Heart className="h-16 w-16 text-white mx-auto mb-4" />
-            <h2 className="text-3xl font-bold text-white font-serif">Service Opportunities</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Service Opportunities</h2>
             <p className="mt-4 text-lg text-white/80 max-w-3xl mx-auto">
               Hands-on service experiences that help youth grow in faith and compassion while learning 
               practical ways to make a difference in their communities.
@@ -155,7 +155,7 @@ export default function YouthPage() {
       <section className="py-16 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif">Camps & Retreats</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">Camps & Retreats</h2>
             <p className="mt-4 text-lg text-indigo-700">Special experiences for spiritual growth and community building</p>
           </div>
 
@@ -232,7 +232,7 @@ export default function YouthPage() {
       <section className="py-16" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white font-serif">Getting Involved</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Getting Involved</h2>
             <p className="mt-4 text-lg text-white/80">Ways to participate in our youth community</p>
           </div>
           
@@ -283,7 +283,7 @@ export default function YouthPage() {
       <section className="py-16 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif mb-4">Join Our Youth Community</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">Join Our Youth Community</h2>
             <p className="text-xl text-indigo-700 mb-6">
               We&apos;re excited to welcome new youth and families into our community of faith, service, and growth.
             </p>

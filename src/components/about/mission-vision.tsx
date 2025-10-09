@@ -1,38 +1,46 @@
+'use client';
+
 import { Handshake, BookOpen, Heart, Crown } from 'lucide-react';
+import { ImageCarousel } from '@/components/image-carousel';
 
 export function MissionVision() {
   return (
     <section id="beliefs" className="py-16 bg-stone-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-indigo-900 font-serif">Our Mission & Vision</h2>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">Our Mission, Vision & Values</h2>
           <p className="mt-4 text-lg text-indigo-900">The foundation of who we are and where we&apos;re going</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
           {/* Mission Statement */}
-          <div className="rounded-lg shadow-sm p-8 border-0" style={{ backgroundColor: 'rgb(220 38 38)' }}>
-            <h3 className="text-2xl font-bold text-white font-serif mb-0">Our Mission is...</h3>
-            <div className="text-center space-y-4 flex flex-col justify-center h-full -mt-4">
-              <p className="text-white text-2xl font-bold">
-                to share with <em className="text-3xl font-black animate-pulse">ALL people</em>
-              </p>
-              <p className="text-white text-2xl font-bold">
-                the unconditional love of God
-              </p>
-              <p className="text-white text-2xl font-bold">
-                that we experience in <i>Jesus Christ</i> our Lord.
-              </p>
+          <div className="rounded-lg shadow-sm border-0 overflow-hidden p-0 flex flex-col" style={{ backgroundColor: 'rgb(220 38 38)' }}>
+            <div className="p-8 pb-0">
+              <h3 className="text-2xl font-bold text-white font-serif mb-6">Our Mission is...</h3>
+              <div className="space-y-3 text-center mb-6">
+                <p className="text-white text-xl leading-relaxed">
+                  to share with <strong className="font-bold">ALL people</strong>
+                </p>
+                <p className="text-white text-xl leading-relaxed">
+                  the unconditional love of God
+                </p>
+                <p className="text-white text-xl leading-relaxed">
+                  that we experience in <em>Jesus Christ</em> our Lord.
+                </p>
+              </div>
             </div>
+            {/* Mission Images Carousel */}
+            <ImageCarousel category="mission" height="aspect-[16/9]" />
+
           </div>
 
           {/* Vision Statement */}
           <div className="rounded-lg shadow-sm p-8 border-0" style={{ backgroundColor: 'rgb(49 46 129)' }}>
-            <h3 className="text-2xl font-bold text-white font-serif mb-4">Our Vision</h3>
-            <p className="text-white leading-relaxed mb-4 text-xl">
-              Our vision is to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
+            <h3 className="text-2xl font-bold text-white font-serif mb-6">Our Vision is...</h3>
+            <p className="text-white leading-relaxed mb-4 text-xl text-center">
+              to be a church that helps people <strong>COME ALIVE IN CHRIST</strong> by inviting them to reimagine church with us:
             </p>
-            <ul className="text-white leading-relaxed space-y-3 text-xl">
+            <ul className="text-white leading-relaxed space-y-3 text-lg list-none">
               <li><strong>Not pride and judgment,</strong> but a sanctuary for restoring the soul – humble people sharing radical hospitality, and loving each other beyond our differences.</li>
               <li><strong>Not easy answers,</strong> but growing together through shared engagement with the scriptures and the hard questions of life and faith.</li>
               <li><strong>Not a self-serving institution,</strong> but a community in the community that truly sees our neighbor and that responds with the relational love of Christ.</li>

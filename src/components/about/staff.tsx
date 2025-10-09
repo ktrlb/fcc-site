@@ -3,10 +3,13 @@
 import { useState, useEffect } from 'react';
 import { Staff as StaffType } from '@/lib/schema';
 import { User } from 'lucide-react';
+import { StaffContactModal } from './staff-contact-modal';
 
 export function Staff() {
   const [staff, setStaff] = useState<StaffType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedBios, setExpandedBios] = useState<Set<string>>(new Set());
+  const [contactingStaff, setContactingStaff] = useState<StaffType | null>(null);
 
   function getObjectPositionFromFocalPoint(raw?: unknown): string {
     if (!raw) return 'center';
@@ -55,6 +58,32 @@ export function Staff() {
     }
   }
 
+  const toggleBio = (staffId: string) => {
+    setExpandedBios(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(staffId)) {
+        newSet.delete(staffId);
+      } else {
+        newSet.add(staffId);
+      }
+      return newSet;
+    });
+  };
+
+  const truncateBio = (bio: string, maxLength: number = 200) => {
+    if (bio.length <= maxLength) return bio;
+    
+    // Find the last space before maxLength to avoid cutting words
+    const truncated = bio.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    
+    // If we found a space, truncate there; otherwise use maxLength
+    if (lastSpace > 0) {
+      return bio.substring(0, lastSpace) + '...';
+    }
+    return truncated + '...';
+  };
+
   useEffect(() => {
     const fetchStaff = async () => {
       try {
@@ -79,7 +108,7 @@ export function Staff() {
       <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white font-serif">Our Staff</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Our Staff</h2>
             <p className="mt-4 text-lg text-white">Meet the people who help make our church community thrive</p>
           </div>
           <div className="flex items-center justify-center">
@@ -94,7 +123,7 @@ export function Staff() {
     <section id="staff" className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white font-serif">Our Staff</h2>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Our Staff</h2>
           <p className="mt-4 text-lg text-white">Meet the people who help make our church community thrive</p>
         </div>
 
@@ -155,17 +184,29 @@ export function Staff() {
                         </p>
                       </div>
                     </div>
-                    <p className="text-white leading-relaxed mb-3">{person.bio}</p>
+                    <div className="mb-3">
+                      <p className="text-white leading-relaxed">
+                        {expandedBios.has(person.id) ? person.bio : truncateBio(person.bio)}
+                        {person.bio && person.bio.length > 200 && !expandedBios.has(person.id) && (
+                          <button
+                            onClick={() => toggleBio(person.id)}
+                            className="text-white/80 hover:text-white font-medium underline ml-1 inline"
+                          >
+                            Read more
+                          </button>
+                        )}
+                      </p>
+                    </div>
                     {person.email && (
-                      <a 
-                        href={`mailto:${person.email}`}
+                      <button
+                        onClick={() => setContactingStaff(person)}
                         className="inline-flex items-center text-white hover:text-white/80 font-medium transition-colors text-base"
                       >
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         {person.email}
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -174,6 +215,17 @@ export function Staff() {
           })}
         </div>
       </div>
+
+      {/* Staff Contact Modal */}
+      {contactingStaff && (
+        <StaffContactModal
+          isOpen={true}
+          onClose={() => setContactingStaff(null)}
+          staffName={contactingStaff.name}
+          staffEmail={contactingStaff.email || ''}
+          staffTitle={contactingStaff.title}
+        />
+      )}
     </section>
   );
 }

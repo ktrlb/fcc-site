@@ -36,6 +36,7 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
     <header className="absolute top-0 left-0 right-0 z-50 shadow-sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)', backdropFilter: 'blur(8px)' }}>
@@ -63,7 +64,7 @@ export function Header() {
         {/* Right side - All navigation content */}
         <div className="flex flex-col items-end gap-1">
           {/* Top row - Social links, watch now, give */}
-          <div className="hidden lg:flex lg:items-center lg:gap-x-4">
+          <div className="hidden lg:flex lg:items-center lg:gap-x-6">
             {topNavigation.map((item) => {
           if (item.isIcon) {
             return (
@@ -98,7 +99,7 @@ export function Header() {
                 href={item.href}
                 target={item.external ? "_blank" : undefined}
                 rel={item.external ? "noopener noreferrer" : undefined}
-                className="text-gray-900 px-3 py-1 rounded-md text-sm font-semibold transition-all duration-200 flex items-center gap-1 hover:scale-105"
+                className="text-gray-900 px-3 py-0.5 rounded-md text-sm font-semibold transition-all duration-200 flex items-center gap-1 hover:scale-105"
                 style={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.3)',
                   backdropFilter: 'blur(8px)',
@@ -122,24 +123,34 @@ export function Header() {
           </div>
           
           {/* Bottom row - Main navigation */}
-          <div className="hidden lg:flex lg:gap-x-8">
+          <div className="hidden lg:flex lg:gap-x-12">
             {navigation.map((item) => {
               if (item.dropdown) {
                 return (
-                  <DropdownMenu key={item.name}>
+                  <DropdownMenu key={item.name} open={dropdownOpen} onOpenChange={setDropdownOpen}>
                     <DropdownMenuTrigger className="text-base font-semibold leading-6 text-gray-900 hover:text-blue-600 transition-colors flex items-center gap-1">
                       {item.name}
                       <ChevronDown className="h-4 w-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {item.dropdown.map((dropdownItem) => (
-                        <DropdownMenuItem key={dropdownItem.name}>
+                        <DropdownMenuItem 
+                          key={dropdownItem.name}
+                          onSelect={(e) => {
+                            // For regular links, prevent default and navigate manually
+                            if (!dropdownItem.external && !dropdownItem.href.includes('#')) {
+                              e.preventDefault();
+                              setDropdownOpen(false);
+                              window.location.href = dropdownItem.href;
+                            }
+                          }}
+                        >
                           {dropdownItem.external ? (
                             <a 
                               href={dropdownItem.href} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="cursor-pointer"
+                              className="cursor-pointer w-full"
                             >
                               {dropdownItem.name}
                             </a>
@@ -150,6 +161,8 @@ export function Header() {
                                 // Handle anchor links - navigate first, then scroll
                                 const hash = dropdownItem.href.split('#')[1];
                                 console.log('Hash:', hash);
+                                
+                                setDropdownOpen(false);
                                 
                                 // Navigate to the page first
                                 window.location.href = dropdownItem.href;
@@ -178,9 +191,9 @@ export function Header() {
                               {dropdownItem.name}
                             </button>
                           ) : (
-                            <Link href={dropdownItem.href} className="cursor-pointer">
+                            <span className="cursor-pointer w-full">
                               {dropdownItem.name}
-                            </Link>
+                            </span>
                           )}
                         </DropdownMenuItem>
                       ))}

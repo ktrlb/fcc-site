@@ -16,13 +16,15 @@ interface ImageCarouselProps {
   title?: string;
   autoPlay?: boolean;
   interval?: number;
+  height?: string;
 }
 
 export function ImageCarousel({ 
   category, 
   title, 
   autoPlay = true, 
-  interval = 4000 
+  interval = 6000,
+  height = "h-96"
 }: ImageCarouselProps) {
   const [images, setImages] = useState<Image[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -34,12 +36,17 @@ export function ImageCarousel({
   useEffect(() => {
     async function fetchImages() {
       try {
+        console.log(`[ImageCarousel] Fetching images for category: ${category}`);
         const response = await fetch(`/api/images/${category}`);
-        if (!response.ok) throw new Error('Failed to fetch images');
+        if (!response.ok) {
+          console.error(`[ImageCarousel] Failed to fetch images: ${response.status} ${response.statusText}`);
+          throw new Error('Failed to fetch images');
+        }
         const data = await response.json();
+        console.log(`[ImageCarousel] Received ${data.length} images for category "${category}":`, data);
         setImages(data);
       } catch (err) {
-        console.error('Error loading images:', err);
+        console.error('[ImageCarousel] Error loading images:', err);
         setError(true);
       } finally {
         setIsLoading(false);
@@ -95,7 +102,7 @@ export function ImageCarousel({
 
   if (isLoading) {
     return (
-      <div className="w-full h-96 bg-gray-200 animate-pulse rounded-lg flex items-center justify-center">
+      <div className={`w-full ${height} bg-gray-200 animate-pulse rounded-lg flex items-center justify-center`}>
         <p className="text-gray-500">Loading images...</p>
       </div>
     );
@@ -111,7 +118,7 @@ export function ImageCarousel({
         <h3 className="text-2xl font-bold mb-4 text-center">{title}</h3>
       )}
       
-      <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100">
+      <div className={`relative w-full ${height} overflow-hidden bg-gray-100`}>
         {/* Current Image */}
         <img
           src={images[currentIndex].fileUrl}
@@ -167,13 +174,6 @@ export function ImageCarousel({
           </div>
         )}
       </div>
-
-      {/* Image Counter */}
-      {images.length > 1 && (
-        <p className="text-center text-sm text-gray-600 mt-2">
-          {currentIndex + 1} / {images.length}
-        </p>
-      )}
     </div>
   );
 }

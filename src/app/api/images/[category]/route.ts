@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { assets } from '@/lib/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or, sql } from 'drizzle-orm';
 
 export async function GET(
   request: NextRequest,
@@ -10,18 +10,23 @@ export async function GET(
   try {
     const { category } = await params;
 
-    // Fetch images for the specified category
-    const images = await db
+    // Fetch all active images first
+    const allImages = await db
       .select()
       .from(assets)
       .where(
         and(
           eq(assets.type, 'image'),
-          eq(assets.category, category),
           eq(assets.isActive, true)
         )
       )
       .orderBy(assets.createdAt);
+
+    // Filter in JavaScript to check both legacy category field and new categories array
+    const images = allImages.filter(img => 
+      img.category === category || 
+      (img.categories && Array.isArray(img.categories) && img.categories.includes(category))
+    );
 
     return NextResponse.json(images);
   } catch (error) {

@@ -64,7 +64,7 @@ export class CalendarCacheService {
         .orderBy(desc(calendarCache.startTime));
 
       if (cachedEvents.length > 0) {
-        console.log(`Using cached calendar events: ${cachedEvents.length} events`);
+        // console.log(`Using cached calendar events: ${cachedEvents.length} events`);
         return cachedEvents.map(event => ({
           id: event.id,
           googleEventId: event.googleEventId,

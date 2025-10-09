@@ -34,7 +34,7 @@ export default function ChildrenPage() {
       <section className="py-16" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white font-serif">Our Philosophy on Faith Development</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Our Philosophy on Faith Development</h2>
             <p className="mt-4 text-lg text-white/80 max-w-4xl mx-auto">
               We believe that children are capable of deep spiritual understanding and meaningful faith experiences. 
               Our approach combines age-appropriate learning with authentic worship, recognizing that children 
@@ -99,7 +99,7 @@ export default function ChildrenPage() {
       <section className="py-16 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif">Sunday Worship Experience</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">Sunday Worship Experience</h2>
             <p className="mt-4 text-lg text-indigo-700">How children participate in our worship services</p>
           </div>
           
@@ -147,7 +147,7 @@ export default function ChildrenPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <Gamepad2 className="h-16 w-16 text-white mx-auto mb-4" />
-            <h2 className="text-3xl font-bold text-white font-serif">Pathfinders Kids Club</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Pathfinders Kids Club</h2>
             <p className="mt-4 text-lg text-white/80 max-w-3xl mx-auto">
               Our Sunday School program focuses on play, creativity, and relationship-building 
               as the foundation for spiritual growth.
@@ -210,7 +210,7 @@ export default function ChildrenPage() {
       <section className="py-16 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif">Special Events & Activities</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">Special Events & Activities</h2>
             <p className="mt-4 text-lg text-indigo-700">Fun and meaningful experiences throughout the year</p>
           </div>
           
@@ -249,7 +249,7 @@ export default function ChildrenPage() {
       <section className="py-16" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-white font-serif mb-4">Ready to Join Us?</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Ready to Join Us?</h2>
             <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto">
               Register your child for our Children&apos;s Ministry programs to ensure we have all the information needed to provide the best care and experience.
             </p>
@@ -275,7 +275,7 @@ export default function ChildrenPage() {
       <section className="py-16 bg-stone-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-indigo-900 font-serif mb-4">Interested in Volunteering?</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-900 mb-4 font-serif italic">Interested in Volunteering?</h2>
             <p className="text-xl text-indigo-700 mb-8 max-w-3xl mx-auto">
               We&apos;re always looking for caring adults who want to make a difference in the lives of our children and youth. Join our team of dedicated volunteers!
             </p>
@@ -300,7 +300,7 @@ export default function ChildrenPage() {
       <section className="py-16" style={{ backgroundColor: 'rgb(68 64 60)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-white font-serif mb-4">Get Involved</h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif italic">Get Involved</h2>
             <p className="text-xl text-white/80 mb-6">
               We welcome children and families to join our community of faith and discovery.
             </p>
