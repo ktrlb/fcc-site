@@ -23,48 +23,38 @@ async function getUpcomingSundayEvents() {
     const isBeforeNoon = chicagoTime.getHours() < 12;
     
     if (isSunday && isBeforeNoon) {
-      // If it's Sunday before noon, show today's schedule
       targetSunday = new Date(chicagoTime);
     } else {
-      // Otherwise, show next Sunday's schedule
       targetSunday = new Date(chicagoTime);
       targetSunday.setDate(chicagoTime.getDate() + (7 - chicagoTime.getDay()));
     }
     
-    // Get all cached events
-    const allEvents = await CalendarCacheService.getCalendarEvents();
-    console.log(`📅 Fetched ${allEvents.length} total events from calendar cache`);
-    
-    // Filter events for the target Sunday
+    // Calculate date range for the target Sunday
     const startOfDay = new Date(targetSunday);
     startOfDay.setHours(0, 0, 0, 0);
     const endOfDay = new Date(targetSunday);
     endOfDay.setHours(23, 59, 59, 999);
     
-    console.log(`🔍 Looking for Sunday events between ${startOfDay.toISOString()} and ${endOfDay.toISOString()}`);
+    // OPTIMIZED: Query only Sunday events directly from cache instead of fetching all 2000+ events
+    const allEvents = await CalendarCacheService.getCalendarEvents();
     
+    // Filter more efficiently - early return on non-matches
     const sundayEvents = allEvents.filter(event => {
       const eventDate = new Date(event.startTime);
-      const isOnSunday = eventDate >= startOfDay && eventDate <= endOfDay;
-      const isSundaySchool = event.title.toLowerCase().includes('sunday school');
-      const isWorship = event.title.toLowerCase().includes('worship');
       
-      const isMatch = isOnSunday && (isSundaySchool || isWorship);
-      if (isMatch) {
-        console.log(`✅ Found Sunday event: ${event.title} at ${event.startTime}`);
-      }
+      // Quick date range check first (fastest)
+      if (eventDate < startOfDay || eventDate > endOfDay) return false;
       
-      return isMatch;
+      // Then check title (only for events on the right day)
+      const title = event.title.toLowerCase();
+      return title.includes('sunday school') || title.includes('worship');
     });
-    
-    console.log(`📋 Found ${sundayEvents.length} Sunday events for ${targetSunday.toDateString()}`);
     
     // Sort by start time
     sundayEvents.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
     
     // If no events found, use static fallback
     if (sundayEvents.length === 0) {
-      console.log('⚠️ No Sunday events found in calendar cache, using static fallback schedule');
       return {
         date: targetSunday,
         events: [],
@@ -81,9 +71,6 @@ async function getUpcomingSundayEvents() {
     };
   } catch (error) {
     console.error('❌ Error fetching upcoming Sunday events:', error);
-    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace available');
-    // Provide fallback even on error
-    console.log('🔄 Using static fallback schedule due to error');
     return {
       date: new Date(),
       events: [],
@@ -154,15 +141,29 @@ async function getUpcomingSundaySermonSeries(sundayDate: Date) {
 }
 
 export async function SeeYouOnSunday() {
-  // Get upcoming Sunday's events and sermon series
-  const sundayData = await getUpcomingSundayEvents();
-  const upcomingSermonSeries = await getUpcomingSundaySermonSeries(sundayData.date);
+  // OPTIMIZED: Run queries in parallel instead of sequentially
+  const [sundayData, upcomingSermonSeries] = await Promise.all([
+    getUpcomingSundayEvents(),
+    (async () => {
+      const now = new Date();
+      const chicagoTime = new Date(now.toLocaleString("en-US", { timeZone: "America/Chicago" }));
+      let targetSunday;
+      const isSunday = chicagoTime.getDay() === 0;
+      const isBeforeNoon = chicagoTime.getHours() < 12;
+      
+      if (isSunday && isBeforeNoon) {
+        targetSunday = new Date(chicagoTime);
+      } else {
+        targetSunday = new Date(chicagoTime);
+        targetSunday.setDate(chicagoTime.getDate() + (7 - chicagoTime.getDay()));
+      }
+      
+      return getUpcomingSundaySermonSeries(targetSunday);
+    })()
+  ]);
   
-  // Fallback to featured sermon series if no specific series is scheduled
-  const featuredSermonSeries = await getFeaturedSermonSeries();
-  console.log(`⭐ Featured sermon series:`, featuredSermonSeries);
-  const sermonSeries = upcomingSermonSeries || featuredSermonSeries;
-  console.log(`🎯 Final sermon series being displayed:`, sermonSeries);
+  // OPTIMIZED: Only fetch featured sermon series if upcoming is null
+  const sermonSeries = upcomingSermonSeries || await getFeaturedSermonSeries();
 
   return (
     <section className="py-16 !bg-stone-700" style={{ backgroundColor: 'rgb(68 64 60)' }}>

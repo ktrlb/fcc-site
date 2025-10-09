@@ -447,6 +447,7 @@ export const assets = pgTable('assets', {
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   type: varchar('type', { length: 50 }).notNull(), // 'image', 'document', 'video', etc.
+  category: varchar('category', { length: 100 }), // 'youth-camp', 'vbs', 'fellowship', 'service', etc.
   fileUrl: varchar('file_url', { length: 500 }).notNull(),
   fileName: varchar('file_name', { length: 255 }).notNull(),
   fileSize: varchar('file_size', { length: 20 }),

@@ -24,7 +24,7 @@ export function FindingYourPlace() {
       bgInline: "#dc2626",
       textColor: "text-red-600",
       buttonText: "Explore Prayer & Worship",
-      secondaryButtonText: "Submit a prayer request",
+      secondaryButtonText: "Need to Request Prayers?",
       secondaryButtonHref: "https://fccgranbury.breezechms.com/form/prayers",
       features: [
         "Prayer Groups",

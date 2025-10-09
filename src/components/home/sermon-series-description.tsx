@@ -17,16 +17,16 @@ export function SermonSeriesDescription({ description }: SermonSeriesDescription
     <div>
       <p className="text-white text-base md:text-lg leading-[1.25]">
         {displayText}
-        {shouldTruncate && !isExpanded && '...'}
+        {shouldTruncate && !isExpanded && '... '}
+        {shouldTruncate && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-white/80 hover:text-white text-sm underline transition-colors ml-1"
+          >
+            {isExpanded ? 'Show less' : 'more'}
+          </button>
+        )}
       </p>
-      {shouldTruncate && (
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-white/80 hover:text-white text-sm underline mt-2 transition-colors"
-        >
-          {isExpanded ? 'Show less' : 'more...'}
-        </button>
-      )}
     </div>
   );
 }

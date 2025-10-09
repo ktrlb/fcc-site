@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
     const type = formData.get('type') as string;
+    const category = formData.get('category') as string | null;
     const isFeatured = formData.get('isFeatured') === 'true';
 
     if (!file || !name || !type) {
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
       name,
       description: description || null,
       type,
+      category: category || null,
       fileUrl: uploadResult.url, // Vercel Blob public URL
       fileName: uploadResult.fileName,
       fileSize: file.size.toString(),

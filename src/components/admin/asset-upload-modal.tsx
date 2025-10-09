@@ -21,6 +21,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
     name: "",
     description: "",
     type: "",
+    category: "",
     isFeatured: false,
     title: "", // For structured content
   });
@@ -32,9 +33,19 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
   const coverImageInputRef = useRef<HTMLInputElement>(null);
 
   const assetTypes = [
+    { value: "image", label: "Image", icon: Image },
     { value: "sermon_series", label: "Sermon Series", icon: Image },
     { value: "seasonal_guide", label: "Seasonal Guide", icon: FileText },
     { value: "directory", label: "Church Directory", icon: FileText },
+  ];
+
+  const imageCategories = [
+    { value: "youth-camp", label: "Youth Camp" },
+    { value: "vbs", label: "VBS (Vacation Bible School)" },
+    { value: "fellowship", label: "Fellowship" },
+    { value: "service", label: "Service & Missions" },
+    { value: "worship", label: "Worship" },
+    { value: "general", label: "General" },
   ];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,6 +171,9 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
         uploadData.append("name", formData.name);
         uploadData.append("description", formData.description);
         uploadData.append("type", formData.type);
+        if (formData.category) {
+          uploadData.append("category", formData.category);
+        }
         uploadData.append("isFeatured", formData.isFeatured.toString());
 
         const response = await fetch("/api/admin/assets/upload", {
@@ -183,7 +197,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
   };
 
   const handleClose = () => {
-    setFormData({ name: "", description: "", type: "", isFeatured: false, title: "" });
+    setFormData({ name: "", description: "", type: "", category: "", isFeatured: false, title: "" });
     setFile(null);
     setCoverImage(null);
     setError("");
@@ -304,7 +318,7 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
             <Label htmlFor="type">Asset Type *</Label>
             <Select
               value={formData.type}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value, category: "" }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select asset type" />
@@ -324,6 +338,28 @@ export function AssetUploadModal({ isOpen, onClose, onUploadSuccess }: AssetUplo
               </SelectContent>
             </Select>
           </div>
+
+          {/* Category - Show only for image type */}
+          {formData.type === "image" && (
+            <div>
+              <Label htmlFor="category">Image Category *</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select image category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {imageCategories.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Title - Show for structured content types */}
           {(formData.type === "sermon_series" || formData.type === "seasonal_guide") && (

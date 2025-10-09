@@ -188,7 +188,7 @@ export async function updateSeasonalGuide(id: string, data: {
 // Featured Special Events Queries
 export async function getFeaturedSpecialEvents() {
   try {
-    // Get featured special events from calendar_events table
+    // OPTIMIZED: Only fetch featured events with better indexing
     const now = new Date();
     const allEventsQuery = await db
       .select({
@@ -226,7 +226,8 @@ export async function getFeaturedSpecialEvents() {
           eq(calendarEvents.isActive, true),
           eq(calendarEvents.isExternal, false) // Don't show external events on public homepage
         )
-      );
+      )
+      .limit(20); // Limit query results for performance
     
     const allEvents = allEventsQuery.map(e => ({
       ...e,

@@ -692,43 +692,43 @@ export function LayLeadershipDashboard() {
                               <td className="p-3 font-medium text-gray-900">{leader.displayName}</td>
                               <td className="p-3 text-gray-700">{leader.role}</td>
                               <td className="p-3 text-sm text-gray-600">
-                                {leader.publicEmail && (
-                                  <div className="flex items-center gap-1">
+                        {leader.publicEmail && (
+                          <div className="flex items-center gap-1">
                                     <Mail className="w-3 h-3" />
                                     <span className="truncate max-w-[200px]">{leader.publicEmail}</span>
-                                  </div>
-                                )}
-                                {leader.publicPhone && (
+                          </div>
+                        )}
+                        {leader.publicPhone && (
                                   <div className="flex items-center gap-1 mt-1">
                                     <Briefcase className="w-3 h-3" />
-                                    {leader.publicPhone}
-                                  </div>
-                                )}
+                            {leader.publicPhone}
+                          </div>
+                        )}
                               </td>
                               <td className="p-3">
                                 <div className="flex gap-2 justify-end">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setEditingLeader(leader)}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleDelete(leader.id)}
-                                    className="text-red-600 hover:text-red-700"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingLeader(leader)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(leader.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
-                    </div>
+              </div>
                   </div>
                 )}
               </div>
