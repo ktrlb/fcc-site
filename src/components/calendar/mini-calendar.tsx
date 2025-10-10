@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, MapPin, Users, Calendar, X, Settings, Star, Music, Mail, Phone, Baby, User2, BookOpen, Heart, Coffee, Globe } from 'lucide-react';
 import { RecurringEvent, analyzeEvents, getWeeklySchedule, analyzeWorshipServices } from '@/lib/event-analyzer';
+import { MinistryContactModal } from '@/components/ministry/ministry-contact-modal';
 
 interface CalendarEvent {
   id: string;
@@ -33,6 +34,18 @@ interface CalendarEvent {
     contactPerson?: string;
     contactEmail?: string;
     contactPhone?: string;
+    leaders?: Array<{
+      id: string;
+      memberId: string;
+      role: string | null;
+      isPrimary: boolean;
+      member: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        preferredName: string | null;
+      } | null;
+    }>;
   };
   specialEventInfo?: {
     id: string;
@@ -74,6 +87,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
   } | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [ministries, setMinistries] = useState<{
     id: string;
     name: string;
@@ -342,6 +356,7 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                 contactPerson: teamData.team.contactPerson,
                 contactEmail: teamData.team.contactEmail,
                 contactPhone: teamData.team.contactPhone,
+                leaders: teamData.team.leaders || []
               }
             } : prev);
           }
@@ -857,6 +872,52 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                             <span>{selectedEvent.ministryInfo.contactPhone}</span>
                           </div>
                         )}
+                        <Button 
+                          onClick={() => setContactModalOpen(true)}
+                          className="mt-4 w-full bg-white hover:bg-white/10 border border-white transition-colors whitespace-normal h-auto py-2"
+                          style={{ 
+                            color: (() => {
+                              const eventDate = new Date(selectedEvent.start);
+                              const dayOfWeek = eventDate.getDay();
+                              const colorSchemes = [
+                                'rgb(220 38 38)',      // Sunday - Red
+                                'rgb(17 94 89)',       // Monday - Teal
+                                'rgb(49 46 129)',      // Tuesday - Indigo
+                                'rgb(245 158 11)',     // Wednesday - Amber
+                                'rgb(77 124 15)',      // Thursday - Lime
+                                'rgb(113 78 145)',     // Friday - Purple
+                                'rgb(220 38 38)'       // Saturday - Red
+                              ];
+                              return colorSchemes[dayOfWeek];
+                            })()
+                          }}
+                        >
+                          <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
+                          {(() => {
+                            const leaders = selectedEvent.ministryInfo.leaders || [];
+                            if (leaders.length === 0) {
+                              return 'Questions? Contact Ministry';
+                            }
+                            
+                            const leaderNames = leaders
+                              .filter(l => l.member)
+                              .map(l => {
+                                const firstName = l.member!.preferredName || l.member!.firstName;
+                                const lastName = l.member!.lastName;
+                                return `${firstName} ${lastName}`;
+                              });
+                            
+                            if (leaderNames.length === 0) {
+                              return 'Questions? Contact Ministry';
+                            } else if (leaderNames.length === 1) {
+                              return `Questions? Contact ${leaderNames[0]}`;
+                            } else if (leaderNames.length === 2) {
+                              return `Questions? Contact ${leaderNames[0]} & ${leaderNames[1]}`;
+                            } else {
+                              return `Questions? Contact ${leaderNames.slice(0, -1).join(', ')} & ${leaderNames[leaderNames.length - 1]}`;
+                            }
+                          })()}
+                        </Button>
                       </div>
                     )}
                     
@@ -954,6 +1015,17 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Ministry Contact Modal */}
+      {selectedEvent?.ministryInfo && (
+        <MinistryContactModal
+          isOpen={contactModalOpen}
+          onClose={() => setContactModalOpen(false)}
+          ministryName={selectedEvent.ministryInfo.name}
+          ministryId={selectedEvent.ministryInfo.id}
+          leaders={selectedEvent.ministryInfo.leaders || []}
+        />
+      )}
     </Card>
   );
 }

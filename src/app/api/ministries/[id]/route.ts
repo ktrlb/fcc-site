@@ -22,6 +22,7 @@ export async function GET(
         contactPerson: (team as any).contactPerson ?? null,
         contactEmail: (team as any).contactEmail ?? null,
         contactPhone: (team as any).contactPhone ?? null,
+        leaders: (team as any).leaders ?? [],
       }
     });
   } catch (error) {

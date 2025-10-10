@@ -50,7 +50,7 @@ export function HeroSection() {
           <h1 
             className="font-bold font-serif text-white drop-shadow-2xl leading-tight"
             style={{ 
-              fontSize: 'clamp(1.25rem, 4.5vw, 3rem)',
+              fontSize: 'clamp(2.25rem, 4.5vw, 3rem)',
               lineHeight: '1.1'
             }}
           >

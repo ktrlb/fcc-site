@@ -3,7 +3,7 @@ import { CalendarCacheService } from '@/lib/calendar-cache';
 import { getMinistryTeams } from '@/lib/ministry-queries';
 import { analyzeEvents } from '@/lib/event-analyzer';
 import { db } from '@/lib/db';
-import { calendarEvents, ministryTeams, specialEventTypes } from '@/lib/schema';
+import { calendarEvents, ministryTeams, specialEventTypes, ministryLeaders, members } from '@/lib/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(request: Request) {
@@ -237,6 +237,53 @@ export async function GET(request: Request) {
       console.log('Error fetching connections from database:', error);
     }
     
+    // Fetch all ministry leaders for ministries that have events
+    const ministryLeadersMap = new Map<string, Array<{
+      id: string;
+      memberId: string;
+      role: string | null;
+      isPrimary: boolean;
+      member: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        preferredName: string | null;
+      } | null;
+    }>>();
+    
+    try {
+      const ministryIds = [...new Set(calendarEventConnections
+        .filter(conn => conn.ministryTeamId)
+        .map(conn => conn.ministryTeamId!)
+      )];
+      
+      if (ministryIds.length > 0) {
+        for (const ministryId of ministryIds) {
+          const leaders = await db
+            .select({
+              id: ministryLeaders.id,
+              memberId: ministryLeaders.memberId,
+              role: ministryLeaders.role,
+              isPrimary: ministryLeaders.isPrimary,
+              member: {
+                id: members.id,
+                firstName: members.firstName,
+                lastName: members.lastName,
+                preferredName: members.preferredName,
+              },
+            })
+            .from(ministryLeaders)
+            .leftJoin(members, eq(ministryLeaders.memberId, members.id))
+            .where(eq(ministryLeaders.ministryTeamId, ministryId))
+            .orderBy(ministryLeaders.sortOrder, ministryLeaders.isPrimary);
+          
+          ministryLeadersMap.set(ministryId, leaders);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching ministry leaders:', error);
+    }
+    
     // Enhance events with only explicit database connections
     const includeExternal = new URL(request.url).searchParams.get('includeExternal') === 'true';
 
@@ -300,9 +347,13 @@ export async function GET(request: Request) {
         });
         // Use only explicit database connections
         if (existingConnection.ministryTeam) {
+          // Get leaders from the pre-fetched map
+          const leaders = ministryLeadersMap.get(existingConnection.ministryTeam.id) || [];
+          
           matchedMinistry = {
             ...existingConnection.ministryTeam,
-            imageUrl: existingConnection.ministryTeam.imageUrl || existingConnection.ministryTeam.graphicImage
+            imageUrl: existingConnection.ministryTeam.imageUrl || existingConnection.ministryTeam.graphicImage,
+            leaders
           };
           ministryConnection = 'ministry';
         }

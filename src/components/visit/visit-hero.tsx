@@ -28,7 +28,7 @@ export function VisitHero() {
           <h1 
             className="font-bold font-serif text-white drop-shadow-2xl leading-tight"
             style={{ 
-              fontSize: 'clamp(1.25rem, 5vw, 3.25rem)',
+              fontSize: 'clamp(2.5rem, 5vw, 3.25rem)',
               lineHeight: '1.1'
             }}
           >
