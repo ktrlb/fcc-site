@@ -90,7 +90,16 @@ export async function POST(request: Request) {
           await db
             .update(calendarEvents)
             .set({
+              specialEventId: (data.specialEventId && data.specialEventId !== 'none') ? data.specialEventId : null,
+              ministryTeamId: (data.ministryTeamId && data.ministryTeamId !== 'none') ? data.ministryTeamId : null,
+              isSpecialEvent: !!data.isSpecialEvent,
               isExternal: !!data.isExternal,
+              specialEventNote: data.specialEventNote || null,
+              specialEventImage: data.specialEventImage || null,
+              contactPerson: data.contactPerson || null,
+              recurringDescription: data.recurringDescription || null,
+              endsBy: data.endsBy ? new Date(data.endsBy) : null,
+              featuredOnHomePage: !!data.featuredOnHomePage,
               updatedAt: new Date(),
             })
             .where(eq(calendarEvents.id, existing[0].id));
@@ -104,16 +113,16 @@ export async function POST(request: Request) {
             endTime: new Date(),   // placeholder
             allDay: false,
             recurring: true,
-            specialEventId: undefined,
-            ministryTeamId: undefined,
-            isSpecialEvent: false,
+            specialEventId: (data.specialEventId && data.specialEventId !== 'none') ? data.specialEventId : null,
+            ministryTeamId: (data.ministryTeamId && data.ministryTeamId !== 'none') ? data.ministryTeamId : null,
+            isSpecialEvent: !!data.isSpecialEvent,
             isExternal: !!data.isExternal,
-            specialEventNote: null,
-            specialEventImage: null,
-            contactPerson: null,
-            recurringDescription: null,
-            endsBy: null,
-            featuredOnHomePage: false,
+            specialEventNote: data.specialEventNote || null,
+            specialEventImage: data.specialEventImage || null,
+            contactPerson: data.contactPerson || null,
+            recurringDescription: data.recurringDescription || null,
+            endsBy: data.endsBy ? new Date(data.endsBy) : null,
+            featuredOnHomePage: !!data.featuredOnHomePage,
             isActive: true,
           };
           await db.insert(calendarEvents).values(insertEvent);
@@ -167,8 +176,8 @@ export async function POST(request: Request) {
     if (existingEvent.length > 0) {
       // Update existing event
       const updateData: Partial<NewCalendarEvent> = {
-        specialEventId: data.specialEventId,
-        ministryTeamId: data.ministryTeamId,
+        specialEventId: (data.specialEventId && data.specialEventId !== 'none') ? data.specialEventId : null,
+        ministryTeamId: (data.ministryTeamId && data.ministryTeamId !== 'none') ? data.ministryTeamId : null,
         isSpecialEvent: data.isSpecialEvent || false,
         isExternal: data.isExternal || false,
         specialEventNote: data.specialEventNote,
@@ -271,8 +280,8 @@ export async function POST(request: Request) {
         endTime: new Date(data.endTime),
         allDay: data.allDay || false,
         recurring: data.recurring || false,
-        specialEventId: data.specialEventId,
-        ministryTeamId: data.ministryTeamId,
+        specialEventId: (data.specialEventId && data.specialEventId !== 'none') ? data.specialEventId : null,
+        ministryTeamId: (data.ministryTeamId && data.ministryTeamId !== 'none') ? data.ministryTeamId : null,
         isSpecialEvent: data.isSpecialEvent || false,
         isExternal: data.isExternal || false,
         specialEventNote: data.specialEventNote,
