@@ -13,16 +13,7 @@ export interface CalendarEvent {
 
 export async function getGoogleCalendarEvents(calendarId: string, serviceAccountKey: string) {
   try {
-    console.log('Parsing service account key...');
-    console.log('Service account key length:', serviceAccountKey.length);
-    console.log('Service account key starts with:', serviceAccountKey.substring(0, 50));
-    
-    // Debug: Check character at position 167
-    if (serviceAccountKey.length > 167) {
-      const charAt167 = serviceAccountKey.charAt(167);
-      console.log('Character at position 167:', JSON.stringify(charAt167), 'Code:', charAt167.charCodeAt(0));
-      console.log('Context around position 167:', JSON.stringify(serviceAccountKey.substring(160, 175)));
-    }
+    // Parse the Google service account credentials
     
     // The issue is that the private key contains literal newlines that break JSON parsing
     // We need to escape them properly for JSON parsing
@@ -31,9 +22,9 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
     // First, try to parse as-is
     try {
       credentials = JSON.parse(serviceAccountKey);
-      console.log('Direct JSON parse successful!');
+      // Direct JSON parse successful
     } catch (directError) {
-      console.log('Direct JSON parse failed:', directError instanceof Error ? directError.message : 'Unknown error');
+      // Direct JSON parse failed, attempting to fix newline issues
       
       // The private key contains literal newlines that need to be escaped for JSON
       // We need to replace literal newlines with escaped newlines in the private key field
@@ -46,17 +37,15 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
         // Replace literal newlines with escaped newlines
         const escapedPrivateKey = privateKeyValue.replace(/\n/g, '\\n');
         cleanedKey = cleanedKey.replace(/"private_key":"[^"]+"/, `"private_key":"${escapedPrivateKey}"`);
-        console.log('Escaped newlines in private key');
+        // Escaped newlines in private key
       }
       
-      console.log('Cleaned service account key length:', cleanedKey.length);
+      // Cleaned service account key for parsing
       
       credentials = JSON.parse(cleanedKey);
     }
     
-    console.log('Service account email:', credentials.client_email);
-    console.log('Project ID:', credentials.project_id);
-    console.log('Private key exists:', !!credentials.private_key);
+    // Service account credentials validated
     
     // Create JWT auth client with proper configuration
     const auth = new google.auth.GoogleAuth({
@@ -65,24 +54,24 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
     });
 
     // Get the auth client
-    console.log('Getting auth client...');
+    // Getting authentication client
     const authClient = await auth.getClient();
-    console.log('Auth client obtained successfully');
+    // Auth client obtained successfully
 
-    console.log('Creating calendar API client...');
+    // Creating calendar API client
     // Create calendar API client
     const calendar = google.calendar({ version: 'v3', auth });
 
     // List available calendars first
-    console.log('Listing available calendars...');
+    // Listing available calendars
     try {
       const calendarList = await calendar.calendarList.list();
-      console.log('Available calendars:', calendarList.data.items?.map(cal => ({ id: cal.id, summary: cal.summary })));
+      // Available calendars retrieved
       
       // If we have calendars, try to use the first one if the specified one fails
       if (calendarList.data.items && calendarList.data.items.length > 0) {
         const firstCalendar = calendarList.data.items[0];
-        console.log('Using first available calendar:', firstCalendar.id, firstCalendar.summary);
+        // Using first available calendar
         // Update the calendarId to use the first available calendar
         calendarId = firstCalendar.id || calendarId;
       }
@@ -149,44 +138,13 @@ export async function getGoogleCalendarEvents(calendarId: string, serviceAccount
       
       // Safety check to prevent infinite loops
       if (pageCount > 10) {
-        console.log('Reached maximum page limit (10), stopping pagination');
+        // Reached maximum page limit (10), stopping pagination
         break;
       }
     } while (pageToken);
 
-    console.log(`Fetched ${allEvents.length} events across ${pageCount} pages`);
     const events = allEvents;
     
-    // Debug: Check the date range of events returned by Google Calendar
-    if (events.length > 0) {
-      const sortedEvents = events.sort((a, b) => {
-        const aStart = a.start?.dateTime || a.start?.date;
-        const bStart = b.start?.dateTime || b.start?.date;
-        return new Date(aStart || '').getTime() - new Date(bStart || '').getTime();
-      });
-      
-      const earliestEvent = sortedEvents[0];
-      const latestEvent = sortedEvents[sortedEvents.length - 1];
-      const earliestStart = earliestEvent.start?.dateTime || earliestEvent.start?.date;
-      const latestStart = latestEvent.start?.dateTime || latestEvent.start?.date;
-      
-      console.log(`Google Calendar events date range: ${earliestStart} to ${latestStart}`);
-      
-      // Check specifically for events after November 9th, 2025
-      const nov9_2025 = new Date('2025-11-09');
-      const eventsAfterNov9 = events.filter(event => {
-        const start = event.start?.dateTime || event.start?.date;
-        return start && new Date(start) > nov9_2025;
-      });
-      
-      console.log(`Events after Nov 9, 2025 from Google Calendar: ${eventsAfterNov9.length}`);
-      if (eventsAfterNov9.length > 0) {
-        console.log(`Latest events after Nov 9:`, eventsAfterNov9.slice(0, 3).map(e => ({
-          title: e.summary,
-          start: e.start?.dateTime || e.start?.date
-        })));
-      }
-    }
 
     // Transform events to our format
     const transformedEvents: CalendarEvent[] = events.map(event => {

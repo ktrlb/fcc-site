@@ -42,7 +42,7 @@ export class CalendarCacheService {
         durationMs: durationMs.toString(),
         source,
       });
-      console.log(`Logged cache refresh: ${refreshType} - ${eventsCount} events - ${success ? 'success' : 'failed'} - ${source}`);
+      // Logged cache refresh for monitoring
     } catch (error) {
       console.error('Failed to log cache refresh history:', error);
     }
@@ -64,7 +64,7 @@ export class CalendarCacheService {
         .orderBy(desc(calendarCache.startTime));
 
       if (cachedEvents.length > 0) {
-        // console.log(`Using cached calendar events: ${cachedEvents.length} events`);
+        // Using cached calendar events for better performance
         return cachedEvents.map(event => ({
           id: event.id,
           googleEventId: event.googleEventId,
@@ -81,7 +81,7 @@ export class CalendarCacheService {
       }
     }
 
-    console.log('Cache expired or force refresh requested, fetching from Google Calendar...');
+    // Cache expired or force refresh requested, fetching from Google Calendar
     return await this.refreshCache(refreshType);
   }
 
@@ -96,7 +96,7 @@ export class CalendarCacheService {
     let source: 'google_api' | 'fallback_cache' | 'sample_data' = 'fallback_cache';
 
     try {
-      console.log('Fetching fresh calendar data from Google...');
+      // Fetching fresh calendar data from Google
       const calendarId = process.env.GOOGLE_CALENDAR_ID;
       const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
       
@@ -108,11 +108,11 @@ export class CalendarCacheService {
       eventsCount = googleEvents.length;
       source = 'google_api';
       
-      console.log(`Received ${googleEvents.length} events from Google Calendar`);
+      // Received events from Google Calendar
 
       // Clear existing cache
       await db.delete(calendarCache);
-      console.log('Cleared existing cache');
+      // Cleared existing cache
 
       // Insert new events into cache
       const cachePromises = googleEvents.map(event => 
@@ -132,7 +132,7 @@ export class CalendarCacheService {
 
       try {
         await Promise.all(cachePromises);
-        console.log(`Cached ${googleEvents.length} events`);
+        // Successfully cached events
       } catch (insertError) {
         console.error('Error inserting events into cache:', insertError);
         console.error('First few events being inserted:', googleEvents.slice(0, 3).map(e => ({
@@ -145,7 +145,7 @@ export class CalendarCacheService {
       }
 
       // Also refresh the recurring events analysis cache
-      console.log('Refreshing recurring events analysis...');
+      // Refreshing recurring events analysis
       await RecurringEventsCacheService.refreshRecurringEventsCache();
 
       success = true;
@@ -167,7 +167,7 @@ export class CalendarCacheService {
         .orderBy(desc(calendarCache.startTime));
       
       eventsCount = fallbackEvents.length;
-      console.log(`Using fallback cache: ${fallbackEvents.length} events`);
+      // Using fallback cache for events
       
       const durationMs = Date.now() - startTime;
       
@@ -233,7 +233,7 @@ export class CalendarCacheService {
    */
   static async clearCache(): Promise<void> {
     await db.delete(calendarCache);
-    console.log('Calendar cache cleared');
+    // Calendar cache cleared
   }
 
   /**

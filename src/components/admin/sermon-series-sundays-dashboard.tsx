@@ -76,13 +76,13 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
       const day = String(sundayDate.getDate()).padStart(2, '0');
       const dateString = `${year}-${month}-${day}`;
       
-      // Debug: Check what day this date represents
+      // Verify the date represents a Sunday
       const testDate = new Date(dateString + 'T12:00:00'); // Add noon to avoid timezone issues
       const dayName = testDate.toLocaleDateString('en-US', { 
         weekday: 'long', 
         timeZone: 'America/Chicago' 
       });
-      console.log(`Generated date: ${dateString} -> ${dayName}`);
+      // Generated date for calendar display
       
       weeks.push({
         date: dateString,
@@ -100,26 +100,7 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
       if (response.ok) {
         const data = await response.json();
         const events = data.events || [];
-        console.log(`Fetched ${events.length} events from calendar cache`);
-        
-        // Debug: Check the date range of events
-        if (events.length > 0) {
-          const sortedEvents = events.sort((a: CalendarEvent, b: CalendarEvent) => 
-            new Date(a.start).getTime() - new Date(b.start).getTime()
-          );
-          const earliestEvent = sortedEvents[0];
-          const latestEvent = sortedEvents[sortedEvents.length - 1];
-          console.log(`Events date range: ${earliestEvent.start} to ${latestEvent.start}`);
-          console.log(`Total events: ${events.length}`);
-          
-          // Check if we have events beyond November 9th, 2025
-          const nov9_2025 = new Date('2025-11-09');
-          const eventsAfterNov9 = events.filter((event: CalendarEvent) => new Date(event.start) > nov9_2025);
-          console.log(`Events after Nov 9, 2025: ${eventsAfterNov9.length}`);
-          if (eventsAfterNov9.length > 0) {
-            console.log(`Latest events after Nov 9:`, eventsAfterNov9.slice(0, 3).map((e: CalendarEvent) => ({ title: e.title, start: e.start })));
-          }
-        }
+        // Successfully fetched events from calendar cache
         
         return events;
       }
@@ -136,7 +117,7 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
     const startOfDay = new Date(targetDate + 'T00:00:00-06:00'); // Chicago timezone
     const endOfDay = new Date(targetDate + 'T23:59:59-06:00'); // Chicago timezone
 
-    console.log(`Filtering events for ${targetDate}: ${startOfDay.toISOString()} to ${endOfDay.toISOString()}`);
+    // Filtering events for the target date
 
     const eventsForDate = allEvents.filter((event: CalendarEvent) => {
       if (!event.start) return false;
@@ -145,13 +126,13 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
       const isInRange = eventDate >= startOfDay && eventDate <= endOfDay;
       
       if (isInRange) {
-        console.log(`Found event for ${targetDate}: ${event.title} at ${event.start}`);
+        // Found matching event for the date
       }
       
       return isInRange;
     });
     
-    console.log(`Total events found for ${targetDate}: ${eventsForDate.length}`);
+    // Total events found for the target date
 
     // More specific worship event filtering
     const worshipKeywords = ['worship', 'service', 'sunday school', 'bible study', 'sermon', 'church service'];
@@ -219,7 +200,7 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
   // Handle sermon series selection
   const handleSermonSeriesChange = async (date: string, sermonSeriesId: string) => {
     try {
-      console.log('🔄 Changing sermon series for', date, 'to', sermonSeriesId);
+      // Changing sermon series for the selected date
       
       // Check if Sunday already exists
       const existingResponse = await fetch(`/api/admin/sundays?date=${date}`);
@@ -229,12 +210,12 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
         const data = await existingResponse.json();
         const existingSunday = data.sundays?.find((s: any) => s.date === date);
         sundayId = existingSunday?.id;
-        console.log('📅 Found existing Sunday:', sundayId);
+        // Found existing Sunday record
       }
 
       if (sundayId) {
         // Update existing Sunday
-        console.log('✏️ Updating existing Sunday...');
+        // Updating existing Sunday record
         const updateResponse = await fetch(`/api/admin/sundays/${sundayId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -245,13 +226,13 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
         });
         
         if (updateResponse.ok) {
-          console.log('✅ Successfully updated Sunday');
+          // Successfully updated Sunday record
         } else {
           console.error('❌ Failed to update Sunday:', await updateResponse.text());
         }
       } else {
         // Create new Sunday
-        console.log('➕ Creating new Sunday...');
+        // Creating new Sunday record
         const createResponse = await fetch('/api/admin/sundays', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -263,7 +244,7 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
         });
         
         if (createResponse.ok) {
-          console.log('✅ Successfully created Sunday');
+          // Successfully created Sunday record
         } else {
           console.error('❌ Failed to create Sunday:', await createResponse.text());
         }
@@ -278,7 +259,7 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
         }
       }));
 
-      console.log('🔄 Calling onSundayUpdate...');
+      // Calling onSundayUpdate callback
       onSundayUpdate();
     } catch (error) {
       console.error('❌ Failed to update sermon series:', error);
@@ -294,7 +275,7 @@ function WeeklyPlanningGrid({ sermonSeries, onSundayUpdate }: WeeklyPlanningGrid
       day: 'numeric',
       timeZone: 'America/Chicago'
     });
-    console.log(`formatDate input: ${dateString} -> output: ${formatted}`);
+    // Formatted date for display
     return formatted;
   };
 
@@ -716,8 +697,7 @@ export function SermonSeriesSundaysDashboard() {
           <Button 
             onClick={async (event) => {
               try {
-                console.log('Refreshing calendar cache...');
-                console.log('=== CALENDAR CACHE REFRESH STARTED ===');
+                // Refreshing calendar cache
                 
                 // Show loading state
                 const button = event.target as HTMLButtonElement;
