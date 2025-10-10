@@ -48,7 +48,7 @@ export function WaysToDonate() {
             const colorScheme = colorSchemes[index];
             
             return (
-              <Card key={index} className="p-6 hover:shadow-lg transition-shadow" style={{ backgroundColor: colorScheme.bg }}>
+              <Card key={index} className="p-6 hover:shadow-lg transition-shadow border-0 shadow-none" style={{ backgroundColor: colorScheme.bg }}>
                 <CardContent className="p-0">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">

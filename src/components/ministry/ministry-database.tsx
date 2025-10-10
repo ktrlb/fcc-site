@@ -532,7 +532,7 @@ export function MinistryDatabase({ initialMinistries }: Props) {
               <Button 
                 asChild 
                 size="lg" 
-                className="bg-indigo-900 text-white hover:bg-indigo-900/80 border-0 transition-all text-3xl font-bold"
+                className="bg-indigo-900 text-white hover:bg-indigo-900/80 border-0 transition-all text-3xl font-bold whitespace-normal h-auto"
               >
                 <a href="/contact?category=ministry" className="transition-colors">
                   Submit a Ministry Idea

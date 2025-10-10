@@ -258,7 +258,7 @@ export default function DirectoryPage() {
           <h3 className="text-lg font-semibold text-white mb-2">Need Help?</h3>
           <p className="text-white/90">
             If you have questions about accessing the directory or need assistance with your Breeze account, 
-            please contact the church office at <a href="mailto:office@fccgranbury.org" className="text-white hover:text-white/80 underline font-medium">office@fccgranbury.org</a> 
+            please contact the church office at <a href="mailto:office@fccgranbury.org" className="text-white hover:text-white/80 underline font-medium">office@fccgranbury.org</a>{" "}
             or call <a href="tel:+18175735431" className="text-white hover:text-white/80 underline font-medium">(817) 573-5431</a>.
           </p>
         </div>

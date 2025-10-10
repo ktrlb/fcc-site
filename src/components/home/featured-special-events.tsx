@@ -153,7 +153,7 @@ export async function FeaturedSpecialEvents() {
         </div>
 
         <div className="text-center mt-12">
-          <Button size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors" asChild>
+          <Button size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors text-lg" asChild>
             <a href="/calendar">View Full Calendar</a>
           </Button>
         </div>

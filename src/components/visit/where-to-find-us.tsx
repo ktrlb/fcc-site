@@ -17,22 +17,22 @@ export function WhereToFindUs() {
             <h3 className="text-2xl font-bold text-indigo-900 mb-6 font-serif">Our Location</h3>
             <Card className="p-4 border-0 shadow-none" style={{ backgroundColor: 'rgb(17 94 89)' }}>
               <CardContent className="p-0">
-                <div className="flex items-start space-x-4 mb-6">
+                <div className="flex flex-col sm:flex-row items-start sm:space-x-4 space-y-4 sm:space-y-0 mb-6">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
                     <MapPin className="h-6 w-6" style={{ color: '#115e59' }} />
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h4 className="text-lg font-semibold text-white mb-2">First Christian Church Granbury</h4>
                     <p className="text-white mb-4">
                       2109 W US Hwy 377<br />
                       Granbury, TX 76048
                     </p>
-                    <Button asChild variant="outline" className="bg-white text-teal-800 hover:bg-white/10 hover:text-white border border-white transition-colors">
+                    <Button asChild variant="outline" className="bg-white text-teal-800 hover:bg-white/10 hover:text-white border border-white transition-colors w-full sm:w-auto whitespace-normal h-auto">
                       <a 
                         href="https://maps.google.com/?q=2109+W+US+Hwy+377+Granbury+TX+76048"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center"
+                        className="inline-flex items-center justify-center"
                       >
                         <MapPin className="h-4 w-4 mr-2" />
                         Get Directions
@@ -68,20 +68,20 @@ export function WhereToFindUs() {
             <div className="space-y-6">
               <Card className="p-4 border-0 shadow-none" style={{ backgroundColor: 'rgb(220 38 38)' }}>
                 <CardContent className="p-0">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
                       <Facebook className="h-6 w-6" style={{ color: '#dc2626' }} />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <h4 className="text-lg font-semibold text-white">Facebook</h4>
                       <p className="text-white text-base">Stay updated with church news and events</p>
                     </div>
-                    <Button asChild variant="outline" size="sm" className="bg-white text-red-600 hover:bg-white/10 hover:text-white border border-white transition-colors">
+                    <Button asChild variant="outline" size="sm" className="bg-white text-red-600 hover:bg-white/10 hover:text-white border border-white transition-colors w-full sm:w-auto whitespace-normal h-auto">
                       <a 
                         href="https://www.facebook.com/FCCGranbury"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center"
+                        className="inline-flex items-center justify-center"
                       >
                         Visit
                         <ExternalLink className="h-4 w-4 ml-1" />
@@ -93,20 +93,20 @@ export function WhereToFindUs() {
 
               <Card className="p-4 border-0 shadow-none" style={{ backgroundColor: 'rgb(49 46 129)' }}>
                 <CardContent className="p-0">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
                       <Youtube className="h-6 w-6" style={{ color: '#312e81' }} />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <h4 className="text-lg font-semibold text-white">YouTube</h4>
                       <p className="text-white text-base">Watch sermons and special services</p>
                     </div>
-                    <Button asChild variant="outline" size="sm" className="bg-white text-indigo-900 hover:bg-white/10 hover:text-white border border-white transition-colors">
+                    <Button asChild variant="outline" size="sm" className="bg-white text-indigo-900 hover:bg-white/10 hover:text-white border border-white transition-colors w-full sm:w-auto whitespace-normal h-auto">
                       <a 
                         href="https://www.youtube.com/@fccgranburytx"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center"
+                        className="inline-flex items-center justify-center"
                       >
                         Visit
                         <ExternalLink className="h-4 w-4 ml-1" />
@@ -118,32 +118,34 @@ export function WhereToFindUs() {
 
               <Card className="p-4 border-0 shadow-none" style={{ backgroundColor: 'rgb(245 158 11)' }}>
                 <CardContent className="p-0">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                      <ExternalLink className="h-6 w-6" style={{ color: '#f59e0b' }} />
+                  <div className="flex flex-col space-y-4">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                        <ExternalLink className="h-6 w-6" style={{ color: '#f59e0b' }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-lg font-semibold text-white">Live Streaming</h4>
+                        <p className="text-white text-base">We stream our services live on Facebook and YouTube</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-white">Live Streaming</h4>
-                      <p className="text-white text-base">We stream our services live on Facebook and YouTube</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button asChild variant="outline" size="sm" className="bg-white text-amber-500 hover:bg-white/10 hover:text-white border border-white transition-colors">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+                      <Button asChild variant="outline" size="sm" className="bg-white text-amber-500 hover:bg-white/10 hover:text-white border border-white transition-colors flex-1 whitespace-normal h-auto">
                         <a 
                           href="https://www.facebook.com/FCCGranbury"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center"
+                          className="inline-flex items-center justify-center"
                         >
                           Facebook
                           <ExternalLink className="h-4 w-4 ml-1" />
                         </a>
                       </Button>
-                      <Button asChild variant="outline" size="sm" className="bg-white text-amber-500 hover:bg-white/10 hover:text-white border border-white transition-colors">
+                      <Button asChild variant="outline" size="sm" className="bg-white text-amber-500 hover:bg-white/10 hover:text-white border border-white transition-colors flex-1 whitespace-normal h-auto">
                         <a 
                           href="https://www.youtube.com/@fccgranburytx"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center"
+                          className="inline-flex items-center justify-center"
                         >
                           YouTube
                           <ExternalLink className="h-4 w-4 ml-1" />

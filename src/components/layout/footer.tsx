@@ -35,14 +35,14 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <div className="space-y-2 text-base">
-              <Link href="/about" className="block text-white hover:text-white transition-colors">
-                About Us
+              <Link href="/about-us" className="block text-white hover:text-white transition-colors">
+                About FCC
               </Link>
               <Link href="/visit" className="block text-white hover:text-white transition-colors">
-                Visit Us
+                Visit FCC
               </Link>
-              <Link href="/calendar" className="block text-gray-300 hover:text-white transition-colors">
-                Calendar
+              <Link href="/ministry-database" className="block text-white hover:text-white transition-colors">
+                Ministries
               </Link>
               <Link href="/give" className="block text-white hover:text-white transition-colors">
                 Give
@@ -54,7 +54,7 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Resources</h3>
             <div className="space-y-2 text-base">
-              <Link href="/calendar" className="block text-gray-300 hover:text-white transition-colors">
+              <Link href="/calendar" className="block text-white hover:text-white transition-colors">
                 Calendar
               </Link>
               <a 

@@ -150,7 +150,7 @@ export function LearnMore() {
         </div>
 
         <div className="text-center">
-          <Button asChild size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3 text-lg">
+          <Button asChild size="lg" className="bg-indigo-900 text-white hover:bg-indigo-700 hover:text-white border-0 transition-colors px-8 py-3 text-lg whitespace-normal h-auto">
             <Link href="/about">Learn More About Our Staff, History & Leadership</Link>
           </Button>
         </div>
