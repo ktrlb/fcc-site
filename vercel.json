@@ -1,0 +1,16 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.fccgranbury.org"
+        }
+      ],
+      "destination": "https://fccgranbury.org/$1",
+      "permanent": true
+    }
+  ]
+}
+
