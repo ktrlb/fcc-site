@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, MapPin, Users, Calendar, X, Music, Mail, Phone } from 'lucide-react';
 import { analyzeEvents, RecurringEvent } from '@/lib/event-analyzer';
+import { MinistryContactModal } from '@/components/ministry/ministry-contact-modal';
 
 interface CalendarEvent {
   id: string;
@@ -27,6 +28,18 @@ interface CalendarEvent {
     contactPerson?: string;
     contactEmail?: string;
     contactPhone?: string;
+    leaders?: Array<{
+      id: string;
+      memberId: string;
+      role: string | null;
+      isPrimary: boolean;
+      member: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        preferredName: string | null;
+      } | null;
+    }>;
   };
   specialEventInfo?: {
     id: string;
@@ -64,6 +77,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
   const [selectedEventColor, setSelectedEventColor] = useState<string>('rgb(220 38 38)');
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -253,6 +267,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         contactPerson: teamData.team.contactPerson,
                         contactEmail: teamData.team.contactEmail,
                         contactPhone: teamData.team.contactPhone,
+                        leaders: teamData.team.leaders || []
                       }
                     } : prev);
                   }
@@ -382,6 +397,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                         contactPerson: teamData.team.contactPerson,
                         contactEmail: teamData.team.contactEmail,
                         contactPhone: teamData.team.contactPhone,
+                        leaders: teamData.team.leaders || []
                       }
                     } : prev);
                   }
@@ -466,6 +482,7 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                   contactPerson: teamData.team.contactPerson,
                   contactEmail: teamData.team.contactEmail,
                   contactPhone: teamData.team.contactPhone,
+                  leaders: teamData.team.leaders || []
                 }
               } : prev);
             }
@@ -702,6 +719,37 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                           <span>{selectedEvent.ministryInfo.contactPhone}</span>
                         </div>
                       )}
+                      <Button 
+                        onClick={() => setContactModalOpen(true)}
+                        className="mt-4 w-full bg-white hover:bg-white/10 border border-white transition-colors whitespace-normal h-auto py-2"
+                        style={{ color: selectedEventColor }}
+                      >
+                        <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
+                        {(() => {
+                          const leaders = selectedEvent.ministryInfo.leaders || [];
+                          if (leaders.length === 0) {
+                            return 'Questions? Contact Ministry';
+                          }
+                          
+                          const leaderNames = leaders
+                            .filter(l => l.member)
+                            .map(l => {
+                              const firstName = l.member!.preferredName || l.member!.firstName;
+                              const lastName = l.member!.lastName;
+                              return `${firstName} ${lastName}`;
+                            });
+                          
+                          if (leaderNames.length === 0) {
+                            return 'Questions? Contact Ministry';
+                          } else if (leaderNames.length === 1) {
+                            return `Questions? Contact ${leaderNames[0]}`;
+                          } else if (leaderNames.length === 2) {
+                            return `Questions? Contact ${leaderNames[0]} & ${leaderNames[1]}`;
+                          } else {
+                            return `Questions? Contact ${leaderNames.slice(0, -1).join(', ')} & ${leaderNames[leaderNames.length - 1]}`;
+                          }
+                        })()}
+                      </Button>
                     </div>
                   )}
                   
@@ -758,7 +806,8 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
                 <Button 
                   variant="outline" 
                   onClick={() => setIsEventModalOpen(false)}
-                  className="flex items-center gap-2 border-white text-white hover:bg-white/10"
+                  className="flex items-center gap-2 bg-white border-white hover:bg-white/10 hover:text-white transition-colors"
+                  style={{ color: selectedEventColor }}
                 >
                   <X className="h-4 w-4" />
                   Close
@@ -768,6 +817,17 @@ export function GroupsModal({ isOpen, onClose }: GroupsModalProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Ministry Contact Modal */}
+      {selectedEvent?.ministryInfo && (
+        <MinistryContactModal
+          isOpen={contactModalOpen}
+          onClose={() => setContactModalOpen(false)}
+          ministryName={selectedEvent.ministryInfo.name}
+          ministryId={selectedEvent.ministryInfo.id}
+          leaders={selectedEvent.ministryInfo.leaders || []}
+        />
+      )}
     </>
   );
 }

@@ -59,7 +59,7 @@ export async function SpecialEvents() {
                     </div>
                     {seasonalGuide?.coverImageUrl && (
                       <div className="flex-shrink-0 w-full md:w-auto">
-                        <div className="relative w-56 md:w-60 lg:w-64 rounded-lg overflow-hidden shadow-md mx-auto md:mx-0" style={{ aspectRatio: '8.5 / 11' }}>
+                        <div className="relative w-40 md:w-60 lg:w-64 rounded-lg overflow-hidden shadow-md mx-auto md:mx-0" style={{ aspectRatio: '8.5 / 11' }}>
                           <Image
                             src={seasonalGuide.coverImageUrl}
                             alt={seasonalGuide.title}
