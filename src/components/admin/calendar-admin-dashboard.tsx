@@ -564,7 +564,7 @@ export function CalendarAdminDashboard({ onEventUpdated }: CalendarAdminDashboar
         events={allEvents} 
         isAdminMode={true}
         onEventUpdated={onEventUpdated}
-        currentMonth={new Date()}
+        currentMonth={currentDate}
       />
       
       <Card className="p-6">

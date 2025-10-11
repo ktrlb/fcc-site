@@ -81,7 +81,7 @@ export function Calendar({ events = [] }: CalendarProps) {
   // Check if screen is mobile-sized
   useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 500);
+      setIsMobile(window.innerWidth < 720);
     };
     
     checkIsMobile();
@@ -505,8 +505,16 @@ export function Calendar({ events = [] }: CalendarProps) {
                               title={event.title}
                               onClick={() => handleEventClick(event)}
                             >
-                              <div className="flex items-center justify-between gap-1">
-                                <span className="flex-1 font-bold" style={{ color: colorScheme.bg }}>{event.title}</span>
+                              <div className="space-y-1">
+                                <div className="font-bold text-base" style={{ color: colorScheme.bg }}>
+                                  {event.start.toLocaleTimeString('en-US', {
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    hour12: true,
+                                    timeZone: 'America/Chicago'
+                                  })}
+                                </div>
+                                <div className="text-sm leading-tight" style={{ color: colorScheme.bg, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{event.title}</div>
                               </div>
                             </div>
                           );

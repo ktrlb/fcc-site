@@ -562,14 +562,14 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
               return (
                 <div
                   key={day}
-                  className="p-3 rounded-lg transition-all min-h-[120px] md:min-h-[200px]"
+                  className="p-2 rounded-lg transition-all min-h-[120px] md:min-h-[200px]"
                   style={{ backgroundColor: colorScheme.bg }}
                 >
-                  <div className="text-base font-semibold text-white mb-3 text-center">
+                  <div className="text-sm md:text-base font-semibold text-white mb-2 md:mb-3 text-center">
                     {day}
                     {isSunday && (
-                      <div className="text-sm text-white font-normal mt-1">
-                        <Music className="inline h-4 w-4 mr-1" /> Worship Services
+                      <div className="text-xs md:text-sm text-white font-normal mt-1">
+                        <Music className="inline h-3 w-3 md:h-4 md:w-4 mr-1" /> Worship Services
                       </div>
                     )}
                   </div>
@@ -622,14 +622,14 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                                       }}
                                     >
                                       <div className="space-y-1">
-                                        <div className="text-sm font-mono" style={{ color: textColor }}>
+                                        <div className="font-bold text-base" style={{ color: textColor }}>
                                           {new Date(event.start).toLocaleDateString('en-US', {
                                             month: 'short',
                                             day: 'numeric',
                                             timeZone: 'America/Chicago'
                                           })}
                                         </div>
-                                        <div className="font-bold text-base break-words" style={{ color: textColor }}>
+                                        <div className="text-sm break-words overflow-wrap-anywhere leading-tight" style={{ color: textColor, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                           {event.title}
                                           {isAdminMode && isExternal && (
                                             <span className="ml-2 text-xs font-normal opacity-75">(External)</span>
@@ -666,8 +666,8 @@ export function MiniCalendar({ events, isAdminMode = false, onEventUpdated, curr
                               onClick={() => handleEventClick(event)}
                             >
                               <div className="space-y-1">
-                                <div className="text-sm font-mono" style={{ color: textColor }}>{formatTime(event.time)}</div>
-                                <div className="font-bold text-base break-words" style={{ color: textColor }}>
+                                <div className="font-bold text-base" style={{ color: textColor }}>{formatTime(event.time)}</div>
+                                <div className="text-sm break-words overflow-wrap-anywhere leading-tight" style={{ color: textColor, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                                   {event.title}
                                   {isAdminMode && isExternal && (
                                     <span className="ml-2 text-xs font-normal opacity-75">(External)</span>
